@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/gorilla/handlers"
@@ -44,6 +45,7 @@ func runServer(neoURL string, port string) {
 
 	// Then API specific ones:
 	//r.HandleFunc("/people/{uuid}", peopleWrite).Methods("PUT")
+	// TODO wonder if we should use a regex here since this won't match /people or /people/
 	r.HandleFunc("/people/{uuid}", getPerson).Methods("GET")
 
 	http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r))
@@ -73,18 +75,27 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	person := Person{
-		Name: "someName",
-		UUID: uuid,
+		PrefLabel: "someName",
+		ID:        uuid,
+		Memberships: []Membership{
+			{Title: "213",
+				Organisation: Organisation{
+					ID: "org-123",
+				},
+				Roles: []Role{
+					{ID: "role-123",
+						ChangeEvents: []ChangeEvent{
+							{StartedAt: time.Now()},
+						},
+					},
+				},
+			},
+		},
 	}
-	json.NewEncoder(w).Encode(person)
-}
 
-// Person structure for writing to responses
-type Person struct {
-	Identifiers []struct {
-		Authority       string `json:"authority"`
-		IdentifierValue string `json:"identifierValue"`
-	} `json:"identifiers"`
-	Name string `json:"name"`
-	UUID string `json:"uuid"`
+	// Organisation: Organisation{
+	// {PrefLabel: "Marks and Sparks"},
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(person)
+	w.WriteHeader(http.StatusOK)
 }

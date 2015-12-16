@@ -19,6 +19,9 @@ or update:
 
 Both arguments are optional, they default to a local Neo4j install and port 8080.
 
+## API definition
+Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
+
 ## Todo
 ### Try it!
 
