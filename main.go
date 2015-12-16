@@ -14,7 +14,7 @@ import (
 	"github.com/jmcvetta/neoism"
 )
 
-var db *neoism.Database
+var peopleDriver PeopleDriver
 
 func main() {
 	fmt.Println(os.Args)
@@ -30,11 +30,11 @@ func main() {
 }
 
 func runServer(neoURL string, port string) {
-	var err error
-	db, err = neoism.Connect(neoURL)
+	db, err := neoism.Connect(neoURL)
 	if err != nil {
 		panic(err)
 	}
+	peopleDriver = NewPeopleCypherDriver(db)
 
 	r := mux.NewRouter()
 
@@ -69,13 +69,26 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func getPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
+	var person Person
+
 	if uuid == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
+	} else if uuid == "pri-sm" {
+		person = fakePerson()
+	} else {
+		person = peopleDriver.Read(uuid)
 	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	json.NewEncoder(w).Encode(person)
+	w.WriteHeader(http.StatusOK)
+}
+
+func fakePerson() Person {
 	person := Person{
 		PrefLabel: "someName",
-		ID:        uuid,
+		ID:        "pri-sm",
 		Memberships: []Membership{
 			{Title: "213",
 				Organisation: Organisation{
@@ -88,13 +101,11 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 						},
 					},
 				},
+				ChangeEvents: []ChangeEvent{
+					{EndedAt: time.Now()},
+				},
 			},
 		},
 	}
-
-	// Organisation: Organisation{
-	// {PrefLabel: "Marks and Sparks"},
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	json.NewEncoder(w).Encode(person)
-	w.WriteHeader(http.StatusOK)
+	return person
 }
