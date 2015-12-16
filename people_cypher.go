@@ -16,14 +16,21 @@ type PeopleCypherDriver struct {
 	db *neoism.Database
 }
 
-// NewPeopleCypherDriver instanciate driver
+// Result struct
+// type Result struct {
+// 	Columns string `json:"columns"`
+// 	Data    string `json:"data"`
+// }
+
+//NewPeopleCypherDriver instanciate driver
 func NewPeopleCypherDriver(db *neoism.Database) PeopleCypherDriver {
 	return PeopleCypherDriver{db}
 }
 
 func (pcw PeopleCypherDriver) Read(uuid string) Person {
+
 	result := []struct {
-		N neoism.Node
+		Person Person `json:"p"`
 	}{}
 
 	query := &neoism.CypherQuery{
@@ -42,7 +49,7 @@ func (pcw PeopleCypherDriver) Read(uuid string) Person {
 	if err != nil {
 		panic(err)
 	}
-	log.Println(result)
+	log.Printf("%+v\n", result)
 	return Person{}
 
 }

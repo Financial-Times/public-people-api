@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -35,7 +36,6 @@ func runServer(neoURL string, port string) {
 		panic(err)
 	}
 	peopleDriver = NewPeopleCypherDriver(db)
-
 	r := mux.NewRouter()
 
 	// Healthchecks and standards first
@@ -47,8 +47,10 @@ func runServer(neoURL string, port string) {
 	// TODO wonder if we should use a regex here since this won't match /people or /people/
 	r.HandleFunc("/people/{uuid}", getPerson).Methods("GET")
 
-	http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r))
-
+	if err := http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r)); err != nil {
+		log.Printf("web stuff failed: %v\n", err)
+		panic(err)
+	}
 }
 
 func healthCheck() v1a.Check {
