@@ -81,13 +81,13 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 	} else {
 		person = peopleDriver.Read(uuid)
 	}
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	json.NewEncoder(w).Encode(person)
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(person)
 }
 
 func fakePerson() Person {
+	now := time.Now()
 	person := Person{
 		PrefLabel: "someName",
 		ID:        "pri-sm",
@@ -99,12 +99,12 @@ func fakePerson() Person {
 				Roles: []Role{
 					{ID: "role-123",
 						ChangeEvents: []ChangeEvent{
-							{StartedAt: time.Now()},
+							{StartedAt: &now},
 						},
 					},
 				},
 				ChangeEvents: []ChangeEvent{
-					{EndedAt: time.Now()},
+					{EndedAt: &now},
 				},
 			},
 		},
