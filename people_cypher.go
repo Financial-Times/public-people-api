@@ -30,12 +30,12 @@ func NewPeopleCypherDriver(db *neoism.Database) PeopleCypherDriver {
 func (pcw PeopleCypherDriver) Read(uuid string) Person {
 
 	result := []struct {
-		Person Person `json:"p"`
+		P neoism.Node
 	}{}
 
 	query := &neoism.CypherQuery{
 		Statement: `
-      MATCH (p:Person) WHERE p.uuid = {uuid}
+      MATCH (p:Person {uuid: {uuid}})
       RETURN p
     `,
 		Parameters: neoism.Props{"uuid": uuid},
