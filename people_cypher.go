@@ -8,7 +8,7 @@ import (
 
 // PeopleDriver interface
 type PeopleDriver interface {
-	Read(id string) Person
+	Read(id string) map[string]interface{}
 }
 
 // PeopleCypherDriver struct
@@ -21,12 +21,10 @@ func NewPeopleCypherDriver(db *neoism.Database) PeopleCypherDriver {
 	return PeopleCypherDriver{db}
 }
 
-func (pcw PeopleCypherDriver) Read(uuid string) Person {
+func (pcw PeopleCypherDriver) Read(uuid string) map[string]interface{} {
 
-	result := []struct {
-		P struct {
-			Person neoPerson `json:"Data"`
-		}
+	results := []struct {
+		P *neoism.Node
 	}{}
 
 	query := &neoism.CypherQuery{
@@ -35,19 +33,22 @@ func (pcw PeopleCypherDriver) Read(uuid string) Person {
       RETURN p
     `,
 		Parameters:   neoism.Props{"uuid": uuid},
-		Result:       &result,
+		Result:       &results,
 		IncludeStats: true,
 	}
 
 	err := pcw.db.Cypher(query)
-
-	log.Println(query.Statement)
-
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("Returned structure %+v\n", result[0])
-	//log.Printf("Labels %+v Data %+v Relationships %+v \n", result[0].N.Labels(), result[0].Data, result[0].HrefAllTypedRels)
-	p := result[0].P.Person
-	return toPerson(p)
+
+	// log.Println(query.Statement)
+	// log.Printf("Returned structure %+v\n", results[0])
+	// log.Printf("Labels %+v Data %+v Relationships %+v \n", result[0].N.Labels(), result[0].Data, result[0].HrefAllTypedRels)
+
+	result := make(map[string]interface{})
+	results[0].P.Db = pcw.db
+	Thing(results[0].P, &result)
+	log.Printf("Returning %+v\n", result)
+	return result
 }

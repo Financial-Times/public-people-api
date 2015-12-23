@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/Financial-Times/neoism"
@@ -73,8 +72,11 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func getPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
-	var person Person
+	//	var person Person
 
+	person := make(map[string]interface{})
+
+	//var person Person
 	if uuid == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -83,35 +85,25 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 	} else {
 		person = peopleDriver.Read(uuid)
 	}
-	membershipDriver.FindMembershipsByPersonUUID(uuid)
+
+	//log.Printf("\n\nPerson %+v", person)
+
+	memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
+	if err != nil {
+		panic(err)
+	}
+	person["memberships"] = memberships
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+	log.Printf("\n\nPerson with memberships %+v\n", person)
 	json.NewEncoder(w).Encode(person)
+	//json.NewEncoder(w).Encode(memberships)
 }
 
-func fakePerson() Person {
-	now := time.Now()
-	person := Person{
-		PrefLabel: "someName",
-		ID:        "pri-sm",
-		Memberships: []Membership{
-			{Title: "213",
-				Organisation: Organisation{
-					ID: "org-123",
-				},
-				Roles: []Role{
-					{ID: "role-123",
-						ChangeEvents: []ChangeEvent{
-							{StartedAt: &now},
-						},
-					},
-				},
-				ChangeEvents: []ChangeEvent{
-					{EndedAt: &now},
-				},
-			},
-		},
-	}
+func fakePerson() map[string]interface{} {
+	person := make(map[string]interface{})
+	person["prefLabel"] = "Preference Label"
+	person["id"] = "pri-sm"
 	return person
 }
