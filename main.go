@@ -9,13 +9,14 @@ import (
 	"time"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
+	"github.com/Financial-Times/neoism"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
-	"github.com/jmcvetta/neoism"
 )
 
 var peopleDriver PeopleDriver
+var membershipDriver MembershipDriver
 
 func main() {
 	fmt.Println(os.Args)
@@ -36,6 +37,7 @@ func runServer(neoURL string, port string) {
 		panic(err)
 	}
 	peopleDriver = NewPeopleCypherDriver(db)
+	membershipDriver = NewMembershipCypherDriver(db)
 	r := mux.NewRouter()
 
 	// Healthchecks and standards first
@@ -81,6 +83,8 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 	} else {
 		person = peopleDriver.Read(uuid)
 	}
+	membershipDriver.FindMembershipsByPersonUUID(uuid)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(person)

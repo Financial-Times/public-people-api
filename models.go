@@ -12,6 +12,18 @@ type neoPerson struct {
 	Name      string `json:"Name"`
 }
 
+type neoMembership struct {
+	UUID      string `json:"id"`
+	Title     string `json:"title"`
+	PrefLabel string `json:"prefLabel"`
+}
+
+type neoCompany struct {
+	ID        string `json:"id"`
+	APIURL    string `json:"apiUrl"`
+	PrefLabel string `json:"prefLabel"`
+}
+
 // Common structure TODO get Embedding working
 type Common struct {
 	ID        string `json:"id"`
@@ -43,6 +55,21 @@ func toPerson(neoPerson neoPerson) (person Person) {
 	person.Types = []string{"Person"}
 	log.Printf("Outgoing Person %v+", person)
 	return person
+}
+
+// TODO maybe return err too ?
+func toMembership(neoMembership neoMembership) (membership Membership) {
+	log.Printf("Incoming neoMembership %v+", neoMembership)
+	membership.Title = fmt.Sprintf("http://api.ft.com/people/%s", neoMembership.UUID)
+	// membership.ID = fmt.Sprintf("http://api.ft.com/things/%s", neoMembership.UUID)
+	// if neoMembership.PrefLabel != "" {
+	// 	membership.PrefLabel = neoMembership.PrefLabel
+	// } else {
+	// 	membership.PrefLabel = neoMembership.Name
+	// }
+	// membership.Types = []string{"Person"}
+	log.Printf("Outgoing Membership %v+", membership)
+	return membership
 }
 
 // Membership structure
