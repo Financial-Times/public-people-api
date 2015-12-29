@@ -29,9 +29,9 @@ func (pcw PeopleCypherDriver) Read(uuid string) map[string]interface{} {
 
 	query := &neoism.CypherQuery{
 		Statement: `
-      MATCH (p:Person {uuid: {uuid}})
-      RETURN p
-    `,
+                        MATCH (p:Person {uuid: {uuid}})
+                        RETURN p
+                        `,
 		Parameters:   neoism.Props{"uuid": uuid},
 		Result:       &results,
 		IncludeStats: true,

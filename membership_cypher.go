@@ -31,18 +31,17 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 
 	query := &neoism.CypherQuery{
 		Statement: `
-      MATCH (p:Thing{uuid: {uuid}})<-[mm:HAS_MEMBER]-(m:Membership)
-      MATCH (m)-[rr:HAS_ROLE]->(r:Role)
-      MATCH (m)-[oo:HAS_ORGANISATION]->(o:Organisation)
-      RETURN m, o, r, mm, rr, oo
-    `,
+                        MATCH (p:Thing{uuid: {uuid}})<-[mm:HAS_MEMBER]-(m:Membership)
+                        MATCH (m)-[rr:HAS_ROLE]->(r:Role)
+                        MATCH (m)-[oo:HAS_ORGANISATION]->(o:Organisation)
+                        RETURN m, {o, collect(r)}, mm, rr, oo
+                        `,
 		Parameters:   neoism.Props{"uuid": uuid},
 		Result:       &results,
 		IncludeStats: true,
 	}
 
 	err := mcd.db.Cypher(query)
-
 	if err != nil {
 		return nil, false, err
 	} else if len(results) == 0 {
@@ -50,31 +49,19 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 	}
 
 	memberships := make([]interface{}, len(results))
-
 	for idx, result := range results {
-		membership := make(map[string]interface{})
 		result.M.Db = mcd.db
-		// labels, err := result.M.Labels()
-		// membership["types"] = labels
-		// properties, err := result.M.Properties()
-		// for key, property := range properties {
-		// 	membership[key] = property
-		// }
-		// relationships, err := result.M.Relationships()
-		// membership["relationships"] = relationships
-		// for key, data := range result.O.Data {
-		// 	membership[key] = data
-		// }
-		// if err != nil {
-		// 	panic(err)
-		// }
+		result.O.Db = mcd.db
+		result.R.Db = mcd.db
+		membership := make(map[string]interface{})
 		Thing(result.M, &membership)
+		organisation := make(map[string]interface{})
+		Thing(result.O, &organisation)
+		role := make(map[string]interface{})
+		Thing(result.R, &role)
+		membership["organisation"] = organisation
+		membership["role"] = role
 		memberships[idx] = membership
 	}
-	// b, err := json.Marshal(memberships)
-	// if err != nil {
-	// 	fmt.Println("error:", err)
-	// }
-	// log.Printf("****\n membership bytes : %+v", b)
 	return memberships, true, nil
 }
