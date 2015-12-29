@@ -34,7 +34,7 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
                         MATCH (p:Thing{uuid: {uuid}})<-[mm:HAS_MEMBER]-(m:Membership)
                         MATCH (m)-[rr:HAS_ROLE]->(r:Role)
                         MATCH (m)-[oo:HAS_ORGANISATION]->(o:Organisation)
-                        RETURN m, {o, collect(r)}, mm, rr, oo
+                        RETURN m, o, r, mm, rr, oo
                         `,
 		Parameters:   neoism.Props{"uuid": uuid},
 		Result:       &results,
