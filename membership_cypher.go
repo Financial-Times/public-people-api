@@ -92,6 +92,11 @@ func (mcd MembershipCypherDriver) findRolesbyMembershipUUID(uuid string) ([]inte
 	roles := make([]interface{}, len(results))
 	for idx, result := range results {
 		result.R.Db = mcd.db
+		result.RR.Db = mcd.db
+		props, _ := result.RR.Properties()
+		for key, value := range props {
+			result.R.Data[key] = value
+		}
 		role := make(map[string]interface{})
 		Thing(result.R, &role)
 		roles[idx] = role

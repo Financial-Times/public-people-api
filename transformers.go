@@ -62,9 +62,3 @@ func thingURLType(types []string) string {
 	}
 	return "things"
 }
-
-// Person decorates the result structure with properties from a Person
-func Person(node *neoism.Node, result *map[string]interface{}) {
-	resMap := *result
-	resMap["plnkyname"] = node.Data["name"]
-}
