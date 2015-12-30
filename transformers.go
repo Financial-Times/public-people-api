@@ -26,6 +26,25 @@ func Thing(node *neoism.Node, result *(map[string]interface{})) {
 		resMap["apiUrl"] = fmt.Sprintf("http://api.ft.com/%s/%s", thingURLType(labels), resMap["uuid"])
 		delete(resMap, "uuid")
 	}
+	changeEvents(result)
+}
+
+func changeEvents(res *(map[string]interface{})) {
+	resMap := *res
+	start := resMap["inceptionDate"]
+	end := resMap["terminationDate"]
+	if start != nil || end != nil {
+		changeEvents := make(map[string]interface{})
+		if start != nil {
+			changeEvents["started"] = start
+			delete(resMap, "inceptionDate")
+		}
+		if end != nil {
+			changeEvents["ended"] = end
+			delete(resMap, "terminationDate")
+		}
+		resMap["changeEvents"] = changeEvents
+	}
 }
 
 func thingURLType(types []string) string {
