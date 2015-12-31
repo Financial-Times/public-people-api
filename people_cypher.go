@@ -42,10 +42,6 @@ func (pcw PeopleCypherDriver) Read(uuid string) map[string]interface{} {
 		panic(err)
 	}
 
-	// log.Println(query.Statement)
-	// log.Printf("Returned structure %+v\n", results[0])
-	// log.Printf("Labels %+v Data %+v Relationships %+v \n", result[0].N.Labels(), result[0].Data, result[0].HrefAllTypedRels)
-
 	result := make(map[string]interface{})
 	results[0].P.Db = pcw.db
 	Thing(results[0].P, &result)

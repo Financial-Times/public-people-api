@@ -49,7 +49,7 @@ func runServer(neoURL string, port string) {
 	r.HandleFunc("/people/{uuid}", getPerson).Methods("GET")
 
 	if err := http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r)); err != nil {
-		log.Printf("web stuff failed: %v\n", err)
+		log.Printf("Unable to start server: %v\n", err)
 		panic(err)
 	}
 }
@@ -72,24 +72,15 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func getPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
-	//	var person Person
 
-	person := make(map[string]interface{})
-
-	//var person Person
 	if uuid == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if uuid == "pri-sm" {
-		person = fakePerson()
-	} else {
-		person = peopleDriver.Read(uuid)
 	}
-
-	//log.Printf("\n\nPerson %+v", person)
-
+	person := peopleDriver.Read(uuid)
 	memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		panic(err)
 	}
 	person["memberships"] = memberships
@@ -98,12 +89,4 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	log.Printf("\n\nPerson with memberships %+v\n", person)
 	json.NewEncoder(w).Encode(person)
-	//json.NewEncoder(w).Encode(memberships)
-}
-
-func fakePerson() map[string]interface{} {
-	person := make(map[string]interface{})
-	person["prefLabel"] = "Preference Label"
-	person["id"] = "pri-sm"
-	return person
 }
