@@ -3,7 +3,7 @@ set -x
 export PATH=$PATH:/usr/local/bin:/usr/bin:/usr/sbin:/bin
 
 start_time=`date +%s`
-MODULEFULLPATH="$WORKSPACE/puppet/ft-people_rw_neo4j"
+MODULEFULLPATH="$WORKSPACE/puppet/module"
 
 /usr/local/bin/forge-admin.py --publish --source "$MODULEFULLPATH"
 ERROR_CODE=$?
