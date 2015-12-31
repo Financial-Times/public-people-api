@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/Financial-Times/neoism"
@@ -50,7 +49,7 @@ func runServer(neoURL string, port string) {
 	r.HandleFunc("/people/{uuid}", getPerson).Methods("GET")
 
 	if err := http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r)); err != nil {
-		log.Printf("web stuff failed: %v\n", err)
+		log.Printf("Unable to start server: %v\n", err)
 		panic(err)
 	}
 }
@@ -73,45 +72,21 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func getPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
-	var person Person
 
 	if uuid == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if uuid == "pri-sm" {
-		person = fakePerson()
-	} else {
-		person = peopleDriver.Read(uuid)
 	}
-	membershipDriver.FindMembershipsByPersonUUID(uuid)
+	person := peopleDriver.Read(uuid)
+	memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		panic(err)
+	}
+	person["memberships"] = memberships
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+	log.Printf("\n\nPerson with memberships %+v\n", person)
 	json.NewEncoder(w).Encode(person)
-}
-
-func fakePerson() Person {
-	now := time.Now()
-	person := Person{
-		PrefLabel: "someName",
-		ID:        "pri-sm",
-		Memberships: []Membership{
-			{Title: "213",
-				Organisation: Organisation{
-					ID: "org-123",
-				},
-				Roles: []Role{
-					{ID: "role-123",
-						ChangeEvents: []ChangeEvent{
-							{StartedAt: &now},
-						},
-					},
-				},
-				ChangeEvents: []ChangeEvent{
-					{EndedAt: &now},
-				},
-			},
-		},
-	}
-	return person
 }
