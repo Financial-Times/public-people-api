@@ -12,21 +12,48 @@ func Thing(node *neoism.Node, result *(map[string]interface{})) {
 	if err != nil {
 		panic(err)
 	}
-	resMap["types"] = labels
+	resMap["types"] = typeURIs(labels)
 	for key, value := range node.Data {
 		resMap[key] = value
 	}
-	if resMap["factsetIdentifier"] != nil {
-		delete(resMap, "factsetIdentifier")
-	} else if resMap["fsIdentifier"] != nil {
-		delete(resMap, "fsIdentifier")
-	}
 	if resMap["uuid"] != nil {
-		resMap["uri"] = fmt.Sprintf("http://api.ft.com/things/%s", resMap["uuid"])
+		resMap["id"] = fmt.Sprintf("http://api.ft.com/things/%s", resMap["uuid"])
 		resMap["apiUrl"] = fmt.Sprintf("http://api.ft.com/%s/%s", thingURLType(labels), resMap["uuid"])
-		delete(resMap, "uuid")
 	}
 	changeEvents(result)
+	cleanUp(result)
+}
+
+func cleanUp(resMap *(map[string]interface{})) {
+	delete(*resMap, "uuid")
+	delete(*resMap, "factsetIdentifier")
+	delete(*resMap, "fsIdentifier")
+}
+
+func typeURIs(labels []string) []string {
+	base := "http://www.ft.com/ontology/"
+	var results []string
+	for _, label := range labels {
+		switch label {
+		case "Person":
+			results = append(results, base+"person/Person")
+			break
+		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
+			results = append(results, base+"organisation/"+label)
+			break
+		case "Thing":
+			results = append(results, base+"core/Thing")
+			results = append(results, base+"core/Concept")
+			break
+		case "Role":
+			results = append(results, base+"organisation/"+label)
+			break
+		case "Membership":
+			results = append(results, base+"organisation/"+label)
+			break
+		}
+	}
+	return results
 }
 
 func changeEvents(res *(map[string]interface{})) {
