@@ -28,6 +28,8 @@ func cleanUp(resMap *(map[string]interface{})) {
 	delete(*resMap, "uuid")
 	delete(*resMap, "factsetIdentifier")
 	delete(*resMap, "fsIdentifier")
+	delete(*resMap, "inceptionDate")
+	delete(*resMap, "terminationDate")
 }
 
 func typeURIs(labels []string) []string {
@@ -64,11 +66,9 @@ func changeEvents(res *(map[string]interface{})) {
 		changeEvents := make(map[string]interface{})
 		if start != nil {
 			changeEvents["started"] = start
-			delete(resMap, "inceptionDate")
 		}
 		if end != nil {
 			changeEvents["ended"] = end
-			delete(resMap, "terminationDate")
 		}
 		resMap["changeEvents"] = changeEvents
 	}
