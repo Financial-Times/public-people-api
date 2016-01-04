@@ -5,7 +5,7 @@ import (
 	"github.com/Financial-Times/neoism"
 )
 
-// Thing Decorates a result with the base properties of a Thing
+// Thing builds a result based on the properties of the neoism.Node passed
 func Thing(node *neoism.Node, result *(map[string]interface{})) {
 	resMap := *result
 	labels, err := node.Labels()

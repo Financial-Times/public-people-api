@@ -1,23 +1,20 @@
 # Public API for People (public-people-api-neo4j)
 
-__Provides a somewhat experimental public API for People stored in a Neo4J graph database__
+__Provides a public API for People stored in a Neo4J graph database__
 
 
-## Installation
+## Build & deployment etc:
 
-For the first time:
+* Build and publish to forge http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-neo4j-build
+* Deploy to test *tbd*
+* Deploy to production *tbd*
 
-`go get github.com/Financial-Times/public-people-api-neo4j`
+## Installation & running locally
 
-or update:
+* `go get -u github.com/Financial-Times/public-people-api-neo4j`
 
-`go get -u github.com/Financial-Times/public-people-api-neo4j`
-
-## Running
-
-`$GOPATH/bin/public-people-api-neo4j --neo-url={neo4jUrl} --port={port}`
-
-Both arguments are optional, they default to a local Neo4j install and port 8080.
+* `$GOPATH/bin/public-people-api-neo4j --neo-url={neo4jUrl} --port={port}`
+_Both arguments are optional, they default to a local Neo4j install and port 8080._
 
 ## API definition
 Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
