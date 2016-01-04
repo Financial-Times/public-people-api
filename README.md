@@ -11,7 +11,7 @@ __Provides a public API for People stored in a Neo4J graph database__
 
 ## Installation & running locally
 
-* `go get -u github.com/Financial-Times/public-people-api-neo4j`
+* `go get -u github.com/Financial-Times/public-people-api`
 
 * `$GOPATH/bin/public-people-api-neo4j --neo-url={neo4jUrl} --port={port}`
 _Both arguments are optional, they default to a local Neo4j install and port 8080._
@@ -33,7 +33,7 @@ Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-
 
 `curl -H "X-Request-Id: 123" localhost:8080/people/3fa70485-3a57-3b9b-9449-774b001cd965`
 
-### Healthchecks
+### Healthchecks (NOT IMPLEMENTED)
 
 Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
 
