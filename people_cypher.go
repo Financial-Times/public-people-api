@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/Financial-Times/neoism"
+	"github.com/jmcvetta/neoism"
 )
 
 // PeopleDriver interface
@@ -32,9 +32,8 @@ func (pcw PeopleCypherDriver) Read(uuid string) map[string]interface{} {
                         MATCH (p:Person {uuid: {uuid}})
                         RETURN p
                         `,
-		Parameters:   neoism.Props{"uuid": uuid},
-		Result:       &results,
-		IncludeStats: true,
+		Parameters: neoism.Props{"uuid": uuid},
+		Result:     &results,
 	}
 
 	err := pcw.db.Cypher(query)

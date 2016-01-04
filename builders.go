@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/Financial-Times/neoism"
+	"github.com/jmcvetta/neoism"
 )
 
 // Thing builds a result based on the properties of the neoism.Node passed

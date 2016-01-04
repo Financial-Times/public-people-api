@@ -8,10 +8,10 @@ import (
 	"os"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
-	"github.com/Financial-Times/neoism"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
+	"github.com/jmcvetta/neoism"
 )
 
 var peopleDriver PeopleDriver

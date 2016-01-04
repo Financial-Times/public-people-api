@@ -1,6 +1,6 @@
 package main
 
-import "github.com/Financial-Times/neoism"
+import "github.com/jmcvetta/neoism"
 
 // MembershipDriver interface
 type MembershipDriver interface {
@@ -33,9 +33,8 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
                         MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
                         RETURN m, o
                         `,
-		Parameters:   neoism.Props{"uuid": uuid},
-		Result:       &results,
-		IncludeStats: true,
+		Parameters: neoism.Props{"uuid": uuid},
+		Result:     &results,
 	}
 
 	err := mcd.db.Cypher(query)
@@ -78,9 +77,8 @@ func (mcd MembershipCypherDriver) findRolesbyMembershipUUID(uuid string) ([]inte
                         MATCH (m)-[rr:HAS_ROLE]->(r:Role)
                         RETURN r, rr
                         `,
-		Parameters:   neoism.Props{"uuid": uuid},
-		Result:       &results,
-		IncludeStats: true,
+		Parameters: neoism.Props{"uuid": uuid},
+		Result:     &results,
 	}
 
 	err := mcd.db.Cypher(query)
