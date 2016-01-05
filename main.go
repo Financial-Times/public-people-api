@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"os"
 
@@ -18,7 +18,8 @@ var peopleDriver PeopleDriver
 var membershipDriver MembershipDriver
 
 func main() {
-	fmt.Println(os.Args)
+	log.SetLevel(log.DebugLevel)
+	log.Debugf("public-people-api %+v", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
 	neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
 	port := app.StringOpt("port", "8080", "Port to listen on")
@@ -81,12 +82,12 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 	memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		panic(err)
+		return
 	}
 	person["memberships"] = memberships
 
+	log.Debugln("Person with memberships %v", person)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	log.Printf("\n\nPerson with memberships %+v\n", person)
 	json.NewEncoder(w).Encode(person)
 }

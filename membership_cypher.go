@@ -1,6 +1,9 @@
 package main
 
-import "github.com/jmcvetta/neoism"
+import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/jmcvetta/neoism"
+)
 
 // MembershipDriver interface
 type MembershipDriver interface {
@@ -23,15 +26,20 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 	results := []struct {
 		M  *neoism.Node
 		O  *neoism.Node
-		mm *neoism.Relationship
-		oo *neoism.Relationship
+		MM *neoism.Relationship
+		OO *neoism.Relationship
+		R  []struct {
+			R  *neoism.Node
+			RR *neoism.Relationship
+		}
 	}{}
 
 	query := &neoism.CypherQuery{
 		Statement: `
                         MATCH (:Thing{uuid: {uuid}})<-[:HAS_MEMBER]-(m:Membership)
-                        MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
-                        RETURN m, o
+                        OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
+                        OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
+                        RETURN m, o, collect({ r:r, rr:rr}) as r
                         `,
 		Parameters: neoism.Props{"uuid": uuid},
 		Result:     &results,
@@ -39,11 +47,14 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 
 	err := mcd.db.Cypher(query)
 	if err != nil {
+		log.WithField("error", err).Error("Error executing cypher")
 		return nil, false, err
 	} else if len(results) == 0 {
+		log.WithField("uuid", uuid).Debug("No memberships found")
 		return nil, false, nil
 	}
 
+	log.WithFields(log.Fields{"uuid": uuid, "matches": len(results)}).Info("Memberships found")
 	memberships := make([]interface{}, len(results))
 	for idx, result := range results {
 		result.M.Db = mcd.db
@@ -53,51 +64,20 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 		organisation := make(map[string]interface{})
 		Thing(result.O, &organisation)
 		membership["organisation"] = organisation
-		mUUID, err := result.M.Property("uuid")
-		roles, found, err := mcd.findRolesbyMembershipUUID(mUUID)
-		if err != nil || !found {
-			membership["roles"] = nil
-		} else {
-			membership["roles"] = roles
+		roles := make([]interface{}, len(result.R))
+		for idx, roleResult := range result.R {
+			roleResult.R.Db = mcd.db
+			roleResult.RR.Db = mcd.db
+			props, _ := roleResult.RR.Properties()
+			for key, value := range props {
+				roleResult.R.Data[key] = value
+			}
+			role := make(map[string]interface{})
+			Thing(roleResult.R, &role)
+			roles[idx] = role
 		}
+		membership["roles"] = roles
 		memberships[idx] = membership
 	}
 	return memberships, true, nil
-}
-
-func (mcd MembershipCypherDriver) findRolesbyMembershipUUID(uuid string) ([]interface{}, bool, error) {
-	results := []struct {
-		R  *neoism.Node
-		RR *neoism.Relationship
-	}{}
-
-	query := &neoism.CypherQuery{
-		Statement: `
-                        MATCH (m:Membership{uuid: {uuid}})
-                        MATCH (m)-[rr:HAS_ROLE]->(r:Role)
-                        RETURN r, rr
-                        `,
-		Parameters: neoism.Props{"uuid": uuid},
-		Result:     &results,
-	}
-
-	err := mcd.db.Cypher(query)
-	if err != nil {
-		return nil, false, err
-	} else if len(results) == 0 {
-		return nil, false, nil
-	}
-	roles := make([]interface{}, len(results))
-	for idx, result := range results {
-		result.R.Db = mcd.db
-		result.RR.Db = mcd.db
-		props, _ := result.RR.Properties()
-		for key, value := range props {
-			result.R.Data[key] = value
-		}
-		role := make(map[string]interface{})
-		Thing(result.R, &role)
-		roles[idx] = role
-	}
-	return roles, true, nil
 }
