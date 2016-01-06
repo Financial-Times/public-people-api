@@ -1,4 +1,4 @@
-class people_rw_neo4j {
+class public_people_api {
 
   $binary_name = "public-people-api"
   $install_dir = "/usr/local/$binary_name"
