@@ -4,6 +4,8 @@ class people_rw_neo4j {
   $install_dir = "/usr/local/$binary_name"
   $binary_file = "$install_dir/$binary_name"
   $log_dir = "/var/log/apps"
+  $neoURL=hiera("neoURL", "http://localhost:7474/db/data")
+  $port=hiera("port", "8080")
 
   class { 'common_pp_up': }
 
@@ -25,6 +27,13 @@ class people_rw_neo4j {
     $log_dir:
       ensure  => directory,
       mode    => "0664"
+  }
+
+  service { 'public-people-api':
+    ensure => running,
+    enable => true,
+    binary => $binary_file,
+    flags => "--neoURL=$neoURL --port=$port"
   }
 
   # exec { 'restart_app':
