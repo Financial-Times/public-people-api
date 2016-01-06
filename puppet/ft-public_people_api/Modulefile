@@ -1,0 +1,12 @@
+name    'ft-public_people_api'
+version '0.0.1'
+source 'UNKNOWN'
+author 'ft'
+license 'Apache License, Version 2.0'
+summary 'Provides a public API for users to lookup a person'
+description 'UNKNOWN'
+project_page 'UNKNOWN'
+
+## Add dependencies, if any:
+dependency 'ft/common_pp_up', '1.0.x'
+##dependency 'ft/satellitesubscribe', '0.0.x'
