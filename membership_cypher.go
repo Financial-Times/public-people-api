@@ -60,9 +60,9 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 		result.M.Db = mcd.db
 		result.O.Db = mcd.db
 		membership := make(map[string]interface{})
-		Thing(result.M, &membership)
+		//		Thing(result.M, &membership)
 		organisation := make(map[string]interface{})
-		Thing(result.O, &organisation)
+		//		Thing(result.O, &organisation)
 		membership["organisation"] = organisation
 		roles := make([]interface{}, len(result.R))
 		for idx, roleResult := range result.R {
@@ -73,7 +73,7 @@ func (mcd MembershipCypherDriver) FindMembershipsByPersonUUID(uuid string) ([]in
 				roleResult.R.Data[key] = value
 			}
 			role := make(map[string]interface{})
-			Thing(roleResult.R, &role)
+			//			Thing(roleResult.R, &role)
 			roles[idx] = role
 		}
 		membership["roles"] = roles

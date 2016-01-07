@@ -1,4 +1,4 @@
-name    'ft-public_people_api'
+name    'public_people_api'
 version '0.0.1'
 source 'UNKNOWN'
 author 'ft'

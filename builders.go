@@ -5,8 +5,8 @@ import (
 	"github.com/jmcvetta/neoism"
 )
 
-// Thing builds a result based on the properties of the neoism.Node passed
-func Thing(node *neoism.Node, result *(map[string]interface{})) {
+// BuildThing builds a result based on the properties of the neoism.Node passed
+func BuildThing(node *neoism.Node, result *(map[string]interface{})) {
 	resMap := *result
 	labels, err := node.Labels()
 	if err != nil {

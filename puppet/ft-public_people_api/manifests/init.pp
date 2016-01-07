@@ -7,8 +7,6 @@ class public_people_api {
   $neoURL=hiera("neoURL", "http://localhost:7474/db/data")
   $port=hiera("port", "8080")
 
-  class { 'common_pp_up': }
-
   user { $binary_name:
     ensure    => present,
   }

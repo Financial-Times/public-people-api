@@ -75,16 +75,24 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 	uuid := vars["uuid"]
 
 	if uuid == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "uuid required", http.StatusBadRequest)
 		return
 	}
-	person := peopleDriver.Read(uuid)
-	memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
+	person, found, err := peopleDriver.Read(uuid)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	person["memberships"] = memberships
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	// memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+	// person["memberships"] = memberships
 
 	log.Debugln("Person with memberships %v", person)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
