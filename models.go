@@ -30,8 +30,8 @@ type Person struct {
 	*Thing
 	Labels      *[]string    `json:"labels,omitempty"`
 	Memberships []Membership `json:"memberships"`
-	//Salutation  string       `json:"salutation"`
-	//BirthYear   string       `json:"birthYear"`
+	Salutation  string       `json:"salutation,omitempty"`
+	BirthYear   string       `json:"birthYear,omitempty"`
 }
 
 // Membership represents the relationship between a person and their roles associated with an organisation
@@ -45,10 +45,11 @@ public class Membership {
     public List<MembershipRole> roles = new ArrayList();
 */
 type Membership struct {
-	Title        string       `json:"title"`
+	Title        string       `json:"title,omitempty"`
+	PrefLabel    string       `json:"title,omitempty"`
 	Organisation Organisation `json:"organisation"`
 	Roles        []Role       `json:"roles"`
-	ChangeEvent  ChangeEvent  `json:"changeEvent,omitempty"`
+	ChangeEvent  *ChangeEvent `json:"changeEvent,omitempty"`
 }
 
 // Organisation simplified representation used in Person API
@@ -66,7 +67,7 @@ public class MembershipRole extends Thing {
 */
 type Role struct {
 	*Thing
-	ChangeEvent ChangeEvent `json:"changeEvent,omitempty"`
+	ChangeEvent *ChangeEvent `json:"changeEvent,omitempty"`
 }
 
 // ChangeEvent represents when something started or ended

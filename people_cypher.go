@@ -17,6 +17,11 @@ type PeopleCypherDriver struct {
 	db *neoism.Database
 }
 
+type neoChangeEvent struct {
+	Started string
+	Ended   string
+}
+
 type neoReadStruct struct {
 	P struct {
 		ID        string
@@ -30,10 +35,7 @@ type neoReadStruct struct {
 			Types       []string
 			PrefLabel   string
 			Title       string
-			ChangeEvent struct {
-				Started string
-				Ended   string
-			}
+			ChangeEvent neoChangeEvent
 		}
 		O struct {
 			ID        string
@@ -45,10 +47,7 @@ type neoReadStruct struct {
 			ID          string
 			Types       []string
 			PrefLabel   string
-			ChangeEvent struct {
-				Started string
-				Ended   string
-			}
+			ChangeEvent neoChangeEvent
 		}
 	}
 }
@@ -111,6 +110,8 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 	public.Memberships = make([]Membership, len(neo.M))
 	for mIdx, neoMem := range neo.M {
 		membership := Membership{}
+		membership.Title = neoMem.M.PrefLabel
+		membership.PrefLabel = neoMem.M.PrefLabel
 		membership.Organisation = Organisation{}
 		membership.Organisation.Thing = &Thing{}
 		membership.Organisation.ID = idURL(neoMem.O.ID)
@@ -120,8 +121,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		if len(neoMem.O.Labels) > 0 {
 			membership.Organisation.Labels = &neoMem.O.Labels
 		}
-		changeEvent(neoMem.M.ChangeEvent, &membership.ChangeEvent)
-
+		membership.ChangeEvent = changeEvent(neoMem.M.ChangeEvent)
 		membership.Roles = make([]Role, len(neoMem.R))
 		for rIdx, neoRole := range neoMem.R {
 			role := Role{}
@@ -130,15 +130,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 			role.APIURL = apiURL(neoRole.ID, neoRole.Types)
 			role.Types = typeURIs(neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
-			if &neoRole.ChangeEvent != nil {
-				membership.ChangeEvent = ChangeEvent{}
-				if neoRole.ChangeEvent.Started != "" {
-					membership.ChangeEvent.Started = neoMem.M.ChangeEvent.Started
-				}
-				if neoRole.ChangeEvent.Ended != "" {
-					membership.ChangeEvent.Ended = neoMem.M.ChangeEvent.Ended
-				}
-			}
+			membership.ChangeEvent = changeEvent(neoRole.ChangeEvent)
 			membership.Roles[rIdx] = role
 		}
 		public.Memberships[mIdx] = membership
@@ -147,20 +139,19 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 	return public
 }
 
-func changeEvent(neo map[string]interface{}, result *ChangeEvent) {
-	// if neoChangeEvent == nil {
-	// 	return neoChangeEvents
-	// }
-	// result := ChangeEvent{}
-	// if neoChangeEvent != nil {
-	// 	membership.ChangeEvent = ChangeEvent{}
-	// 	if neoMem.M.ChangeEvent.Started != "" {
-	// 		membership.ChangeEvent.Started = neoMem.M.ChangeEvent.Started
-	// 	}
-	// 	if neoMem.M.ChangeEvent.Ended != "" {
-	// 		membership.ChangeEvent.Ended = neoMem.M.ChangeEvent.Ended
-	// 	}
-	// }
+func changeEvent(neo neoChangeEvent) *ChangeEvent {
+	if neo.Started == "" && neo.Ended == "" {
+		return nil
+	}
+	result := ChangeEvent{}
+	if neo.Started != "" {
+		result.Started = neo.Started
+	}
+	if neo.Ended != "" {
+		result.Ended = neo.Ended
+	}
+	log.Debugf("changeEvent neo: %+v result:%+v", neo, result)
+	return &result
 }
 
 func apiURL(id string, types []string) string {
