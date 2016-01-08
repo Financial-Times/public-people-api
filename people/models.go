@@ -1,4 +1,4 @@
-package main
+package people
 
 // Thing is the base entity, all nodes in neo4j should have these properties
 /* The following is currently defined in Java (3da1b900b38)

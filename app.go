@@ -8,14 +8,14 @@ import (
 	"os"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
+	"github.com/Financial-Times/public-people-api/people"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/jmcvetta/neoism"
 )
 
-var peopleDriver PeopleDriver
-var membershipDriver MembershipDriver
+var driver people.Driver
 
 func main() {
 	log.SetLevel(log.DebugLevel)
@@ -36,8 +36,7 @@ func runServer(neoURL string, port string) {
 	if err != nil {
 		panic(err)
 	}
-	peopleDriver = NewPeopleCypherDriver(db)
-	membershipDriver = NewMembershipCypherDriver(db)
+	driver = people.NewCypherDriver(db)
 	r := mux.NewRouter()
 
 	// Healthchecks and standards first
@@ -78,7 +77,7 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "uuid required", http.StatusBadRequest)
 		return
 	}
-	person, found, err := peopleDriver.Read(uuid)
+	person, found, err := driver.Read(uuid)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
