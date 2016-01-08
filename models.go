@@ -45,11 +45,11 @@ public class Membership {
     public List<MembershipRole> roles = new ArrayList();
 */
 type Membership struct {
-	Title        string       `json:"title,omitempty"`
-	PrefLabel    string       `json:"title,omitempty"`
-	Organisation Organisation `json:"organisation"`
-	Roles        []Role       `json:"roles"`
-	ChangeEvent  *ChangeEvent `json:"changeEvent,omitempty"`
+	Title        string        `json:"title,omitempty"`
+	PrefLabel    string        `json:"title,omitempty"`
+	Organisation Organisation  `json:"organisation"`
+	Roles        []Role        `json:"roles"`
+	ChangeEvents *ChangeEvents `json:"changeEvents,omitempty"`
 }
 
 // Organisation simplified representation used in Person API
@@ -67,17 +67,17 @@ public class MembershipRole extends Thing {
 */
 type Role struct {
 	*Thing
-	ChangeEvent *ChangeEvent `json:"changeEvent,omitempty"`
+	ChangeEvents *ChangeEvents `json:"changeEvents,omitempty"`
 }
 
-// ChangeEvent represents when something started or ended
+// ChangeEvents represents when something started or ended
 /*
 @JsonInclude(Include.NON_EMPTY)
 public class ChangeEvent {
     public String startedAt;
     public String endedAt;
 */
-type ChangeEvent struct {
+type ChangeEvents struct {
 	Started string `json:"started,omitempty"`
 	Ended   string `json:"ended,omitempty"`
 }

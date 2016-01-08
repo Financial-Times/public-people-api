@@ -121,7 +121,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		if len(neoMem.O.Labels) > 0 {
 			membership.Organisation.Labels = &neoMem.O.Labels
 		}
-		membership.ChangeEvent = changeEvent(neoMem.M.ChangeEvent)
+		membership.ChangeEvents = changeEvent(neoMem.M.ChangeEvent)
 		membership.Roles = make([]Role, len(neoMem.R))
 		for rIdx, neoRole := range neoMem.R {
 			role := Role{}
@@ -130,7 +130,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 			role.APIURL = apiURL(neoRole.ID, neoRole.Types)
 			role.Types = typeURIs(neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
-			membership.ChangeEvent = changeEvent(neoRole.ChangeEvent)
+			membership.ChangeEvents = changeEvent(neoRole.ChangeEvent)
 			membership.Roles[rIdx] = role
 		}
 		public.Memberships[mIdx] = membership
@@ -139,11 +139,11 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 	return public
 }
 
-func changeEvent(neo neoChangeEvent) *ChangeEvent {
+func changeEvent(neo neoChangeEvent) *ChangeEvents {
 	if neo.Started == "" && neo.Ended == "" {
 		return nil
 	}
-	result := ChangeEvent{}
+	result := ChangeEvents{}
 	if neo.Started != "" {
 		result.Started = neo.Started
 	}
