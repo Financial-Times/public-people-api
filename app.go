@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"os"
@@ -14,8 +12,6 @@ import (
 	"github.com/jawher/mow.cli"
 	"github.com/jmcvetta/neoism"
 )
-
-var driver people.Driver
 
 func main() {
 	log.SetLevel(log.DebugLevel)
@@ -36,59 +32,20 @@ func runServer(neoURL string, port string) {
 	if err != nil {
 		panic(err)
 	}
-	driver = people.NewCypherDriver(db)
+	people.PeopleDriver = people.NewCypherDriver(db)
 	r := mux.NewRouter()
 
 	// Healthchecks and standards first
 	r.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
-		"Checks for accessing neo4j", healthCheck()))
-	r.HandleFunc("/ping", ping)
+		"Checks for accessing neo4j", people.HealthCheck()))
+	r.HandleFunc("/ping", people.Ping)
 
 	// Then API specific ones:
 	// TODO wonder if we should use a regex here since this won't match /people or /people/
-	r.HandleFunc("/people/{uuid}", getPerson).Methods("GET")
+	r.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
 
 	if err := http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r)); err != nil {
 		log.Printf("Unable to start server: %v\n", err)
 		panic(err)
 	}
-}
-
-func healthCheck() v1a.Check {
-	return v1a.Check{
-		BusinessImpact: "Unable to respond to Public People api requests",
-		Checker:        checker,
-	}
-}
-
-func checker() (string, error) {
-	return "some message to return", nil
-}
-
-func ping(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "pong")
-}
-
-func getPerson(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	uuid := vars["uuid"]
-
-	if uuid == "" {
-		http.Error(w, "uuid required", http.StatusBadRequest)
-		return
-	}
-	person, found, err := driver.Read(uuid)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if !found {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	Jason, _ := json.Marshal(person)
-	log.Debugf("Person(uuid:%s): %s\n", Jason)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(person)
 }
