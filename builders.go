@@ -12,7 +12,7 @@ func BuildThing(node *neoism.Node, result *(map[string]interface{})) {
 	if err != nil {
 		panic(err)
 	}
-	resMap["types"] = typeURIs(labels)
+	//	resMap["types"] = typeURIs(labels)
 	for key, value := range node.Data {
 		resMap[key] = value
 	}
@@ -32,31 +32,31 @@ func cleanUp(resMap *(map[string]interface{})) {
 	delete(*resMap, "terminationDate")
 }
 
-func typeURIs(labels []string) []string {
-	base := "http://www.ft.com/ontology/"
-	var results []string
-	for _, label := range labels {
-		switch label {
-		case "Person":
-			results = append(results, base+"person/Person")
-			break
-		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
-			results = append(results, base+"organisation/"+label)
-			break
-		case "Thing":
-			results = append(results, base+"core/Thing")
-			results = append(results, base+"core/Concept")
-			break
-		case "Role":
-			results = append(results, base+"organisation/"+label)
-			break
-		case "Membership":
-			results = append(results, base+"organisation/"+label)
-			break
-		}
-	}
-	return results
-}
+// func typeURIs(labels []string) []string {
+// 	base := "http://www.ft.com/ontology/"
+// 	var results []string
+// 	for _, label := range labels {
+// 		switch label {
+// 		case "Person":
+// 			results = append(results, base+"person/Person")
+// 			break
+// 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
+// 			results = append(results, base+"organisation/"+label)
+// 			break
+// 		case "Thing":
+// 			results = append(results, base+"core/Thing")
+// 			results = append(results, base+"core/Concept")
+// 			break
+// 		case "Role":
+// 			results = append(results, base+"organisation/"+label)
+// 			break
+// 		case "Membership":
+// 			results = append(results, base+"organisation/"+label)
+// 			break
+// 		}
+// 	}
+// 	return results
+// }
 
 func changeEvents(res *(map[string]interface{})) {
 	resMap := *res

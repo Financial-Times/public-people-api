@@ -87,14 +87,8 @@ func getPerson(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	// memberships, _, err := membershipDriver.FindMembershipsByPersonUUID(uuid)
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
-	// person["memberships"] = memberships
-
-	log.Debugln("Person with memberships %v", person)
+	Jason, _ := json.Marshal(person)
+	log.Debugf("Person(uuid:%s): %s\n", Jason)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(person)
