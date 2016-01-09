@@ -1,4 +1,4 @@
-package main
+package people
 
 import (
 	"encoding/json"
@@ -7,13 +7,13 @@ import (
 	"github.com/jmcvetta/neoism"
 )
 
-// PeopleDriver interface
-type PeopleDriver interface {
+// Driver interface
+type Driver interface {
 	Read(id string) (person Person, found bool, err error)
 }
 
-// PeopleCypherDriver struct
-type PeopleCypherDriver struct {
+// CypherDriver struct
+type CypherDriver struct {
 	db *neoism.Database
 }
 
@@ -52,12 +52,12 @@ type neoReadStruct struct {
 	}
 }
 
-//NewPeopleCypherDriver instanciate driver
-func NewPeopleCypherDriver(db *neoism.Database) PeopleCypherDriver {
-	return PeopleCypherDriver{db}
+//NewCypherDriver instanciate driver
+func NewCypherDriver(db *neoism.Database) CypherDriver {
+	return CypherDriver{db}
 }
 
-func (pcw PeopleCypherDriver) Read(uuid string) (person Person, found bool, err error) {
+func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error) {
 	person = Person{}
 	results := []struct {
 		Rs []neoReadStruct
