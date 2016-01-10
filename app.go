@@ -31,7 +31,7 @@ func main() {
 func runServer(neoURL string, port string) {
 	db, err := neoism.Connect(neoURL)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error connecting to neo4j %s", err)
 	}
 	people.PeopleDriver = people.NewCypherDriver(db)
 	r := mux.NewRouter()
