@@ -1,7 +1,7 @@
 package people
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
@@ -100,13 +100,13 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 		log.Errorf("Error looking up uuid %s with query %s from neoism: %+v\n", uuid, query.Statement, err)
 		return Person{}, false, fmt.Errorf("Error accessing datastore for uuid: %s", uuid)
 	}
-	Jason, _ := json.Marshal(results[0].Rs[0])
-	log.Debugf("CypherResult ReadPeople for uuid: %s was: %+v\nas json %s", uuid, results[0].Rs[0], Jason)
+	log.Debugf("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results[0].Rs[0])
 	if (len(results)) == 0 {
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
-		log.Errorf("Mupliple people found with same uuid:%s", uuid)
-		return Person{}, true, fmt.Errorf("Mupliple people found with same uuid:%s", uuid)
+		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
+		log.Error(errMsg)
+		return Person{}, true, errors.New(errMsg)
 	}
 	person = neoReadStructToPerson(results[0].Rs[0])
 	log.Debugf("Returning %v", person)
@@ -172,19 +172,22 @@ func changeEvent(neo neoChangeEvent) *ChangeEvents {
 
 func apiURL(id string, types []string) string {
 	base := "http://api.ft.com/"
+	var apiURL string
 	for _, t := range types {
 		switch t {
 		case "Person":
-			return base + "people/" + id
+			apiURL = base + "people/" + id
 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
-			return base + "orgnaisations/" + id
+			apiURL = base + "orgnaisations/" + id
 		case "Role":
-			return base + "roles/" + id
+			apiURL = base + "roles/" + id
 		case "Membership":
-			return base + "memberships/" + id
+			apiURL = base + "memberships/" + id
+		default:
+			apiURL = base + "things/" + id
 		}
 	}
-	return base + "things/" + id
+	return apiURL
 }
 
 func idURL(neoID string) string {
@@ -198,20 +201,15 @@ func typeURIs(neoTypes []string) []string {
 		switch t {
 		case "Person":
 			results = append(results, base+"person/Person")
-			break
 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
 			results = append(results, base+"organisation/"+t)
-			break
 		case "Thing":
 			results = append(results, base+"core/Thing")
 			results = append(results, base+"core/Concept")
-			break
 		case "Role":
 			results = append(results, base+"organisation/"+t)
-			break
 		case "Membership":
 			results = append(results, base+"organisation/"+t)
-			break
 		}
 	}
 	return results
