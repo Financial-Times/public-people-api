@@ -10,11 +10,32 @@ import (
 // Driver interface
 type Driver interface {
 	Read(id string) (person Person, found bool, err error)
+	CheckConnectivity() (ok bool, err error)
 }
 
 // CypherDriver struct
 type CypherDriver struct {
 	db *neoism.Database
+}
+
+//NewCypherDriver instanciate driver
+func NewCypherDriver(db *neoism.Database) CypherDriver {
+	return CypherDriver{db}
+}
+
+// CheckConnectivity tests neo4j by running a simple cypher query
+func (pcw CypherDriver) CheckConnectivity() (bool, error) {
+	results := []struct {
+		ID int
+	}{}
+	query := &neoism.CypherQuery{
+		Statement: "MATCH (p:Person) RETURN p.id LIMIT 1",
+		Result:    &results,
+	}
+	err := pcw.db.Cypher(query)
+	ok := len(results) == 1 && results[0].ID != 0
+	log.Debugf("CheckConnectivity %t %+v", ok, err)
+	return ok, err
 }
 
 type neoChangeEvent struct {
@@ -50,11 +71,6 @@ type neoReadStruct struct {
 			ChangeEvent neoChangeEvent
 		}
 	}
-}
-
-//NewCypherDriver instanciate driver
-func NewCypherDriver(db *neoism.Database) CypherDriver {
-	return CypherDriver{db}
 }
 
 func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error) {

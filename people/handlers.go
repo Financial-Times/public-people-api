@@ -10,26 +10,34 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// PeopleDriver for cypher queries
+var PeopleDriver Driver
+
 // HealthCheck does something
 func HealthCheck() v1a.Check {
 	return v1a.Check{
-		BusinessImpact: "Unable to respond to Public People api requests",
-		Checker:        Checker,
+		BusinessImpact:   "Unable to respond to Public People api requests",
+		Name:             "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
+		PanicGuide:       "TODO - write panic guide",
+		Severity:         1,
+		TechnicalSummary: "Cannot connect to Neo4j a instance with at least one person loaded in it",
+		Checker:          Checker,
 	}
 }
 
 // Checker does more stuff
 func Checker() (string, error) {
-	return "some message to return", nil
+	ok, err := PeopleDriver.CheckConnectivity()
+	if ok && err == nil {
+		return "Connectivity to neo4j is ok", err
+	}
+	return "Error connecting to neo4j", err
 }
 
 // Ping says pong
 func Ping(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "pong")
 }
-
-// PeopleDriver for cypher queries
-var PeopleDriver Driver
 
 // GetPerson is the public API
 func GetPerson(w http.ResponseWriter, r *http.Request) {

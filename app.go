@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	log.SetLevel(log.DebugLevel)
 	log.Debugf("public-people-api %+v", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
 	neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
