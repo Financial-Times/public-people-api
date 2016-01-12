@@ -31,9 +31,10 @@ class public_people_api {
     ensure => running,
     enable => true,
     binary => $binary_file,
-    flags => "--neoURL=$neoURL --port=$port"
+    flags => "blablabl"
   }
 
+#
   # exec { 'restart_app':
   #   command     => "supervisorctl restart $binary_name",
   #   path        => "/usr/bin:/usr/sbin:/bin",
