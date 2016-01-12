@@ -40,9 +40,9 @@ func runServer(neoURL string, port string) {
 	r.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
 		"Checks for accessing neo4j", people.HealthCheck()))
 	r.HandleFunc("/ping", people.Ping)
+	r.HandleFunc("/__ping", people.Ping)
 
 	// Then API specific ones:
-	// TODO wonder if we should use a regex here since this won't match /people or /people/
 	r.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
 
 	if err := http.ListenAndServe(":"+port, handlers.CombinedLoggingHandler(os.Stdout, r)); err != nil {

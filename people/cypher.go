@@ -178,7 +178,7 @@ func apiURL(id string, types []string) string {
 		case "Person":
 			apiURL = base + "people/" + id
 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
-			apiURL = base + "orgnaisations/" + id
+			apiURL = base + "organisations/" + id
 		case "Role":
 			apiURL = base + "roles/" + id
 		case "Membership":

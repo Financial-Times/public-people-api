@@ -13,10 +13,10 @@ class public_people_api {
 
   $log_dir = "/var/log/apps/$service_name"
   $startup_log_file = "${log_dir}/${service_name}-startup.log"
-  $status_check_url = "http://`hostname`:8080"
+  $status_check_url = "http://`hostname`:8080/__ping"
   $startup_timeout = 20
 
-  $service_args = hiera('service_args')
+  $service_args = hiera('service_args','')
 
   #class { 'common_pp_up': }
 
