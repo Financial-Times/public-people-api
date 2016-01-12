@@ -171,22 +171,19 @@ func changeEvent(neo neoChangeEvent) *ChangeEvents {
 
 func apiURL(id string, types []string) string {
 	base := "http://api.ft.com/"
-	var apiURL string
 	for _, t := range types {
 		switch t {
 		case "Person":
-			apiURL = base + "people/" + id
+			return base + "people/" + id
 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
-			apiURL = base + "organisations/" + id
+			return base + "organisations/" + id
 		case "Role":
-			apiURL = base + "roles/" + id
+			return base + "roles/" + id
 		case "Membership":
-			apiURL = base + "memberships/" + id
-		default:
-			apiURL = base + "things/" + id
+			return base + "memberships/" + id
 		}
 	}
-	return apiURL
+	return base + "things/" + id
 }
 
 func idURL(neoID string) string {
