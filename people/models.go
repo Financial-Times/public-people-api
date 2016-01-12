@@ -70,7 +70,7 @@ type Role struct {
 	ChangeEvents *ChangeEvents `json:"changeEvents,omitempty"`
 }
 
-// ChangeEvents represents when something started or ended
+// ChangeEvents represent when something started or ended
 /*
 @JsonInclude(Include.NON_EMPTY)
 public class ChangeEvent {

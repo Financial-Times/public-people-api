@@ -2,7 +2,7 @@
 __Provides a public API for People stored in a Neo4J graph database__
 
 ## Build & deployment etc:
-* General view http://ftjen10085-lvpr-uk-p:8181/view/public-people-api
+* Jenkins view http://ftjen10085-lvpr-uk-p:8181/view/public-people-api
 * Build and publish to forge http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-build
 * Deploy to test or production http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-deploy
 
@@ -20,11 +20,8 @@ Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-
 ## Todo
 * Test cases
 * Metrics
-* Health checks
-* Logging levels (ERROR, WARN, INFO & DEBUG)
+* Runbook
 
-### Healthchecks (NOT IMPLEMENTED)
+### Healthchecks
 
 Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
-
-Good-to-go: [http://localhost:8080/__gtg](http://localhost:8080/__gtg)
