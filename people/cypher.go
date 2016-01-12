@@ -39,8 +39,8 @@ func (pcw CypherDriver) CheckConnectivity() (bool, error) {
 }
 
 type neoChangeEvent struct {
-	Started string
-	Ended   string
+	StartedAt string
+	EndedAt   string
 }
 
 type neoReadStruct struct {
@@ -52,11 +52,11 @@ type neoReadStruct struct {
 	}
 	M []struct {
 		M struct {
-			ID          string
-			Types       []string
-			PrefLabel   string
-			Title       string
-			ChangeEvent neoChangeEvent
+			ID           string
+			Types        []string
+			PrefLabel    string
+			Title        string
+			ChangeEvents []neoChangeEvent
 		}
 		O struct {
 			ID        string
@@ -65,10 +65,10 @@ type neoReadStruct struct {
 			Labels    []string
 		}
 		R []struct {
-			ID          string
-			Types       []string
-			PrefLabel   string
-			ChangeEvent neoChangeEvent
+			ID           string
+			Types        []string
+			PrefLabel    string
+			ChangeEvents []neoChangeEvent
 		}
 	}
 }
@@ -86,8 +86,8 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
                         WITH
                                 { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.labels} as p,
                                 { id:o.uuid, types:labels(o), prefLabel:o.prefLabel, labels:o.labels} as o,
-                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvent:{started:m.inceptionDate, ended:m.terminationDate}} as m,
-                                { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvent:{started:rr.inceptionDate, ended:rr.terminationDate}} as r
+                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
+                                { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as r
                         WITH p, m, o, collect(r) as r
                         WITH p, collect({m:m, o:o, r:r}) as m
                         RETURN collect ({p:p, m:m}) as rs
@@ -136,7 +136,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		if len(neoMem.O.Labels) > 0 {
 			membership.Organisation.Labels = &neoMem.O.Labels
 		}
-		membership.ChangeEvents = changeEvent(neoMem.M.ChangeEvent)
+		membership.ChangeEvents = changeEvent(neoMem.M.ChangeEvents)
 		membership.Roles = make([]Role, len(neoMem.R))
 		for rIdx, neoRole := range neoMem.R {
 			role := Role{}
@@ -144,7 +144,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 			role.ID = idURL(neoRole.ID)
 			role.APIURL = apiURL(neoRole.ID, neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
-			membership.ChangeEvents = changeEvent(neoRole.ChangeEvent)
+			membership.ChangeEvents = changeEvent(neoRole.ChangeEvents)
 			membership.Roles[rIdx] = role
 		}
 		public.Memberships[mIdx] = membership
@@ -153,19 +153,21 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 	return public
 }
 
-func changeEvent(neo neoChangeEvent) *ChangeEvents {
-	if neo.Started == "" && neo.Ended == "" {
+func changeEvent(neoChgEvts []neoChangeEvent) *[]ChangeEvent {
+	if len(neoChgEvts) == 0 {
 		return nil
 	}
-	result := ChangeEvents{}
-	if neo.Started != "" {
-		result.Started = neo.Started
+	var results []ChangeEvent
+	for _, neoChgEvt := range neoChgEvts {
+		if neoChgEvt.StartedAt != "" {
+			results = append(results, ChangeEvent{StartedAt: neoChgEvt.StartedAt})
+		}
+		if neoChgEvt.EndedAt != "" {
+			results = append(results, ChangeEvent{EndedAt: neoChgEvt.EndedAt})
+		}
 	}
-	if neo.Ended != "" {
-		result.Ended = neo.Ended
-	}
-	log.Debugf("changeEvent neo: %+v result:%+v", neo, result)
-	return &result
+	log.Debugf("changeEvent neo: %+v result:%+v", neoChgEvts, results)
+	return &results
 }
 
 func apiURL(id string, types []string) string {
