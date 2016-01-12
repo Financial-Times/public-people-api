@@ -202,13 +202,6 @@ func typeURIs(neoTypes []string) []string {
 			results = append(results, base+"person/Person")
 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
 			results = append(results, base+"organisation/"+t)
-		case "Thing":
-			results = append(results, base+"core/Thing")
-			results = append(results, base+"core/Concept")
-		case "Role":
-			results = append(results, base+"organisation/"+t)
-		case "Membership":
-			results = append(results, base+"organisation/"+t)
 		}
 	}
 	return results
