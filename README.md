@@ -26,15 +26,12 @@ Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-
 * Complete Test cases
 * Allow service to start if neo4j is unavailable at startup time
 * Add Metrics
-* Runbook 
+* Runbook
 
 ## For parity
 * JSON error message for not found
 * Add in TMELabels as part of labels (uniq)
-* Revert to the current weird approach for ChangeEvents
-* apiURL should be people not thing (check cod before weekend)
 * Add in annotations for ordering memeberships
-
 
 ### Healthchecks
 
