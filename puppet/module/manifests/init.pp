@@ -3,7 +3,6 @@ class public_people_api {
   $service_name = "public-people-api"
   $user = $service_name
   $group = $user
-
   $install_dir = "/usr/local/$service_name"
   $binary_file = "$install_dir/$service_name"
   $initd_file = "/etc/init.d/$service_name"
@@ -16,6 +15,8 @@ class public_people_api {
   $startup_log_file = "${log_dir}/${service_name}-startup.log"
   $status_check_url = "http://`hostname`:8080"
   $startup_timeout = 20
+
+  $service_args = hiera('service_args')
 
   #class { 'common_pp_up': }
 

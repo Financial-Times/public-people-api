@@ -18,8 +18,13 @@ _Both arguments are optional, they default to a local Neo4j install and port 808
 Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
 
 ## Todo
-* Test cases
-* Metrics
+* Rework build / deploy
+  * Suggested flow:
+    1. Build & Tests
+    1. Publish Release (using konstructor to generate vrm)
+    1. Deploy vrm/hash to test/prod
+* Complete Test cases
+* Add Metrics
 * Runbook
 
 ### Healthchecks
