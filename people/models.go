@@ -46,7 +46,6 @@ public class Membership {
 */
 type Membership struct {
 	Title        string        `json:"title,omitempty"`
-	PrefLabel    string        `json:"title,omitempty"`
 	Organisation Organisation  `json:"organisation"`
 	Roles        []Role        `json:"roles"`
 	ChangeEvents *ChangeEvents `json:"changeEvents,omitempty"`

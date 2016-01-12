@@ -25,17 +25,16 @@ Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-
     1. Deploy vrm/hash to test/prod
 * Complete Test cases
 * Allow service to start if neo4j is unavailable at startup time
+* Add Metrics
+* Runbook 
 
 ## For parity
 * JSON error message for not found
 * Add in TMELabels as part of labels (uniq)
-* Type of Person is only a Person not a thing / concept
 * Revert to the current weird approach for ChangeEvents
-* Type match on Organisation
 * apiURL should be people not thing (check cod before weekend)
 * Add in annotations for ordering memeberships
-* Add Metrics
-* Runbook
+
 
 ### Healthchecks
 

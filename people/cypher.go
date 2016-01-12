@@ -127,7 +127,6 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 	for mIdx, neoMem := range neo.M {
 		membership := Membership{}
 		membership.Title = neoMem.M.PrefLabel
-		membership.PrefLabel = neoMem.M.PrefLabel
 		membership.Organisation = Organisation{}
 		membership.Organisation.Thing = &Thing{}
 		membership.Organisation.ID = idURL(neoMem.O.ID)
@@ -201,5 +200,6 @@ func typeURIs(neoTypes []string) []string {
 			results = append(results, base+"organisation/"+t)
 		}
 	}
+	log.Debugf("Converted types: %v to %v", neoTypes, results)
 	return results
 }
