@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd <%= @install_dir %>
-<%= @binary_file %> 2>&1 >> <%= @startup_log_file %> &
+<%= @binary_file @service_args %> 2>&1 >> <%= @startup_log_file %> &
 
 count=0
 while [[ ! $(curl -s -o /dev/null -w "%{http_code}" <%= @status_check_url %> | grep 200) ]]; do

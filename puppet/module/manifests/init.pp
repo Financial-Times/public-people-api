@@ -1,8 +1,6 @@
 class public_people_api {
 
   $service_name = "public-people-api"
-  $neoURL=hiera("neoURL", "http://localhost:7474/db/data")
-  $port=hiera("port", "8080")
   $user = $service_name
   $group = $user
 
