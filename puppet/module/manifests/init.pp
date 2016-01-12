@@ -19,7 +19,7 @@ class public_people_api {
   $status_check_url = "http://`hostname`:8080"
   $startup_timeout = 20
 
-  class { 'common_pp_up': }
+  #class { 'common_pp_up': }
 
   user { $service_name:
     ensure    => present,
