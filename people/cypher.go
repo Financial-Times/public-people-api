@@ -166,7 +166,7 @@ func changeEvent(neoChgEvts []neoChangeEvent) *[]ChangeEvent {
 			results = append(results, ChangeEvent{EndedAt: neoChgEvt.EndedAt})
 		}
 	}
-	log.Debugf("changeEvent neo: %+v result:%+v", neoChgEvts, results)
+	log.Debugf("changeEvent converted: %+v result:%+v", neoChgEvts, results)
 	return &results
 }
 
@@ -198,8 +198,10 @@ func typeURIs(neoTypes []string) []string {
 		switch t {
 		case "Person":
 			results = append(results, base+"person/Person")
-		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
+		case "Organisation":
 			results = append(results, base+"organisation/"+t)
+		case "Company", "PublicCompany", "PrivateCompany":
+			results = append(results, base+"company/"+t)
 		}
 	}
 	log.Debugf("Converted types: %v to %v", neoTypes, results)
