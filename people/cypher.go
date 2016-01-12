@@ -144,7 +144,6 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 			role.Thing = &Thing{}
 			role.ID = idURL(neoRole.ID)
 			role.APIURL = apiURL(neoRole.ID, neoRole.Types)
-			role.Types = typeURIs(neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
 			membership.ChangeEvents = changeEvent(neoRole.ChangeEvent)
 			membership.Roles[rIdx] = role

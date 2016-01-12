@@ -11,10 +11,9 @@ public class Thing {
 }
 */
 type Thing struct {
-	ID        string   `json:"id"`
-	APIURL    string   `json:"apiUrl"` // self ?
-	PrefLabel string   `json:"prefLabel,omitempty"`
-	Types     []string `json:"types"`
+	ID        string `json:"id"`
+	APIURL    string `json:"apiUrl"` // self ?
+	PrefLabel string `json:"prefLabel,omitempty"`
 }
 
 // Person is the structure used for the people API
@@ -28,6 +27,7 @@ public class Person extends Thing {
 */
 type Person struct {
 	*Thing
+	Types       []string     `json:"types"`
 	Labels      *[]string    `json:"labels,omitempty"`
 	Memberships []Membership `json:"memberships"`
 	Salutation  string       `json:"salutation,omitempty"`
@@ -55,6 +55,7 @@ type Membership struct {
 // Organisation simplified representation used in Person API
 type Organisation struct {
 	*Thing
+	Types  []string  `json:"types"`
 	Labels *[]string `json:"labels,omitempty"`
 }
 
