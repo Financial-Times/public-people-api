@@ -1,12 +1,11 @@
-name    'public_people_api'
-version '0.0.1'
+name    'ft-public_people_api'
+version '0.0.0'
 source 'UNKNOWN'
 author 'ft'
 license 'Apache License, Version 2.0'
 summary 'Provides a public API for users to lookup a person'
-description 'UNKNOWN'
-project_page 'UNKNOWN'
+description 'Public API for retrieving information about a person'
+project_page 'https://github.com/Financial-Times/public-people-api'
 
 ## Add dependencies, if any:
 ##dependency 'ft/common_pp_up', '1.0.x'
-##dependency 'ft/satellitesubscribe', '0.0.x'
