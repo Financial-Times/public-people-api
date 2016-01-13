@@ -31,6 +31,7 @@ Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
 ### API specific
 * Complete Test cases
 * Runbook
+* Update or new API documentation based on original [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
 
 ### Cross cutting concerns
 * Allow service to start if neo4j is unavailable at startup time
