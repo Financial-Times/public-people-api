@@ -98,10 +98,10 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 	err = pcw.db.Cypher(query)
 	if err != nil {
 		log.Errorf("Error looking up uuid %s with query %s from neoism: %+v\n", uuid, query.Statement, err)
-		return Person{}, false, fmt.Errorf("Error accessing datastore for uuid: %s", uuid)
+		return Person{}, false, fmt.Errorf("Error accessing Person datastore for uuid: %s", uuid)
 	}
-	log.Debugf("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results[0].Rs[0])
-	if (len(results)) == 0 {
+	log.Debugf("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results)
+	if (len(results)) == 0 || len(results[0].Rs) == 0 {
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
 		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)

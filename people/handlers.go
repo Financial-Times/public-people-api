@@ -44,17 +44,20 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
 
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if uuid == "" {
 		http.Error(w, "uuid required", http.StatusBadRequest)
 		return
 	}
 	person, found, err := PeopleDriver.Read(uuid)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return
 	}
 	if !found {
 		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message":"Person not found."}`))
 		return
 	}
 	Jason, _ := json.Marshal(person)

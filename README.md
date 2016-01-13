@@ -25,19 +25,18 @@ Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
 
 ## Todo
 ### For parity with existing API
-* JSON error message for not found
 * Add in TMELabels as part of labels (uniq)
 * Use annotations for ordering memberships
 
 ### API specific
-* Rework build / deploy
-  * Suggested flow:
-    1. Build & Tests
-    1. Publish Release (using konstructor to generate vrm)
-    1. Deploy vrm/hash to test/prod
 * Complete Test cases
 * Runbook
 
 ### Cross cutting concerns
 * Allow service to start if neo4j is unavailable at startup time
 * Add Metrics
+* Rework build / deploy (low priority)
+  * Suggested flow:
+    1. Build & Tests
+    1. Publish Release (using konstructor to generate vrm)
+    1. Deploy vrm/hash to test/prod
