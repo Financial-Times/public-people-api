@@ -14,7 +14,9 @@ _NB You will need to tag a commit in order to build, since the UI asks for a tag
 * `go test ./...`
 * `go install`
 * `$GOPATH/bin/public-people-api --neo-url={neo4jUrl} --port={port} --log-level={DEBUG|INFO|WARN|ERROR}`
-_Both arguments are optional, they default to a local Neo4j install and port 8080._
+_Both arguments are optional.
+--neo-url defaults to http://localhost:7474/db/data, which is the out of box url for a local neo4j instance.
+--port defaults to 8080._
 * `curl http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517 | json_pp`
 
 ## API definition
