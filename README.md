@@ -2,9 +2,9 @@
 __Provides a public API for People stored in a Neo4J graph database__
 
 ## Build & deployment etc:
-* Jenkins view http://ftjen10085-lvpr-uk-p:8181/view/public-people-api
-* Build and publish to forge http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-build
-* Deploy to test or production http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-deploy
+* Jenkins view (http://ftjen10085-lvpr-uk-p:8181/view/public-people-api)
+* Build and publish to forge (http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-build)
+* Deploy to test or production (http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-deploy)
 
 ## Installation & running locally
 * `go get -u github.com/Financial-Times/public-people-api`
@@ -26,6 +26,7 @@ Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
 * JSON error message for not found
 * Add in TMELabels as part of labels (uniq)
 * Use annotations for ordering memberships
+
 ### API specific
 * Rework build / deploy
   * Suggested flow:
@@ -34,6 +35,7 @@ Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
     1. Deploy vrm/hash to test/prod
 * Complete Test cases
 * Runbook
+
 ### Cross cutting concerns
 * Allow service to start if neo4j is unavailable at startup time
 * Add Metrics
