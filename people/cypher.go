@@ -178,10 +178,6 @@ func apiURL(id string, types []string) string {
 			return base + "people/" + id
 		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
 			return base + "organisations/" + id
-		case "Role":
-			return base + "roles/" + id
-		case "Membership":
-			return base + "memberships/" + id
 		}
 	}
 	return base + "things/" + id
