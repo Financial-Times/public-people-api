@@ -37,7 +37,6 @@ Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
 
 ### Cross cutting concerns
 * Allow service to start if neo4j is unavailable at startup time
-* Add Metrics
 * Rework build / deploy (low priority)
   * Suggested flow:
     1. Build & Tests

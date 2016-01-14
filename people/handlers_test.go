@@ -2,16 +2,15 @@ package people
 
 import (
 	"encoding/json"
-	"github.com/Financial-Times/public-people-api"
 	"github.com/stretchr/testify/assert"
 	"net"
 	"net/http"
-	"os"
 	"testing"
+	"time"
 )
 
 //TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
-func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
+func TestCanGetAPerson(t *testing.T) {
 	// TODO figure out how best to test handlers.
 	t.SkipNow()
 	assert := assert.New(t)
