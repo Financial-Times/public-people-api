@@ -23,7 +23,7 @@ func main() {
 	graphiteTCPAddress := app.StringOpt("graphiteTCPAddress", "",
 		"Graphite TCP address, e.g. graphite.ft.com:2003. Leave as default if you do NOT want to output to graphite (e.g. if running locally)")
 	graphitePrefix := app.StringOpt("graphitePrefix", "",
-		"Prefix to use. Should start with content, include the environment, and the host name. e.g. content.test.people.rw.neo4j.ftaps58938-law1a-eu-t")
+		"Prefix to use. Should start with content, include the environment, and the host name. e.g. content.test.public.people.api.ftaps59382-law1a-eu-t")
 	logMetrics := app.BoolOpt("logMetrics", false, "Whether to log metrics. Set to true if running locally and you want metrics output")
 
 	app.Action = func() {
