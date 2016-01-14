@@ -2,8 +2,9 @@ package people
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TODO Add Test cases for more of the mapping functions and perhaps mock out back end (although ? if mocking neoism is of value)
@@ -16,46 +17,6 @@ func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
 	assert := assert.New(t)
 	assert.NoError(err, "Unable to marshal Person to JSON")
 	assert.Equal(expected, string(personJSON))
-}
-
-func TestTypeURIsForPeople(t *testing.T) {
-	typesFromNeo := []string{"Person", "Concept", "Thing"}
-	expectedURIs := []string{"http://www.ft.com/ontology/person/Person"}
-	actualURIs := typeURIs(typesFromNeo)
-	assert.New(t).EqualValues(expectedURIs, actualURIs)
-}
-
-func TestTypeURIsForOrganisations(t *testing.T) {
-	typesFromNeo := []string{"Organisation", "Concept", "Thing"}
-	expectedURIs := []string{"http://www.ft.com/ontology/organisation/Organisation"}
-	actualURIs := typeURIs(typesFromNeo)
-	assert.New(t).EqualValues(expectedURIs, actualURIs)
-}
-
-func TestTypeURIsForCompany(t *testing.T) {
-	typesFromNeo := []string{"Organisation", "Company", "Concept", "Thing"}
-	expectedURIs := []string{"http://www.ft.com/ontology/organisation/Organisation",
-		"http://www.ft.com/ontology/company/Company"}
-	actualURIs := typeURIs(typesFromNeo)
-	assert.New(t).EqualValues(expectedURIs, actualURIs)
-}
-
-func TestTypeURIsForPublicCompany(t *testing.T) {
-	typesFromNeo := []string{"PublicCompany", "Organisation", "Company", "Concept", "Thing"}
-	expectedURIs := []string{"http://www.ft.com/ontology/company/PublicCompany",
-		"http://www.ft.com/ontology/organisation/Organisation",
-		"http://www.ft.com/ontology/company/Company"}
-	actualURIs := typeURIs(typesFromNeo)
-	assert.New(t).EqualValues(expectedURIs, actualURIs)
-}
-
-func TestTypeURIsForPrivateCompany(t *testing.T) {
-	typesFromNeo := []string{"PrivateCompany", "Organisation", "Company", "Concept", "Thing"}
-	expectedURIs := []string{"http://www.ft.com/ontology/company/PrivateCompany",
-		"http://www.ft.com/ontology/organisation/Organisation",
-		"http://www.ft.com/ontology/company/Company"}
-	actualURIs := typeURIs(typesFromNeo)
-	assert.New(t).EqualValues(expectedURIs, actualURIs)
 }
 
 func TestNeoReadStructToPersonMultipleMemberships(t *testing.T) {

@@ -3,6 +3,8 @@ package people
 import (
 	"errors"
 	"fmt"
+
+	"github.com/Financial-Times/uri-utils-go"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
 )
@@ -18,7 +20,7 @@ type CypherDriver struct {
 	db *neoism.Database
 }
 
-//NewCypherDriver instanciate driver
+//NewCypherDriver instantiate driver
 func NewCypherDriver(db *neoism.Database) CypherDriver {
 	return CypherDriver{db}
 }
@@ -116,9 +118,9 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 func neoReadStructToPerson(neo neoReadStruct) Person {
 	public := Person{}
 	public.Thing = &Thing{}
-	public.ID = idURL(neo.P.ID)
-	public.APIURL = apiURL(neo.P.ID, neo.P.Types)
-	public.Types = typeURIs(neo.P.Types)
+	public.ID = uriutils.IdURL(neo.P.ID)
+	public.APIURL = uriutils.ApiURL(neo.P.ID, neo.P.Types)
+	public.Types = uriutils.TypeURIs(neo.P.Types)
 	public.PrefLabel = neo.P.PrefLabel
 	if len(neo.P.Labels) > 0 {
 		public.Labels = &neo.P.Labels
@@ -129,9 +131,9 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		membership.Title = neoMem.M.PrefLabel
 		membership.Organisation = Organisation{}
 		membership.Organisation.Thing = &Thing{}
-		membership.Organisation.ID = idURL(neoMem.O.ID)
-		membership.Organisation.APIURL = apiURL(neoMem.O.ID, neoMem.O.Types)
-		membership.Organisation.Types = typeURIs(neoMem.O.Types)
+		membership.Organisation.ID = uriutils.IdURL(neoMem.O.ID)
+		membership.Organisation.APIURL = uriutils.ApiURL(neoMem.O.ID, neoMem.O.Types)
+		membership.Organisation.Types = uriutils.TypeURIs(neoMem.O.Types)
 		membership.Organisation.PrefLabel = neoMem.O.PrefLabel
 		if len(neoMem.O.Labels) > 0 {
 			membership.Organisation.Labels = &neoMem.O.Labels
@@ -141,8 +143,8 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		for rIdx, neoRole := range neoMem.R {
 			role := Role{}
 			role.Thing = &Thing{}
-			role.ID = idURL(neoRole.ID)
-			role.APIURL = apiURL(neoRole.ID, neoRole.Types)
+			role.ID = uriutils.IdURL(neoRole.ID)
+			role.APIURL = uriutils.ApiURL(neoRole.ID, neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
 			membership.ChangeEvents = changeEvent(neoRole.ChangeEvents)
 			membership.Roles[rIdx] = role
@@ -168,38 +170,4 @@ func changeEvent(neoChgEvts []neoChangeEvent) *[]ChangeEvent {
 	}
 	log.Debugf("changeEvent converted: %+v result:%+v", neoChgEvts, results)
 	return &results
-}
-
-func apiURL(id string, types []string) string {
-	base := "http://api.ft.com/"
-	for _, t := range types {
-		switch t {
-		case "Person":
-			return base + "people/" + id
-		case "Organisation", "Company", "PublicCompany", "PrivateCompany":
-			return base + "organisations/" + id
-		}
-	}
-	return base + "things/" + id
-}
-
-func idURL(neoID string) string {
-	return "http://api.ft.com/things/" + neoID
-}
-
-func typeURIs(neoTypes []string) []string {
-	var results []string
-	base := "http://www.ft.com/ontology/"
-	for _, t := range neoTypes {
-		switch t {
-		case "Person":
-			results = append(results, base+"person/Person")
-		case "Organisation":
-			results = append(results, base+"organisation/"+t)
-		case "Company", "PublicCompany", "PrivateCompany":
-			results = append(results, base+"company/"+t)
-		}
-	}
-	log.Debugf("Converted types: %v to %v", neoTypes, results)
-	return results
 }
