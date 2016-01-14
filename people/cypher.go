@@ -29,11 +29,12 @@ func (pcw CypherDriver) CheckConnectivity() (bool, error) {
 		ID int
 	}{}
 	query := &neoism.CypherQuery{
-		Statement: "MATCH (p:Person) RETURN p.id LIMIT 1",
+		Statement: "MATCH (x) RETURN ID(x) LIMIT 1",
 		Result:    &results,
 	}
 	err := pcw.db.Cypher(query)
-	ok := len(results) == 1 && results[0].ID != 0
+	log.Debugf("Neo4j returned %+v", results[0])
+	ok := len(results) > 0
 	log.Debugf("CheckConnectivity %t %+v", ok, err)
 	return ok, err
 }
