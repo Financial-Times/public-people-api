@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+// TODO Add Test cases for more of the mapping functions and perhaps mock out back end (although ? if mocking neoism is of value)
+
 // TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
 func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
 	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null,"memberships":[]}`
