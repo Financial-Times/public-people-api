@@ -12,7 +12,7 @@ import (
 // Driver interface
 type Driver interface {
 	Read(id string) (person Person, found bool, err error)
-	CheckConnectivity() (ok bool, err error)
+	CheckConnectivity() error
 }
 
 // CypherDriver struct
@@ -26,7 +26,7 @@ func NewCypherDriver(db *neoism.Database) CypherDriver {
 }
 
 // CheckConnectivity tests neo4j by running a simple cypher query
-func (pcw CypherDriver) CheckConnectivity() (bool, error) {
+func (pcw CypherDriver) CheckConnectivity() error {
 	results := []struct {
 		ID int
 	}{}
@@ -35,10 +35,8 @@ func (pcw CypherDriver) CheckConnectivity() (bool, error) {
 		Result:    &results,
 	}
 	err := pcw.db.Cypher(query)
-	log.Debugf("Neo4j returned %+v", results[0])
-	ok := len(results) > 0
-	log.Debugf("CheckConnectivity %t %+v", ok, err)
-	return ok, err
+	log.Debugf("CheckConnectivity results:%+v  err: %+v", results, err)
+	return err
 }
 
 type neoChangeEvent struct {
