@@ -27,8 +27,8 @@ func HealthCheck() v1a.Check {
 
 // Checker does more stuff
 func Checker() (string, error) {
-	ok, err := PeopleDriver.CheckConnectivity()
-	if ok && err == nil {
+	err := PeopleDriver.CheckConnectivity()
+	if err == nil {
 		return "Connectivity to neo4j is ok", err
 	}
 	return "Error connecting to neo4j", err
