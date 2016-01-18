@@ -18,7 +18,8 @@ class public_people_api {
 
   $service_args = hiera('service_args','')
 
-  #class { 'common_pp_up': }
+  class { 'common_pp_up': }
+  class { "${module_name}::monitoring": }
 
   user { $service_name:
     ensure    => present,
