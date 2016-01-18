@@ -25,6 +25,15 @@ class public_people_api {
     ensure    => present,
   }
 
+  satellitesubscribe { 'gateway-epel':
+    channel_name  => 'epel'
+  }
+
+  package { 'python-pip':
+      ensure    => 'installed',
+      require   => Satellitesubscribe["gateway-epel"]
+  }
+
   file {
     $install_dir:
       mode    => "0644",

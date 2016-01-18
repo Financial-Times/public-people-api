@@ -9,3 +9,4 @@ project_page 'https://github.com/Financial-Times/public-people-api'
 
 ## Add dependencies, if any:
 dependency 'ft/common_pp_up', '1.0.x'
+dependency 'ft/satellitesubscribe', '0.0.x'
