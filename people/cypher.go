@@ -82,6 +82,7 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 	query := &neoism.CypherQuery{
 		Statement: `
                         MATCH (p:Person{uuid:{uuid}})<-[:HAS_MEMBER]-(m:Membership)
+                        USING INDEX p:Person(uuid)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
                         WITH
@@ -117,8 +118,8 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 func neoReadStructToPerson(neo neoReadStruct) Person {
 	public := Person{}
 	public.Thing = &Thing{}
-	public.ID = uriutils.IdURL(neo.P.ID)
-	public.APIURL = uriutils.ApiURL(neo.P.ID, neo.P.Types)
+	public.ID = uriutils.IDURL(neo.P.ID)
+	public.APIURL = uriutils.APIURL(neo.P.ID, neo.P.Types)
 	public.Types = uriutils.TypeURIs(neo.P.Types)
 	public.PrefLabel = neo.P.PrefLabel
 	if len(neo.P.Labels) > 0 {
@@ -130,8 +131,8 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		membership.Title = neoMem.M.PrefLabel
 		membership.Organisation = Organisation{}
 		membership.Organisation.Thing = &Thing{}
-		membership.Organisation.ID = uriutils.IdURL(neoMem.O.ID)
-		membership.Organisation.APIURL = uriutils.ApiURL(neoMem.O.ID, neoMem.O.Types)
+		membership.Organisation.ID = uriutils.IDURL(neoMem.O.ID)
+		membership.Organisation.APIURL = uriutils.APIURL(neoMem.O.ID, neoMem.O.Types)
 		membership.Organisation.Types = uriutils.TypeURIs(neoMem.O.Types)
 		membership.Organisation.PrefLabel = neoMem.O.PrefLabel
 		if len(neoMem.O.Labels) > 0 {
@@ -142,8 +143,8 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		for rIdx, neoRole := range neoMem.R {
 			role := Role{}
 			role.Thing = &Thing{}
-			role.ID = uriutils.IdURL(neoRole.ID)
-			role.APIURL = uriutils.ApiURL(neoRole.ID, neoRole.Types)
+			role.ID = uriutils.IDURL(neoRole.ID)
+			role.APIURL = uriutils.APIURL(neoRole.ID, neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
 			membership.ChangeEvents = changeEvent(neoRole.ChangeEvents)
 			membership.Roles[rIdx] = role
