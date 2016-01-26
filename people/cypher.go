@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Financial-Times/uri-utils-go"
+	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
 )
@@ -118,9 +118,9 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 func neoReadStructToPerson(neo neoReadStruct) Person {
 	public := Person{}
 	public.Thing = &Thing{}
-	public.ID = uriutils.IDURL(neo.P.ID)
-	public.APIURL = uriutils.APIURL(neo.P.ID, neo.P.Types)
-	public.Types = uriutils.TypeURIs(neo.P.Types)
+	public.ID = mapper.IDURL(neo.P.ID)
+	public.APIURL = mapper.APIURL(neo.P.ID, neo.P.Types)
+	public.Types = mapper.TypeURIs(neo.P.Types)
 	public.PrefLabel = neo.P.PrefLabel
 	if len(neo.P.Labels) > 0 {
 		public.Labels = &neo.P.Labels
@@ -131,9 +131,9 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		membership.Title = neoMem.M.PrefLabel
 		membership.Organisation = Organisation{}
 		membership.Organisation.Thing = &Thing{}
-		membership.Organisation.ID = uriutils.IDURL(neoMem.O.ID)
-		membership.Organisation.APIURL = uriutils.APIURL(neoMem.O.ID, neoMem.O.Types)
-		membership.Organisation.Types = uriutils.TypeURIs(neoMem.O.Types)
+		membership.Organisation.ID = mapper.IDURL(neoMem.O.ID)
+		membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types)
+		membership.Organisation.Types = mapper.TypeURIs(neoMem.O.Types)
 		membership.Organisation.PrefLabel = neoMem.O.PrefLabel
 		if len(neoMem.O.Labels) > 0 {
 			membership.Organisation.Labels = &neoMem.O.Labels
@@ -143,8 +143,8 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		for rIdx, neoRole := range neoMem.R {
 			role := Role{}
 			role.Thing = &Thing{}
-			role.ID = uriutils.IDURL(neoRole.ID)
-			role.APIURL = uriutils.APIURL(neoRole.ID, neoRole.Types)
+			role.ID = mapper.IDURL(neoRole.ID)
+			role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types)
 			role.PrefLabel = neoRole.PrefLabel
 			membership.ChangeEvents = changeEvent(neoRole.ChangeEvents)
 			membership.Roles[rIdx] = role
