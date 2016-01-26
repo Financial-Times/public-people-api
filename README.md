@@ -3,7 +3,7 @@ __Provides a public API for People stored in a Neo4J graph database__
 
 ## Build & deployment etc:
 _NB You will need to tag a commit in order to build, since the UI asks for a tag to build / deploy_
-* [Jenkins view](http://ftjen10085-lvpr-uk-p:8181/view/public-people-api)
+* [Jenkins view](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/)
 * [Build and publish to forge](http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-build)
 * [Deploy to test or production](http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-deploy)
 
