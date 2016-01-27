@@ -81,7 +81,7 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 	}{}
 	query := &neoism.CypherQuery{
 		Statement: `
-                        MATCH (p:Person{uuid:{uuid}})
+                        PLANNER RULE MATCH (p:Person{uuid:{uuid}})
                         USING INDEX p:Person(uuid)
                         MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
