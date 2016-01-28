@@ -1,5 +1,5 @@
 name    'ft-public_people_api'
-version '0.0.29'
+version '0.0.31'
 source 'git@github.com:Financial-Times/public-people-api.git'
 author 'ft'
 license 'Apache License, Version 2.0'
