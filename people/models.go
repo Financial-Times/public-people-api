@@ -29,7 +29,7 @@ type Person struct {
 	*Thing
 	Types       []string     `json:"types"`
 	Labels      *[]string    `json:"labels,omitempty"`
-	Memberships []Membership `json:"memberships"`
+	Memberships []Membership `json:"memberships,omitempty"`
 	Salutation  string       `json:"salutation,omitempty"`
 	BirthYear   string       `json:"birthYear,omitempty"`
 }

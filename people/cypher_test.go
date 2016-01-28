@@ -11,7 +11,7 @@ import (
 
 // TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
 func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
-	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null,"memberships":[]}`
+	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
 	person := neoReadStructToPerson(neoReadStruct{})
 	personJSON, err := json.Marshal(person)
 	assert := assert.New(t)
@@ -23,7 +23,7 @@ func TestNeoReadStructToPersonMultipleMemberships(t *testing.T) {
 	t.SkipNow()
 	// Todo implement
 	assert := assert.New(t)
-	expected := `{"id":"http://api.ft.com/things/","apiUrl":"","types":null,"memberships":[]}`
+	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
 	neoStruct := new(neoReadStruct)
 	//	neoStruct.P = {ID:"111-111", Types:{"Person", "Concept", "Thing"}, PrefLabel:"Dan Murphy"}
 	person := neoReadStructToPerson(*neoStruct)

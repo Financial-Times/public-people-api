@@ -81,16 +81,16 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 	}{}
 	query := &neoism.CypherQuery{
 		Statement: `
-                        PLANNER RULE MATCH (p:Person{uuid:{uuid}})
-                        MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
+												PLANNER RULE MATCH (p:Person{uuid:{uuid}})
+                        OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
+												OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content)
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
-                        WITH
-                                { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.labels} as p,
-                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel, labels:o.labels} as o,
+                        WITH    { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.labels} as p,
+                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel, labels:o.labels, annCount:COUNT(c)} as o,
                                 { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
                                 { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as r
-                        WITH p, m, o, collect(r) as r
+                        WITH p, m, o, collect(r) as r ORDER BY o.annCount DESC
                         WITH p, collect({m:m, o:o, r:r}) as m
                         RETURN collect ({p:p, m:m}) as rs
                 `,
@@ -125,41 +125,52 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 	if len(neo.P.Labels) > 0 {
 		public.Labels = &neo.P.Labels
 	}
-	public.Memberships = make([]Membership, len(neo.M))
-	for mIdx, neoMem := range neo.M {
-		membership := Membership{}
-		membership.Title = neoMem.M.PrefLabel
-		membership.Organisation = Organisation{}
-		membership.Organisation.Thing = &Thing{}
-		membership.Organisation.ID = mapper.IDURL(neoMem.O.ID)
-		membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types)
-		membership.Organisation.Types = mapper.TypeURIs(neoMem.O.Types)
-		membership.Organisation.PrefLabel = neoMem.O.PrefLabel
-		if len(neoMem.O.Labels) > 0 {
-			membership.Organisation.Labels = &neoMem.O.Labels
+
+	if len(neo.M) == 1 && (neo.M[0].M.ID == "") {
+		public.Memberships = make([]Membership, 0, 0)
+	} else {
+		public.Memberships = make([]Membership, len(neo.M))
+		for mIdx, neoMem := range neo.M {
+			membership := Membership{}
+			membership.Title = neoMem.M.PrefLabel
+			membership.Organisation = Organisation{}
+			membership.Organisation.Thing = &Thing{}
+			membership.Organisation.ID = mapper.IDURL(neoMem.O.ID)
+			membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types)
+			membership.Organisation.Types = mapper.TypeURIs(neoMem.O.Types)
+			membership.Organisation.PrefLabel = neoMem.O.PrefLabel
+			if len(neoMem.O.Labels) > 0 {
+				membership.Organisation.Labels = &neoMem.O.Labels
+			}
+			if a, b := changeEvent(neoMem.M.ChangeEvents); a == true {
+				membership.ChangeEvents = b
+			}
+			membership.Roles = make([]Role, len(neoMem.R))
+			for rIdx, neoRole := range neoMem.R {
+				role := Role{}
+				role.Thing = &Thing{}
+				role.ID = mapper.IDURL(neoRole.ID)
+				role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types)
+				role.PrefLabel = neoRole.PrefLabel
+				if a, b := changeEvent(neoRole.ChangeEvents); a == true {
+					membership.ChangeEvents = b
+				}
+
+				membership.Roles[rIdx] = role
+			}
+			public.Memberships[mIdx] = membership
 		}
-		membership.ChangeEvents = changeEvent(neoMem.M.ChangeEvents)
-		membership.Roles = make([]Role, len(neoMem.R))
-		for rIdx, neoRole := range neoMem.R {
-			role := Role{}
-			role.Thing = &Thing{}
-			role.ID = mapper.IDURL(neoRole.ID)
-			role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types)
-			role.PrefLabel = neoRole.PrefLabel
-			membership.ChangeEvents = changeEvent(neoRole.ChangeEvents)
-			membership.Roles[rIdx] = role
-		}
-		public.Memberships[mIdx] = membership
 	}
 	log.Debugf("neoReadStructToPerson neo: %+v result: %+v", neo, public)
 	return public
 }
 
-func changeEvent(neoChgEvts []neoChangeEvent) *[]ChangeEvent {
-	if len(neoChgEvts) == 0 {
-		return nil
-	}
+func changeEvent(neoChgEvts []neoChangeEvent) (bool, *[]ChangeEvent) {
 	var results []ChangeEvent
+	if neoChgEvts[0].StartedAt == "" && neoChgEvts[0].EndedAt == "" {
+		results = make([]ChangeEvent, 0, 0)
+		return false, &results
+	}
 	for _, neoChgEvt := range neoChgEvts {
 		if neoChgEvt.StartedAt != "" {
 			results = append(results, ChangeEvent{StartedAt: neoChgEvt.StartedAt})
@@ -169,5 +180,5 @@ func changeEvent(neoChgEvts []neoChangeEvent) *[]ChangeEvent {
 		}
 	}
 	log.Debugf("changeEvent converted: %+v result:%+v", neoChgEvts, results)
-	return &results
+	return true, &results
 }

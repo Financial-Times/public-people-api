@@ -2,19 +2,20 @@ package people
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"net"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 //TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
 func TestCanGetAPerson(t *testing.T) {
-	// TODO figure out how best to test handlers.
 	t.SkipNow()
+	// TODO figure out how best to test handlers.
 	assert := assert.New(t)
-	expected := `{"id":"http://api.ft.com/things/","apiUrl":"","types":null,"memberships":[]}`
+	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
 	person := neoReadStructToPerson(neoReadStruct{})
 	personJSON, err := json.Marshal(person)
 	assert.NoError(err, "Unable to marshal Person to JSON")
@@ -25,8 +26,7 @@ var httpClient = &http.Client{
 	Transport: &http.Transport{
 		MaxIdleConnsPerHost: 32,
 		Dial: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 30 * time.Second,
+			Timeout: 30 * time.Second,
 		}).Dial,
 	},
 }

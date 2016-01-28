@@ -3,8 +3,9 @@ package people
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"net/http"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/gorilla/mux"
