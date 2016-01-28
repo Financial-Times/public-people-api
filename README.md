@@ -18,6 +18,8 @@ _Both arguments are optional.
 --neo-url defaults to http://localhost:7474/db/data, which is the out of box url for a local neo4j instance.
 --port defaults to 8080._
 * `curl http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517 | json_pp`
+Or using [httpie](https://github.com/jkbrzt/httpie)
+* `http GET http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517`
 
 ## API definition
 Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
