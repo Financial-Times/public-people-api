@@ -1,4 +1,4 @@
-# Public API for People (public-people-api-neo4j)
+# Public API for People (public-people-api)
 __Provides a public API for People stored in a Neo4J graph database__
 
 ## Build & deployment etc:
