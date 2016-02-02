@@ -127,7 +127,6 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		public.Labels = &neo.P.Labels
 	}
 
-	log.Info("LENGTH of memberships:", len(neo.M))
 	if len(neo.M) == 1 && (neo.M[0].M.ID == "") {
 		public.Memberships = make([]Membership, 0, 0)
 	} else {
@@ -155,7 +154,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 				role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types)
 				role.PrefLabel = neoRole.PrefLabel
 				if a, b := changeEvent(neoRole.ChangeEvents); a == true {
-					membership.ChangeEvents = b
+					role.ChangeEvents = b
 				}
 
 				membership.Roles[rIdx] = role
