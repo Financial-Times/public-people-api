@@ -20,12 +20,13 @@ var PeopleDriver Driver
 // HealthCheck does something
 func HealthCheck() v1a.Check {
 	return v1a.Check{
-		BusinessImpact:   "Unable to respond to Public People api requests",
-		Name:             "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
-		PanicGuide:       "TODO - write panic guide",
-		Severity:         1,
-		TechnicalSummary: "Cannot connect to Neo4j a instance with at least one person loaded in it",
-		Checker:          Checker,
+		BusinessImpact: "Unable to respond to Public People api requests",
+		Name:           "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
+		PanicGuide:     "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/public-people-api",
+		Severity:       1,
+		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find 
+				the neoUrl as a parameter in hieradata for this service. `,
+		Checker: Checker,
 	}
 }
 
