@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	//"time"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -13,6 +14,8 @@ import (
 
 // PeopleDriver for cypher queries
 var PeopleDriver Driver
+
+//var maxAge = 24 * time.Hour
 
 // HealthCheck does something
 func HealthCheck() v1a.Check {
@@ -40,6 +43,11 @@ func Ping(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "pong")
 }
 
+// BuildInfoHandler - This is a stop gap and will be added to when we can define what we should display here
+func BuildInfoHandler(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "build-info")
+}
+
 // GetPerson is the public API
 func GetPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -65,5 +73,10 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	log.Debugf("Person(uuid:%s): %s\n", Jason)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(person)
+	//w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v", maxAge))
+	err = json.NewEncoder(w).Encode(person)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message":"Person could not be retrieved, err=` + err.Error() + `"}`))
+	}
 }

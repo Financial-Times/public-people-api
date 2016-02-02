@@ -53,6 +53,11 @@ func runServer(neoURL string, port string) {
 	r.HandleFunc("/ping", people.Ping)
 	r.HandleFunc("/__ping", people.Ping)
 
+	// The top one of these feels more correct, but the lower one matches what we have in Dropwizard,
+	// so it's what apps expect currently same as ping, the content of build-info needs more definition
+	r.HandleFunc("/__build-info", people.BuildInfoHandler)
+	r.HandleFunc("/build-info", people.BuildInfoHandler)
+
 	// Then API specific ones:
 	r.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
 
