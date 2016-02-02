@@ -47,8 +47,8 @@ public class Membership {
 type Membership struct {
 	Title        string         `json:"title,omitempty"`
 	Organisation Organisation   `json:"organisation"`
-	Roles        []Role         `json:"roles"`
 	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`
+	Roles        []Role         `json:"roles"`
 }
 
 // Organisation simplified representation used in Person API
