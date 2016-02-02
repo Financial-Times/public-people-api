@@ -81,19 +81,20 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 	}{}
 	query := &neoism.CypherQuery{
 		Statement: `
-												PLANNER RULE MATCH (p:Person{uuid:{uuid}})
-                        OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
-                        OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
-												OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content)
-                        OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
-                        WITH    { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases} as p,
-                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel, labels:o.labels, annCount:COUNT(c)} as o,
-                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
-                                { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as r
-                        WITH p, m, o, collect(r) as r ORDER BY o.annCount DESC
-                        WITH p, collect({m:m, o:o, r:r}) as m
-                        RETURN collect ({p:p, m:m}) as rs
-                `,
+							MATCH (p:Person{uuid:{uuid}})
+							OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
+							OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
+							OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content)
+							OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
+							WITH    p,
+							{ id:o.uuid, types:labels(o), prefLabel:o.prefLabel, annCount:COUNT(c)} as o,
+							{ id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
+							{ id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
+							WITH p, m, o, collect(r) as r ORDER BY o.annCount DESC
+							WITH p, collect({m:m, o:o, r:r}) as m
+							WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases} as p
+							RETURN collect ({p:p, m:m}) as rs
+							`,
 		Parameters: neoism.Props{"uuid": uuid},
 		Result:     &results,
 	}
@@ -126,6 +127,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 		public.Labels = &neo.P.Labels
 	}
 
+	log.Info("LENGTH of memberships:", len(neo.M))
 	if len(neo.M) == 1 && (neo.M[0].M.ID == "") {
 		public.Memberships = make([]Membership, 0, 0)
 	} else {
