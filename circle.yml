@@ -1,0 +1,9 @@
+machine:
+  services:
+    - neo4j
+  environment:
+    NEO4J_TEST_URL: http://neo4j:x@localhost:7474/db/data/
+
+test:
+  pre:
+    - 'curl -u neo4j:neo4j -H "Content-Type: application/json" -X POST -d ''{"password":"x"}''  http://localhost:7474/user/neo4j/password'
