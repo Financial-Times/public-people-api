@@ -45,8 +45,8 @@ func main() {
 		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
 		runServer(*neoURL, *port)
 	}
-
 	log.SetLevel(log.InfoLevel)
+	log.SetFormatter(&log.TextFormatter{})
 	log.Infof("Application started with args %s", os.Args)
 	app.Run(os.Args)
 }
@@ -59,27 +59,28 @@ func runServer(neoURL string, port string) {
 	}
 	people.PeopleDriver = people.NewCypherDriver(db)
 
-	router := mux.NewRouter()
+	servicesRouter := mux.NewRouter()
 
 	// Healthchecks and standards first
-	router.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
+	servicesRouter.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
 		"Checks for accessing neo4j", people.HealthCheck()))
-	router.HandleFunc("/ping", people.Ping)
-	router.HandleFunc("/__ping", people.Ping)
+	servicesRouter.HandleFunc("/ping", people.Ping)
+	servicesRouter.HandleFunc("/__ping", people.Ping)
+
+	// Then API specific ones:
+	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
+
+	var monitoringRouter http.Handler = servicesRouter
+	monitoringRouter = httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), monitoringRouter)
+	monitoringRouter = httphandlers.HTTPMetricsHandler(metrics.DefaultRegistry, monitoringRouter)
 
 	// The top one of these feels more correct, but the lower one matches what we have in Dropwizard,
 	// so it's what apps expect currently same as ping, the content of build-info needs more definition
-	router.HandleFunc("/__build-info", people.BuildInfoHandler)
-	router.HandleFunc("/build-info", people.BuildInfoHandler)
+	http.HandleFunc("/__build-info", people.BuildInfoHandler)
+	http.HandleFunc("/build-info", people.BuildInfoHandler)
+	http.Handle("/", monitoringRouter)
 
-	// Then API specific ones:
-	router.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
-
-	var handler http.Handler = router
-	handler = httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), handler)
-	handler = httphandlers.HTTPMetricsHandler(metrics.DefaultRegistry, handler)
-
-	if err := http.ListenAndServe(":"+port, handler); err != nil {
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Unable to start server: %v", err)
 	}
 }
