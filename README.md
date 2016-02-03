@@ -44,3 +44,8 @@ Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
     1. Build & Tests
     1. Publish Release (using konstructor to generate vrm)
     1. Deploy vrm/hash to test/prod
+
+### Logging
+the application uses logrus, the logfile is initilaised in main.go.
+ logging requires an env app parameter, for all enviromets  other than local logs are written to file
+ when running locally logging is written to console (if you want to log locally to file you need to pass in an env parameter that is != local)
