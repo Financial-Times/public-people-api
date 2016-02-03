@@ -1,0 +1,15 @@
+{
+  "uuid": "13a9d251-71db-467a-af2f-7e56a61c910a",
+  "name": "Siobhan Morden",
+  "salutation": "Ms.",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FACTSET-PPL",
+      "identifierValue": "01ABCD-E"
+    }
+  ],
+  "aliases": [
+    "Siobhan Morden",
+    "Siobhan Morden"
+  ]
+}

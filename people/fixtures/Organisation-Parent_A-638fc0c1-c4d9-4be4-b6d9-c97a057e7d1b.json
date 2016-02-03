@@ -1,0 +1,14 @@
+{
+  "uuid": "638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b",
+  "properName": "ABN AMRO, Inc.",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FACTSET-EDM",
+      "identifierValue": "05LCG7-E"
+    }
+  ],
+  "parentOrganisation": "195df1b2-7e04-4c70-a865-4361c71e9a6b",
+  "shortName": "ABN Amro",
+  "hiddenLabel": "ABN AMRO INC",
+  "type": "Organisation"
+}

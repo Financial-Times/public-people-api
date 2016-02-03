@@ -1,0 +1,20 @@
+{
+  "uuid": "d137a439-3efd-4820-9cab-c200031e3dd9",
+  "prefLabel": "Head of Latin American Research & Strategy",
+  "personUuid": "13a9d251-71db-467a-af2f-7e56a61c910a",
+  "organisationUuid": "2802a267-aa96-4f68-897c-66e90d7d57e8",
+  "terminationDate": "2012-01-01T00:00:00.000Z",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FACTSET",
+      "identifierValue": "3603860"
+    }
+  ],
+  "membershipRoles": [
+    {
+      "roleUuid": "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+      "inceptionDate": "2010-12-11T00:00:00.000Z",
+      "terminationDate": "2012-01-01T00:00:00.000Z"
+    }
+  ]
+}
