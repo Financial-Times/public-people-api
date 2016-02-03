@@ -59,25 +59,27 @@ func runServer(neoURL string, port string) {
 	}
 	people.PeopleDriver = people.NewCypherDriver(db)
 
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
 	// Healthchecks and standards first
-	r.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
+	router.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
 		"Checks for accessing neo4j", people.HealthCheck()))
-	r.HandleFunc("/ping", people.Ping)
-	r.HandleFunc("/__ping", people.Ping)
+	router.HandleFunc("/ping", people.Ping)
+	router.HandleFunc("/__ping", people.Ping)
 
 	// The top one of these feels more correct, but the lower one matches what we have in Dropwizard,
 	// so it's what apps expect currently same as ping, the content of build-info needs more definition
-	r.HandleFunc("/__build-info", people.BuildInfoHandler)
-	r.HandleFunc("/build-info", people.BuildInfoHandler)
+	router.HandleFunc("/__build-info", people.BuildInfoHandler)
+	router.HandleFunc("/build-info", people.BuildInfoHandler)
 
 	// Then API specific ones:
-	r.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
+	router.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
 
-	if err := http.ListenAndServe(":"+port,
-		httphandlers.HTTPMetricsHandler(metrics.DefaultRegistry,
-			httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), r))); err != nil {
+	var handler http.Handler = router
+	handler = httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), handler)
+	handler = httphandlers.HTTPMetricsHandler(metrics.DefaultRegistry, handler)
+
+	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatalf("Unable to start server: %v", err)
 	}
 }
