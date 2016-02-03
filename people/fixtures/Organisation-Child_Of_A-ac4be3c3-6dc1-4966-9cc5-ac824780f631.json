@@ -1,0 +1,14 @@
+{
+  "uuid": "ac4be3c3-6dc1-4966-9cc5-ac824780f631",
+  "properName": "ABN AMRO Rothschild LLC",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FACTSET-EDM",
+      "identifierValue": "003R39-E"
+    }
+  ],
+  "parentOrganisation": "638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b",
+  "shortName": "ABN AMRO Rothschild",
+  "hiddenLabel": "ABN AMRO ROTHSCHILD LLC",
+  "type": "Organisation"
+}

@@ -1,0 +1,19 @@
+{
+  "uuid": "8865b295-c1f1-442e-8972-eb100dc50292",
+  "prefLabel": "Market Strategist",
+  "personUuid": "13a9d251-71db-467a-af2f-7e56a61c910a",
+  "organisationUuid": "638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b",
+  "terminationDate": "2007-12-31T00:00:00.000Z",
+  "identifiers": [
+    {
+      "authority": "http://api.ft.com/system/FACTSET",
+      "identifierValue": "885700"
+    }
+  ],
+  "membershipRoles": [
+    {
+      "roleUuid": "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+      "terminationDate": "2007-12-31T00:00:00.000Z"
+    }
+  ]
+}
