@@ -3,6 +3,7 @@ package people
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	log "github.com/Sirupsen/logrus"
@@ -168,18 +169,24 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 
 func changeEvent(neoChgEvts []neoChangeEvent) (bool, *[]ChangeEvent) {
 	var results []ChangeEvent
-	if neoChgEvts[0].StartedAt == "" && neoChgEvts[0].EndedAt == "" {
+	currentLayout := "2006-01-02T15:04:05.999Z"
+	layout := "2006-01-02T15:04:05Z"
+
+	if neoChgEvts[0].StartedAt == "" && neoChgEvts[1].EndedAt == "" {
 		results = make([]ChangeEvent, 0, 0)
 		return false, &results
 	}
 	for _, neoChgEvt := range neoChgEvts {
 		if neoChgEvt.StartedAt != "" {
-			results = append(results, ChangeEvent{StartedAt: neoChgEvt.StartedAt})
+			t, _ := time.Parse(currentLayout, neoChgEvt.StartedAt)
+			results = append(results, ChangeEvent{StartedAt: t.Format(layout)})
 		}
 		if neoChgEvt.EndedAt != "" {
-			results = append(results, ChangeEvent{EndedAt: neoChgEvt.EndedAt})
+			t, _ := time.Parse(layout, neoChgEvt.EndedAt)
+			results = append(results, ChangeEvent{EndedAt: t.Format(layout)})
 		}
 	}
+
 	log.Debugf("changeEvent converted: %+v result:%+v", neoChgEvts, results)
 	return true, &results
 }
