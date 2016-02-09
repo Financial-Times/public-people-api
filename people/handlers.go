@@ -3,17 +3,14 @@ package people
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	//"time"
-
-	log "github.com/Sirupsen/logrus"
-
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 // PeopleDriver for cypher queries
 var PeopleDriver Driver
+var CacheControlHeader string
 
 //var maxAge = 24 * time.Hour
 
@@ -76,13 +73,11 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"message":"Person not found."}`))
 		return
 	}
-	Jason, _ := json.Marshal(person)
-	log.Debugf("Person(uuid:%s): %s\n", Jason)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	w.Header().Set("Cache-Control", CacheControlHeader)
 	w.WriteHeader(http.StatusOK)
-	//w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v", maxAge))
-	err = json.NewEncoder(w).Encode(person)
-	if err != nil {
+
+	if err = json.NewEncoder(w).Encode(person); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message":"Person could not be retrieved, err=` + err.Error() + `"}`))
 	}

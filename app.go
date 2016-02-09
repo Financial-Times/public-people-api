@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"fmt"
 	"github.com/Financial-Times/base-ft-rw-app-go"
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/Financial-Times/http-handlers-go"
@@ -13,6 +14,8 @@ import (
 	"github.com/jawher/mow.cli"
 	"github.com/jmcvetta/neoism"
 	"github.com/rcrowley/go-metrics"
+	"strconv"
+	"time"
 )
 
 func main() {
@@ -27,6 +30,12 @@ func main() {
 	graphitePrefix := app.StringOpt("graphitePrefix", "",
 		"Prefix to use. Should start with content, include the environment, and the host name. e.g. content.test.public.people.api.ftaps59382-law1a-eu-t")
 	logMetrics := app.BoolOpt("logMetrics", false, "Whether to log metrics. Set to true if running locally and you want metrics output")
+	cacheDuration := app.StringOpt("cache-duration", "1h", "Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds")
+
+	duration, durationErr := time.ParseDuration((*cacheDuration))
+	if durationErr != nil {
+		log.Fatalf("Failed to initialise log file, %v", durationErr)
+	}
 
 	app.Action = func() {
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
@@ -44,20 +53,22 @@ func main() {
 		}
 
 		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		runServer(*neoURL, *port, *env)
+		runServer(*neoURL, *port, duration, *env)
 	}
 	log.SetLevel(log.InfoLevel)
 	log.Infof("Application started with args %s", os.Args)
 	app.Run(os.Args)
 }
 
-func runServer(neoURL string, port string, env string) {
+func runServer(neoURL string, port string, cacheDuration time.Duration, env string) {
 	db, err := neoism.Connect(neoURL)
 	db.Session.Client = &http.Client{Transport: &http.Transport{MaxIdleConnsPerHost: 100}}
 	if err != nil {
 		log.Fatalf("Error connecting to neo4j %s", err)
 	}
+
 	people.PeopleDriver = people.NewCypherDriver(db, env)
+	people.CacheControlHeader = fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(cacheDuration.Seconds(), 'f', 0, 64))
 
 	servicesRouter := mux.NewRouter()
 
