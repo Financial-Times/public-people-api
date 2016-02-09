@@ -48,7 +48,7 @@ func main() {
 		}
 
 		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		runServer(*neoURL, *port, cacheDuration, *env)
+		runServer(*neoURL, *port, *cacheDuration, *env)
 	}
 	log.SetLevel(log.InfoLevel)
 	log.Infof("Application started with args %s", os.Args)
