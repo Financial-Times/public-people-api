@@ -19,7 +19,7 @@ func main() {
 	log.Infof("Application starting with args %s", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
 	neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
-	//neoURL := app.StringOpt("neo-url", "http://ftper60304-law1a-eu-t:8080/db/data", "neo4j endpoint URL")
+	// neoURL := app.StringOpt("neo-url", "http://ftper60304-law1a-eu-t:8080/db/data", "neo4j endpoint URL")
 	port := app.StringOpt("port", "8080", "Port to listen on")
 	env := app.StringOpt("env", "local", "environment this app is running in")
 	graphiteTCPAddress := app.StringOpt("graphiteTCPAddress", "",
