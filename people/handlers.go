@@ -24,7 +24,7 @@ func HealthCheck() v1a.Check {
 		Name:           "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
 		PanicGuide:     "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/public-people-api",
 		Severity:       1,
-		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find 
+		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find
 				the neoUrl as a parameter in hieradata for this service. `,
 		Checker: Checker,
 	}
@@ -47,6 +47,12 @@ func Ping(w http.ResponseWriter, r *http.Request) {
 // BuildInfoHandler - This is a stop gap and will be added to when we can define what we should display here
 func BuildInfoHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "build-info")
+}
+
+// MethodNotAllowedHandler handles 405
+func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	return
 }
 
 // GetPerson is the public API

@@ -69,6 +69,7 @@ func runServer(neoURL string, port string, env string) {
 
 	// Then API specific ones:
 	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
+	servicesRouter.HandleFunc("/people/{uuid}", people.MethodNotAllowedHandler)
 
 	var monitoringRouter http.Handler = servicesRouter
 	monitoringRouter = httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), monitoringRouter)
