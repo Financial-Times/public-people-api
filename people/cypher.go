@@ -18,12 +18,13 @@ type Driver interface {
 
 // CypherDriver struct
 type CypherDriver struct {
-	db *neoism.Database
+	db  *neoism.Database
+	env string
 }
 
 //NewCypherDriver instantiate driver
-func NewCypherDriver(db *neoism.Database) CypherDriver {
-	return CypherDriver{db}
+func NewCypherDriver(db *neoism.Database, env string) CypherDriver {
+	return CypherDriver{db, env}
 }
 
 // CheckConnectivity tests neo4j by running a simple cypher query
@@ -112,16 +113,16 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 		log.Error(errMsg)
 		return Person{}, true, errors.New(errMsg)
 	}
-	person = neoReadStructToPerson(results[0].Rs[0])
+	person = neoReadStructToPerson(results[0].Rs[0], pcw.env)
 	log.Debugf("Returning %v", person)
 	return person, true, nil
 }
 
-func neoReadStructToPerson(neo neoReadStruct) Person {
+func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public := Person{}
 	public.Thing = &Thing{}
 	public.ID = mapper.IDURL(neo.P.ID)
-	public.APIURL = mapper.APIURL(neo.P.ID, neo.P.Types)
+	public.APIURL = mapper.APIURL(neo.P.ID, neo.P.Types, env)
 	public.Types = mapper.TypeURIs(neo.P.Types)
 	public.PrefLabel = neo.P.PrefLabel
 	if len(neo.P.Labels) > 0 {
@@ -138,7 +139,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 			membership.Organisation = Organisation{}
 			membership.Organisation.Thing = &Thing{}
 			membership.Organisation.ID = mapper.IDURL(neoMem.O.ID)
-			membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types)
+			membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types, env)
 			membership.Organisation.Types = mapper.TypeURIs(neoMem.O.Types)
 			membership.Organisation.PrefLabel = neoMem.O.PrefLabel
 			if len(neoMem.O.Labels) > 0 {
@@ -152,7 +153,7 @@ func neoReadStructToPerson(neo neoReadStruct) Person {
 				role := Role{}
 				role.Thing = &Thing{}
 				role.ID = mapper.IDURL(neoRole.ID)
-				role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types)
+				role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types, env)
 				role.PrefLabel = neoRole.PrefLabel
 				if a, b := changeEvent(neoRole.ChangeEvents); a == true {
 					role.ChangeEvents = b

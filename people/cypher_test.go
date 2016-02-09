@@ -20,7 +20,16 @@ import (
 // TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
 func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
 	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
-	person := neoReadStructToPerson(neoReadStruct{})
+	person := neoReadStructToPerson(neoReadStruct{}, "prod")
+	personJSON, err := json.Marshal(person)
+	assert := assert.New(t)
+	assert.NoError(err, "Unable to marshal Person to JSON")
+	assert.Equal(expected, string(personJSON))
+}
+
+func TestNeoReadStructToPersonEnvIsTest(t *testing.T) {
+	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://test.api.ft.com/things/","types":null}`
+	person := neoReadStructToPerson(neoReadStruct{}, "test")
 	personJSON, err := json.Marshal(person)
 	assert := assert.New(t)
 	assert.NoError(err, "Unable to marshal Person to JSON")
@@ -63,7 +72,7 @@ func TestNeoReadStructToPersonMultipleMemberships(t *testing.T) {
 	defer membershipsRW.Delete("d137a439-3efd-4820-9cab-c200031e3dd9")
 	defer membershipsRW.Delete("8865b295-c1f1-442e-8972-eb100dc50292")
 
-	publicPeopleDriver := NewCypherDriver(db)
+	publicPeopleDriver := NewCypherDriver(db, "prod")
 	person, found, err := publicPeopleDriver.Read("13a9d251-71db-467a-af2f-7e56a61c910a")
 	assert.NoError(err)
 	assert.True(found)

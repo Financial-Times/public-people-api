@@ -18,8 +18,8 @@ import (
 func main() {
 	log.Infof("Application starting with args %s", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
-	neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
-	//neoURL := app.StringOpt("neo-url", "http://ftper58827-law1b-eu-t:8080/db/data", "neo4j endpoint URL")
+	//neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
+	neoURL := app.StringOpt("neo-url", "http://ftper60304-law1a-eu-t:8080/db/data", "neo4j endpoint URL")
 	port := app.StringOpt("port", "8080", "Port to listen on")
 	env := app.StringOpt("env", "local", "environment this app is running in")
 	graphiteTCPAddress := app.StringOpt("graphiteTCPAddress", "",
@@ -35,6 +35,7 @@ func main() {
 			f, err := os.OpenFile("/var/log/apps/public-people-api-go-app.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 			if err == nil {
 				log.SetOutput(f)
+				log.SetFormatter(&log.TextFormatter{})
 			} else {
 				log.Fatalf("Failed to initialise log file, %v", err)
 			}
@@ -43,21 +44,20 @@ func main() {
 		}
 
 		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		runServer(*neoURL, *port)
+		runServer(*neoURL, *port, *env)
 	}
 	log.SetLevel(log.InfoLevel)
-	log.SetFormatter(&log.TextFormatter{})
 	log.Infof("Application started with args %s", os.Args)
 	app.Run(os.Args)
 }
 
-func runServer(neoURL string, port string) {
+func runServer(neoURL string, port string, env string) {
 	db, err := neoism.Connect(neoURL)
 	db.Session.Client = &http.Client{Transport: &http.Transport{MaxIdleConnsPerHost: 100}}
 	if err != nil {
 		log.Fatalf("Error connecting to neo4j %s", err)
 	}
-	people.PeopleDriver = people.NewCypherDriver(db)
+	people.PeopleDriver = people.NewCypherDriver(db, env)
 
 	servicesRouter := mux.NewRouter()
 

@@ -16,7 +16,7 @@ func TestCanGetAPerson(t *testing.T) {
 	// TODO figure out how best to test handlers.
 	assert := assert.New(t)
 	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
-	person := neoReadStructToPerson(neoReadStruct{})
+	person := neoReadStructToPerson(neoReadStruct{}, "prod")
 	personJSON, err := json.Marshal(person)
 	assert.NoError(err, "Unable to marshal Person to JSON")
 	assert.Equal(expected, string(personJSON), "Actual: %s doesn't match Expected: %s", string(personJSON), expected)
