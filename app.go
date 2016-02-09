@@ -32,11 +32,6 @@ func main() {
 	logMetrics := app.BoolOpt("logMetrics", false, "Whether to log metrics. Set to true if running locally and you want metrics output")
 	cacheDuration := app.StringOpt("cache-duration", "1h", "Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds")
 
-	duration, durationErr := time.ParseDuration((*cacheDuration))
-	if durationErr != nil {
-		log.Fatalf("Failed to initialise log file, %v", durationErr)
-	}
-
 	app.Action = func() {
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
 
@@ -53,14 +48,21 @@ func main() {
 		}
 
 		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		runServer(*neoURL, *port, duration, *env)
+		runServer(*neoURL, *port, cacheDuration, *env)
 	}
 	log.SetLevel(log.InfoLevel)
 	log.Infof("Application started with args %s", os.Args)
 	app.Run(os.Args)
 }
 
-func runServer(neoURL string, port string, cacheDuration time.Duration, env string) {
+func runServer(neoURL string, port string, cacheDuration string, env string) {
+
+	if duration, durationErr := time.ParseDuration(cacheDuration); durationErr != nil {
+		log.Fatalf("Failed to parse cache duration string, %v", durationErr)
+	} else {
+		people.CacheControlHeader = fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(duration.Seconds(), 'f', 0, 64))
+	}
+
 	db, err := neoism.Connect(neoURL)
 	db.Session.Client = &http.Client{Transport: &http.Transport{MaxIdleConnsPerHost: 100}}
 	if err != nil {
@@ -68,7 +70,6 @@ func runServer(neoURL string, port string, cacheDuration time.Duration, env stri
 	}
 
 	people.PeopleDriver = people.NewCypherDriver(db, env)
-	people.CacheControlHeader = fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(cacheDuration.Seconds(), 'f', 0, 64))
 
 	servicesRouter := mux.NewRouter()
 
