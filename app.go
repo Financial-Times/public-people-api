@@ -5,17 +5,19 @@ import (
 	"os"
 
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/Financial-Times/base-ft-rw-app-go"
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/Financial-Times/http-handlers-go"
 	"github.com/Financial-Times/public-people-api/people"
 	log "github.com/Sirupsen/logrus"
+	"github.com/getsentry/raven-go"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/jmcvetta/neoism"
 	"github.com/rcrowley/go-metrics"
-	"strconv"
-	"time"
 )
 
 func main() {
@@ -96,4 +98,8 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Unable to start server: %v", err)
 	}
+}
+
+func init() {
+	raven.SetDSN("https://acb6106463984de2800c797e7b071c6e:72248b46a932435eba9ba45398e77269@app.getsentry.com/66696")
 }

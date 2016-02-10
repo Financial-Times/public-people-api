@@ -3,9 +3,11 @@ package people
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Financial-Times/go-fthealth/v1a"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/Financial-Times/go-fthealth/v1a"
+	"github.com/getsentry/raven-go"
+	"github.com/gorilla/mux"
 )
 
 // PeopleDriver for cypher queries
@@ -66,6 +68,7 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
+		raven.CaptureError(err, nil)
 		return
 	}
 	if !found {
