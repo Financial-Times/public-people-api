@@ -20,15 +20,16 @@ import (
 	"github.com/rcrowley/go-metrics"
 )
 
-var env string
+var env *string
 
 func main() {
 	log.Infof("Application starting with args %s", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
 	neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
 	// neoURL := app.StringOpt("neo-url", "http://ftper60304-law1a-eu-t:8080/db/data", "neo4j endpoint URL")
+	sentryLogon := app.StringOpt("sentry-info", "", "Sentry logon info")
 	port := app.StringOpt("port", "8080", "Port to listen on")
-	env := app.StringOpt("env", "local", "environment this app is running in")
+	env = app.StringOpt("env", "local", "environment this app is running in")
 	graphiteTCPAddress := app.StringOpt("graphiteTCPAddress", "",
 		"Graphite TCP address, e.g. graphite.ft.com:2003. Leave as default if you do NOT want to output to graphite (e.g. if running locally)")
 	graphitePrefix := app.StringOpt("graphitePrefix", "",
@@ -38,6 +39,7 @@ func main() {
 
 	app.Action = func() {
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
+		setupSentry(*sentryLogon)
 
 		if *env != "local" {
 			f, err := os.OpenFile("/var/log/apps/public-people-api-go-app.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
@@ -103,8 +105,8 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	}
 }
 
-func init() {
-	if env == "prod" {
-		raven.SetDSN("https://acb6106463984de2800c797e7b071c6e:72248b46a932435eba9ba45398e77269@app.getsentry.com/66696")
+func setupSentry(logon string) {
+	if logon != "" {
+		raven.SetDSN(logon)
 	}
 }
