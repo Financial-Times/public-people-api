@@ -83,5 +83,6 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	if err = json.NewEncoder(w).Encode(person); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message":"Person could not be retrieved, err=` + err.Error() + `"}`))
+		raven.CaptureError(err, nil)
 	}
 }

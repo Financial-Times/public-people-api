@@ -20,6 +20,8 @@ import (
 	"github.com/rcrowley/go-metrics"
 )
 
+var env string
+
 func main() {
 	log.Infof("Application starting with args %s", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
@@ -69,6 +71,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	db.Session.Client = &http.Client{Transport: &http.Transport{MaxIdleConnsPerHost: 100}}
 	if err != nil {
 		log.Fatalf("Error connecting to neo4j %s", err)
+		raven.CaptureError(err, nil)
 	}
 
 	people.PeopleDriver = people.NewCypherDriver(db, env)
@@ -101,5 +104,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 }
 
 func init() {
-	raven.SetDSN("https://acb6106463984de2800c797e7b071c6e:72248b46a932435eba9ba45398e77269@app.getsentry.com/66696")
+	if env == "prod" {
+		raven.SetDSN("https://acb6106463984de2800c797e7b071c6e:72248b46a932435eba9ba45398e77269@app.getsentry.com/66696")
+	}
 }
