@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"net/http"
 	"os"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/Financial-Times/http-handlers-go"
 	"github.com/Financial-Times/public-people-api/people"
 	log "github.com/Sirupsen/logrus"
-	"github.com/getsentry/raven-go"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/jmcvetta/neoism"
@@ -37,7 +35,6 @@ func main() {
 
 	app.Action = func() {
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
-		setupSentry()
 
 		if *env != "local" {
 			f, err := os.OpenFile("/var/log/apps/public-people-api-go-app.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
@@ -71,7 +68,6 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	db.Session.Client = &http.Client{Transport: &http.Transport{MaxIdleConnsPerHost: 100}}
 	if err != nil {
 		log.Fatalf("Error connecting to neo4j %s", err)
-		raven.CaptureError(err, nil)
 	}
 
 	people.PeopleDriver = people.NewCypherDriver(db, env)
@@ -100,17 +96,5 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Unable to start server: %v", err)
-	}
-}
-
-func setupSentry() {
-	file, _ := os.Open("/usr/local/public-people-api/sentryLogon.txt")
-	scanner := bufio.NewScanner(file)
-	dsn := ""
-	for scanner.Scan() {
-		dsn = scanner.Text()
-	}
-	if dsn != "" {
-		raven.SetDSN(dsn)
 	}
 }
