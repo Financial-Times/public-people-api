@@ -8,7 +8,7 @@ import (
 
 	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
 	"github.com/Financial-Times/memberships-rw-neo4j/memberships"
-	"github.com/Financial-Times/neo-utils-go"
+	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/organisations-rw-neo4j/organisations"
 	person "github.com/Financial-Times/people-rw-neo4j/people"
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
