@@ -3,7 +3,10 @@ package people
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Financial-Times/base-ft-rw-app-go"
+	"os"
+	"testing"
+
+	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
 	"github.com/Financial-Times/memberships-rw-neo4j/memberships"
 	"github.com/Financial-Times/neo-utils-go"
 	"github.com/Financial-Times/organisations-rw-neo4j/organisations"
@@ -11,8 +14,6 @@ import (
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
 	"github.com/jmcvetta/neoism"
 	"github.com/stretchr/testify/assert"
-	"os"
-	"testing"
 )
 
 // TODO Add Test cases for more of the mapping functions and perhaps mock out back end (although ? if mocking neoism is of value)

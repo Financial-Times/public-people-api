@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Financial-Times/base-ft-rw-app-go"
+	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/Financial-Times/http-handlers-go"
 	"github.com/Financial-Times/public-people-api/people"
