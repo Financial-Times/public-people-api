@@ -79,7 +79,6 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 		"Checks for accessing neo4j", people.HealthCheck()))
 	servicesRouter.HandleFunc("/ping", people.Ping)
 	servicesRouter.HandleFunc("/__ping", people.Ping)
-	servicesRouter.HandleFunc("/__gtg", people.GoodToGo)
 
 	// Then API specific ones:
 	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
@@ -89,10 +88,12 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	monitoringRouter = httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), monitoringRouter)
 	monitoringRouter = httphandlers.HTTPMetricsHandler(metrics.DefaultRegistry, monitoringRouter)
 
-	// The top one of these feels more correct, but the lower one matches what we have in Dropwizard,
+	// The following endpoints should not be monitored or logged (varnish calls one of these every second, depending on config)
+	// The top one of these build info endpoints feels more correct, but the lower one matches what we have in Dropwizard,
 	// so it's what apps expect currently same as ping, the content of build-info needs more definition
 	http.HandleFunc("/__build-info", people.BuildInfoHandler)
 	http.HandleFunc("/build-info", people.BuildInfoHandler)
+	http.HandleFunc("/__gtg", people.GoodToGo)
 	http.Handle("/", monitoringRouter)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
