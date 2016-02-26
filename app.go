@@ -40,7 +40,7 @@ func main() {
 			f, err := os.OpenFile("/var/log/apps/public-people-api-go-app.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 			if err == nil {
 				log.SetOutput(f)
-				log.SetFormatter(&log.TextFormatter{})
+				log.SetFormatter(&log.TextFormatter{DisableColors: true})
 			} else {
 				log.Fatalf("Failed to initialise log file, %v", err)
 			}
