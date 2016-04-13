@@ -5,8 +5,8 @@ __Provides a public API for People stored in a Neo4J graph database__
 _NB You will need to tag a commit in order to build, since the UI asks for a tag to build / deploy_
 * [Jenkins view](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/)
 * [Build and publish to forge](http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-build)
-* [Deploy to test or production](http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-deploy)
-
+* [Deploy to Test](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/job/public-people-api-deploy-test/)
+* [Deploy to Production](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/job/public-people-api-deploy-to-prod/)
 
 ## Installation & running locally
 * `go get -u github.com/Financial-Times/public-people-api`
@@ -28,26 +28,8 @@ Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-
 ## Healthchecks
 Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
 
-## Todo
-### For parity with existing API
-* Add in TMELabels as part of labels (uniq)
-* Use annotations for ordering memberships
-
-### API specific
-* Complete Test cases
-* Runbook
-* Update or new API documentation based on original [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
-
-### Cross cutting concerns
-* Allow service to start if neo4j is unavailable at startup time
-* Rework build / deploy (low priority)
-  * Suggested flow:
-    1. Build & Tests
-    1. Publish Release (using konstructor to generate vrm)
-    1. Deploy vrm/hash to test/prod
-
 ### Logging
 the application uses logrus, the logfile is initilaised in main.go.
  logging requires an env app parameter, for all enviromets  other than local logs are written to file
  when running locally logging is written to console (if you want to log locally to file you need to pass in an env parameter that is != local)
- NOTE: build-info end point is not logged as it is called every second from varnish and this information is not needed in  logs/splunk
+ NOTE: build-info and gtg end points are not logged as they are called every second from varnish/vulcand and this information is not needed in  logs/splunk
