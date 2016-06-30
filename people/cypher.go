@@ -109,6 +109,7 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 	}
 	log.Debugf("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results)
 	if (len(results)) == 0 || len(results[0].Rs) == 0 {
+		log.WithFields(log.Fields{"uuid":uuid.String()}).Debug("Result not found")
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
 		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)

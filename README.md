@@ -26,14 +26,9 @@ _NB. You will need to tag a commit in order to build, since the UI asks for a ta
         go test ./...
         go install
 
-1. Run the binary:
+1. Run the binary (using the `help` flag to see the available optional arguments):
 
-        $GOPATH/bin/public-people-api [--neo-url={neo4jUrl}] [--port={port}] [--log-level={DEBUG|INFO|WARN|ERROR}] [--cache-duration={e.g. 22h10m3s}]
-
-    Optional arguments are:
-    * `--neo-url` defaults to http://localhost:7474/db/data, which is the default url for a local neo4j instance.
-    * `--port` defaults to 8080.
-    * `--cache-duration` defaults to 1 hour.
+        $GOPATH/bin/public-people-api [--help]
 
 1. Test:
 
