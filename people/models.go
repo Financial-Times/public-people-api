@@ -1,15 +1,6 @@
 package people
 
 // Thing is the base entity, all nodes in neo4j should have these properties
-/* The following is currently defined in Java (3da1b900b38)
-@JsonInclude(NON_EMPTY)
-public class Thing {
-    public String id;
-    public String apiUrl;
-    public String prefLabel;
-    public List<String> types = new ArrayList<>();
-}
-*/
 type Thing struct {
 	ID        string `json:"id"`
 	APIURL    string `json:"apiUrl"` // self ?
@@ -17,14 +8,6 @@ type Thing struct {
 }
 
 // Person is the structure used for the people API
-/* The following is currently defined in Java (e4b93668e32)
-@JsonInclude(NON_EMPTY)
-public class Person extends Thing {
-    public List<String> labels = new ArrayList<>();
-    public String profile;
-    public List<Membership> memberships = new ArrayList<>();
-}
-*/
 type Person struct {
 	*Thing
 	Types       []string     `json:"types"`
@@ -35,15 +18,6 @@ type Person struct {
 }
 
 // Membership represents the relationship between a person and their roles associated with an organisation
-/*
-@JsonInclude(Include.NON_EMPTY)
-public class Membership {
-    public String title;
-    public Thing organisation;
-    public Thing person;
-    public List<ChangeEvent> changeEvents = new ArrayList();
-    public List<MembershipRole> roles = new ArrayList();
-*/
 type Membership struct {
 	Title        string         `json:"title,omitempty"`
 	Organisation Organisation   `json:"organisation"`
@@ -59,24 +33,12 @@ type Organisation struct {
 }
 
 // Role represents the capacity or funciton that a person performs for an organisation
-/*
-@JsonInclude(Include.NON_EMPTY)
-public class MembershipRole extends Thing {
-    public List<ChangeEvent> changeEvents = new ArrayList();
-}
-*/
 type Role struct {
 	*Thing
 	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`
 }
 
 // ChangeEvent represent when something started or ended
-/*
-@JsonInclude(Include.NON_EMPTY)
-public class ChangeEvent {
-    public String startedAt;
-    public String endedAt;
-*/
 type ChangeEvent struct {
 	StartedAt string `json:"startedAt,omitempty"`
 	EndedAt   string `json:"endedAt,omitempty"`
