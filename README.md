@@ -1,13 +1,6 @@
 # Public API for People (public-people-api)
 __Provides a public API for People stored in a Neo4J graph database__
 
-## Build & deployment etc:
-_NB You will need to tag a commit in order to build, since the UI asks for a tag to build / deploy_
-* [Jenkins view](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/)
-* [Build and publish to forge](http://ftjen10085-lvpr-uk-p:8181/job/public-people-api-build)
-* [Deploy to Test](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/job/public-people-api-deploy-test/)
-* [Deploy to Production](http://ftjen10085-lvpr-uk-p:8181/view/JOBS-public-people-api/job/public-people-api-deploy-to-prod/)
-
 ## Installation & running locally
 * `go get -u github.com/Financial-Times/public-people-api`
 * `cd $GOPATH/src/github.com/Financial-Times/public-people-api`
@@ -22,8 +15,14 @@ _Optional arguments are:
 Or using [httpie](https://github.com/jkbrzt/httpie)
 * `http GET http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517`
 
-## API definition
-Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83)
+## Endpoints
+### GET
+
+* `curl http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517 | json_pp`
+Or using [httpie](https://github.com/jkbrzt/httpie)
+* `http GET http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517`
+
+The expected response will contain information about the person, and the organisations they are connected to (via memberships).
 
 ## Healthchecks
 Healthchecks: [http://localhost:8080/__health](http://localhost:8080/__health)
