@@ -8,11 +8,12 @@ import (
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
+	"github.com/satori/go.uuid"
 )
 
 // Driver interface
 type Driver interface {
-	Read(id string) (person Person, found bool, err error)
+	Read(id uuid.UUID) (person Person, found bool, err error)
 	CheckConnectivity() error
 }
 
@@ -76,14 +77,15 @@ type neoReadStruct struct {
 	}
 }
 
-func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error) {
+func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err error) {
 	person = Person{}
 	results := []struct {
 		Rs []neoReadStruct
 	}{}
 	query := &neoism.CypherQuery{
 		Statement: `
-                        MATCH (p:Person{uuid:{uuid}})
+                        MATCH (identifier:UPPIdentifier{value:{uuid}})
+                        MATCH (identifier)-[:IDENTIFIES]->(p:Person)
                         OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
                         OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content)
@@ -97,7 +99,7 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
                         WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
-		Parameters: neoism.Props{"uuid": uuid},
+		Parameters: neoism.Props{"uuid": uuid.String()},
 		Result:     &results,
 	}
 	err = pcw.db.Cypher(query)

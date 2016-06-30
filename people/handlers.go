@@ -7,6 +7,8 @@ import (
 
 	"github.com/Financial-Times/go-fthealth/v1a"
 	"github.com/gorilla/mux"
+	"strings"
+	"github.com/satori/go.uuid"
 )
 
 // PeopleDriver for cypher queries
@@ -64,14 +66,14 @@ func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
 // GetPerson is the public API
 func GetPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	uuid := vars["uuid"]
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if uuid == "" {
-		http.Error(w, "uuid required", http.StatusBadRequest)
+	requestedId, err := uuid.FromString(vars["uuid"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	person, found, err := PeopleDriver.Read(uuid)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	person, found, err := PeopleDriver.Read(requestedId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
@@ -80,6 +82,14 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	if !found {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(`{"message":"Person not found."}`))
+		return
+	}
+	personId, _ := uuid.FromString(person.ID)
+	if personId == requestedId {
+		canonicalUUID := personId
+		redirectURL := strings.Replace(r.RequestURI, requestedId.String(), canonicalUUID.String(), 1)
+		w.Header().Set("Location", redirectURL)
+		w.WriteHeader(http.StatusMovedPermanently)
 		return
 	}
 

@@ -85,6 +85,81 @@ func TestNeoReadStructToPersonMultipleMemberships(t *testing.T) {
 	assert.Equal(person.PrefLabel, "Siobhan Morden")
 }
 
+//func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
+//	assert := assert.New(t)
+//	db := getDatabaseConnectionAndCheckClean(t, assert)
+//	batchRunner := neoutils.NewBatchCypherRunner(neoutils.StringerDb{db}, 1)
+//	_, organisationRW, _, _ := getServices(t, assert, db, &batchRunner)
+//
+//	writeOrg(assert, organisationRW, "./fixtures/Organisation-Complex-f21a5cc0-d326-4e62-b84a-d840c2209fee.json")
+//
+//	defer cleanDB(db, t, assert)
+//	defer deleteOrgViaService(assert, organisationRW, "f21a5cc0-d326-4e62-b84a-d840c2209fee")
+//
+//	undertest := NewCypherDriver(db, "prod")
+//	org, found, err := undertest.Read("f21a5cc0-d326-4e62-b84a-d840c2209fee")
+//	assert.NoError(err)
+//	assert.True(found)
+//	assert.NotNil(org)
+//
+//	assert.Equal("http://api.ft.com/things/f21a5cc0-d326-4e62-b84a-d840c2209fee", org.ID)
+//	assert.Equal("http://api.ft.com/organisations/f21a5cc0-d326-4e62-b84a-d840c2209fee", org.APIURL)
+//	assert.Equal("7ZW8QJWVPR4P1J1KQY46", org.LegalEntityIdentifier)
+//	assertListContainsAll(assert, org.Types, "http://www.ft.com/ontology/core/Thing", "http://www.ft.com/ontology/concept/Concept", "http://www.ft.com/ontology/organisation/Organisation")
+//	assert.Equal("Awesome, Inc.", org.PrefLabel)
+//
+//}
+
+//func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
+//	assert := assert.New(t)
+//	db := getDatabaseConnectionAndCheckClean(t, assert)
+//	batchRunner := neoutils.NewBatchCypherRunner(neoutils.StringerDb{db}, 1)
+//	_, organisationRW, _, _ := getServices(t, assert, db, &batchRunner)
+//
+//	writeOrg(assert, organisationRW, "./fixtures/Organisation-Complex-f21a5cc0-d326-4e62-b84a-d840c2209fee.json")
+//
+//	canonicalUUID := "f21a5cc0-d326-4e62-b84a-d840c2209fee"
+//	alternateUUID := "2421f3fa-5a6a-4320-88f5-7926d1cb2379"
+//
+//	defer cleanDB(db, t, assert)
+//	defer deleteOrgViaService(assert, organisationRW, canonicalUUID)
+//
+//	undertest := NewCypherDriver(db, "prod")
+//	org, found, err := undertest.Read(alternateUUID)
+//	assert.NoError(err)
+//	assert.True(found)
+//	assert.NotNil(org)
+//
+//	assert.Equal("http://api.ft.com/things/" + canonicalUUID, org.ID)
+//	assert.Equal("http://api.ft.com/organisations/" + canonicalUUID, org.APIURL)
+//	assert.Equal("7ZW8QJWVPR4P1J1KQY46", org.LegalEntityIdentifier)
+//	assertListContainsAll(assert, org.Types, "http://www.ft.com/ontology/core/Thing", "http://www.ft.com/ontology/concept/Concept", "http://www.ft.com/ontology/organisation/Organisation")
+//	assert.Equal("Awesome, Inc.", org.PrefLabel)
+//
+//}
+
+//func TestNeoReadOrganisationWithMissingUPPIDShouldReturnEmptyOrg(t *testing.T) {
+//	assert := assert.New(t)
+//	db := getDatabaseConnectionAndCheckClean(t, assert)
+//	batchRunner := neoutils.NewBatchCypherRunner(neoutils.StringerDb{db}, 1)
+//	_, organisationRW, _, _ := getServices(t, assert, db, &batchRunner)
+//
+//	writeOrg(assert, organisationRW, "./fixtures/Organisation-Complex-f21a5cc0-d326-4e62-b84a-d840c2209fee.json")
+//
+//	uuid := "3e844449-b27f-40d4-b696-2ce9b6137133"
+//	canonicalUUID := "f21a5cc0-d326-4e62-b84a-d840c2209fee"
+//
+//	defer cleanDB(db, t, assert)
+//	defer deleteOrgViaService(assert, organisationRW, canonicalUUID)
+//
+//	undertest := NewCypherDriver(db, "prod")
+//	org, found, err := undertest.Read(uuid)
+//	assert.NoError(err)
+//	assert.False(found)
+//	assert.NotNil(org)
+//	assert.Equal(Organisation{}, org)
+//}
+
 func assertMemberships(person *Person, assert *assert.Assertions) {
 	assert.Len(person.Memberships, 3)
 	organisations := make([]string, 3)
