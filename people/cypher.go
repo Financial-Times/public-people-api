@@ -48,10 +48,17 @@ type neoChangeEvent struct {
 
 type neoReadStruct struct {
 	P struct {
-		ID        string
-		Types     []string
-		PrefLabel string
-		Labels    []string
+		ID             string
+		Types          []string
+		PrefLabel      string
+		Labels         []string
+		Salutation     string
+		BirthYear      int
+		EmailAddress   string
+		TwitterHandle  string
+		Description    string
+		DescriptionXML string
+		ImageURL       string
 	}
 	M []struct {
 		M struct {
@@ -94,7 +101,10 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
                                 { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
                         WITH p, m, o, collect(r) as r ORDER BY o.annCount DESC
                         WITH p, collect({m:m, o:o, r:r}) as m
-                        WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases} as p
+                        WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases,
+												     birthYear:p.birthYear, salutation:p.salutation, emailAddress:p.emailAddress,
+														 twitterHandle:p.twitterHandle, imageURL:p.imageURL,
+														 Description:p.description, descriptionXML:p.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
 		Parameters: neoism.Props{"uuid": uuid},
@@ -105,7 +115,7 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 		log.Errorf("Error looking up uuid %s with query %s from neoism: %+v\n", uuid, query.Statement, err)
 		return Person{}, false, fmt.Errorf("Error accessing Person datastore for uuid: %s", uuid)
 	}
-	log.Debugf("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results)
+	log.Infof("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results)
 	if (len(results)) == 0 || len(results[0].Rs) == 0 {
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
@@ -128,6 +138,13 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	if len(neo.P.Labels) > 0 {
 		public.Labels = &neo.P.Labels
 	}
+	public.BirthYear = neo.P.BirthYear
+	public.Salutation = neo.P.Salutation
+	public.Description = neo.P.Description
+	public.DescriptionXML = neo.P.DescriptionXML
+	public.EmailAddress = neo.P.EmailAddress
+	public.TwitterHandle = neo.P.TwitterHandle
+	public.ImageURL = neo.P.ImageURL
 
 	if len(neo.M) == 1 && (neo.M[0].M.ID == "") {
 		public.Memberships = make([]Membership, 0, 0)
