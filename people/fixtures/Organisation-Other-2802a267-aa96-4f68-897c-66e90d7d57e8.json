@@ -1,16 +1,11 @@
 {
   "uuid": "2802a267-aa96-4f68-897c-66e90d7d57e8",
   "properName": "RBS Securities, Inc.",
-  "identifiers": [
-    {
-      "authority": "http://api.ft.com/system/FACTSET-EDM",
-      "identifierValue": "006LGN-E"
-    },
-    {
-      "authority": "http://api.ft.com/system/LEI",
-      "identifierValue": "ZE2ZWJ5BTIQJ8M0C6K34"
-    }
-  ],
+  "alternativeIdentifiers" : {
+    "uuids" : ["2802a267-aa96-4f68-897c-66e90d7d57e8", "e74e406c-8ff6-4e7b-b0b6-e83f5d560127"],
+    "factsetIdentifier" : "006LGN-E",
+    "leiCode" : "ZE2ZWJ5BTIQJ8M0C6K34"
+  },
   "parentOrganisation": "7b00924d-6115-4126-9bb5-5e3cfdfc8114",
   "shortName": "RBS Securities",
   "legalName": "RBS Securities Inc.",

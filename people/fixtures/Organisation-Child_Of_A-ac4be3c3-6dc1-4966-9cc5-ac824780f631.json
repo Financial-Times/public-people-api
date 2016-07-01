@@ -1,12 +1,11 @@
 {
   "uuid": "ac4be3c3-6dc1-4966-9cc5-ac824780f631",
   "properName": "ABN AMRO Rothschild LLC",
-  "identifiers": [
-    {
-      "authority": "http://api.ft.com/system/FACTSET-EDM",
-      "identifierValue": "003R39-E"
-    }
-  ],
+  "alternativeIdentifiers" : {
+    "uuids" : ["ac4be3c3-6dc1-4966-9cc5-ac824780f631", "6a088943-cc59-4fbb-a7b9-8792942afb0f"],
+    "factsetIdentifier" : "003R39-E",
+    "leiCode" : "UK123456789012345678"
+  },
   "parentOrganisation": "638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b",
   "shortName": "ABN AMRO Rothschild",
   "hiddenLabel": "ABN AMRO ROTHSCHILD LLC",
