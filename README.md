@@ -1,6 +1,16 @@
 Public API for People (public-people-api)
 =========================================
 
+Generates JSON representation of a Person in public-friendly format.
+
+Build & deployment
+------------------
+
+* Built by Docker Hub: [coco/public-people-api](https://hub.docker.com/r/coco/public-people-api/)
+* CI provided by CircleCI: [public-people-api](https://circleci.com/gh/Financial-Times/public-people-api)
+
+[![CircleCI](https://circleci.com/gh/Financial-Times/public-people-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/public-people-api)
+
 Installation & running locally
 ------------------------------
 
