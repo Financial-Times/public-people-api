@@ -17,8 +17,6 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-// TODO Add Test cases for more of the mapping functions and perhaps mock out back end (although ? if mocking neoism is of value)
-
 // TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
 func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
 	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
@@ -44,7 +42,7 @@ func TestNeoReadStructToPersonEnvIsTest(t *testing.T) {
 // * 3 memberships
 // * one annotation
 // * a partridge in a pear tree (maybe not)
-func TestNeoReadStructToPersonMultipleMemberships(t *testing.T) {
+func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	assert := assert.New(t)
 	db := getDatabaseConnectionAndCheckClean(t, assert)
 
@@ -87,10 +85,22 @@ func TestNeoReadStructToPersonMultipleMemberships(t *testing.T) {
 	assert.True(found, "Person not found in database")
 	assert.NotNil(person)
 	assertMemberships(&person, assert)
-	assert.Equal([]string{"Siobhan Moorden", "Siobhan Mooorden"}, *person.Labels)
+	assert.Equal([]string{"Siobhan J Morden", "Siobhan Morden"}, *person.Labels)
 	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
 	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
 	assert.Equal("Siobhan Morden", person.PrefLabel)
+
+	assert.Equal(*person.Labels, []string{"Siobhan J Morden", "Siobhan Morden"})
+	assert.Equal(person.PrefLabel, "Siobhan Morden")
+	assert.Equal(person.BirthYear, 1974)
+
+	// TODO uncomment the below lines when the concordance branch of people-rw-neo4j contains the code to write the new fields.
+	//assert.Equal(person.Salutation, "Ms.")
+	//assert.Equal(person.Description, "Some text")
+	//assert.Equal(person.DescriptionXML, "Some text containing <strong>markup</strong>")
+	//assert.Equal(person.ImageURL, "http://someimage.jpg")
+	//assert.Equal(person.EmailAddress, "test@example.com")
+	//assert.Equal(person.TwitterHandle, "@something")
 }
 
 func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
@@ -156,11 +166,25 @@ func TestNeoReadPersonWithMissingUPPIDShouldReturnEmptyPerson(t *testing.T) {
 	randomId, _ := uuid.FromString("978d9e33-4c5e-4052-ba18-24f24f5595b1")
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
+	//_, _, _ = publicPeopleDriver.Read(randomId)
+	//_, _, err := publicPeopleDriver.Read(randomId)
+	//_, found, err := publicPeopleDriver.Read(randomId)
 	person, found, err := publicPeopleDriver.Read(randomId)
 	assert.NoError(err)
 	assert.False(found, "Person unexpectedly found in database")
 	assert.NotNil(person)
 	assert.Equal(Person{}, person)
+	//assert.Equal(*person.Labels, []string{"Siobhan J Morden", "Siobhan Morden"})
+	//assert.Equal(person.ID, "http://api.ft.com/things/13a9d251-71db-467a-af2f-7e56a61c910a")
+	//assert.Equal(person.APIURL, "http://api.ft.com/people/13a9d251-71db-467a-af2f-7e56a61c910a")
+	//assert.Equal(person.PrefLabel, "Siobhan Morden")
+	//assert.Equal(person.BirthYear, 1974)
+	//assert.Equal(person.Salutation, "Ms.")
+	//assert.Equal(person.Description, "Some text")
+	//assert.Equal(person.DescriptionXML, "Some text containing <strong>markup</strong>")
+	//assert.Equal(person.ImageURL, "http://someimage.jpg")
+	//assert.Equal(person.EmailAddress, "test@example.com")
+	//assert.Equal(person.TwitterHandle, "@something")
 }
 
 func assertMemberships(person *Person, assert *assert.Assertions) {

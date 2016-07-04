@@ -7,7 +7,13 @@
     "factsetIdentifier" : "01ABCD-E"
   },
   "aliases": [
-    "Siobhan Moorden",
-    "Siobhan Mooorden"
-  ]
+    "Siobhan J Morden",
+    "Siobhan Morden"
+  ],
+  "birthYear": 1974,
+  "emailAddress": "test@example.com",
+  "twitterHandle": "@something",
+  "description": "Some text",
+  "descriptionXML": "Some text containing <strong>markup</strong>",
+  "_imageUrl": "http://someimage.jpg"
 }
