@@ -13,8 +13,8 @@ import (
 	person "github.com/Financial-Times/people-rw-neo4j/people"
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
 	"github.com/jmcvetta/neoism"
-	"github.com/stretchr/testify/assert"
 	"github.com/satori/go.uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
@@ -94,13 +94,12 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	assert.Equal(person.PrefLabel, "Siobhan Morden")
 	assert.Equal(person.BirthYear, 1974)
 
-	// TODO uncomment the below lines when the concordance branch of people-rw-neo4j contains the code to write the new fields.
-	//assert.Equal(person.Salutation, "Ms.")
-	//assert.Equal(person.Description, "Some text")
-	//assert.Equal(person.DescriptionXML, "Some text containing <strong>markup</strong>")
-	//assert.Equal(person.ImageURL, "http://someimage.jpg")
-	//assert.Equal(person.EmailAddress, "test@example.com")
-	//assert.Equal(person.TwitterHandle, "@something")
+	assert.Equal(person.Salutation, "Ms.")
+	assert.Equal(person.Description, "Some text")
+	assert.Equal(person.DescriptionXML, "Some text containing <strong>markup</strong>")
+	assert.Equal(person.ImageURL, "http://someimage.jpg")
+	assert.Equal(person.EmailAddress, "test@example.com")
+	assert.Equal(person.TwitterHandle, "@something")
 }
 
 func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
@@ -142,49 +141,15 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
 	person, found, err := publicPeopleDriver.Read(alternativePersonId)
+	person1, found, err := publicPeopleDriver.Read(personId)
+
 	assert.NoError(err)
 	assert.True(found, "Person not found in database")
 	assert.NotNil(person)
+	assert.Equal(person, person1)
 
 	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
 	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
-}
-
-func TestNeoReadPersonWithMissingUPPIDShouldReturnEmptyPerson(t *testing.T) {
-	assert := assert.New(t)
-	db := getDatabaseConnectionAndCheckClean(t, assert)
-
-	batchRunner := neoutils.NewBatchCypherRunner(neoutils.StringerDb{db}, 1)
-
-	peopleRW := person.NewCypherPeopleService(batchRunner, db)
-	assert.NoError(peopleRW.Initialise())
-
-	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
-	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
-	defer peopleRW.Delete(personId.String())
-
-	randomId, _ := uuid.FromString("978d9e33-4c5e-4052-ba18-24f24f5595b1")
-
-	publicPeopleDriver := NewCypherDriver(db, "prod")
-	//_, _, _ = publicPeopleDriver.Read(randomId)
-	//_, _, err := publicPeopleDriver.Read(randomId)
-	//_, found, err := publicPeopleDriver.Read(randomId)
-	person, found, err := publicPeopleDriver.Read(randomId)
-	assert.NoError(err)
-	assert.False(found, "Person unexpectedly found in database")
-	assert.NotNil(person)
-	assert.Equal(Person{}, person)
-	//assert.Equal(*person.Labels, []string{"Siobhan J Morden", "Siobhan Morden"})
-	//assert.Equal(person.ID, "http://api.ft.com/things/13a9d251-71db-467a-af2f-7e56a61c910a")
-	//assert.Equal(person.APIURL, "http://api.ft.com/people/13a9d251-71db-467a-af2f-7e56a61c910a")
-	//assert.Equal(person.PrefLabel, "Siobhan Morden")
-	//assert.Equal(person.BirthYear, 1974)
-	//assert.Equal(person.Salutation, "Ms.")
-	//assert.Equal(person.Description, "Some text")
-	//assert.Equal(person.DescriptionXML, "Some text containing <strong>markup</strong>")
-	//assert.Equal(person.ImageURL, "http://someimage.jpg")
-	//assert.Equal(person.EmailAddress, "test@example.com")
-	//assert.Equal(person.TwitterHandle, "@something")
 }
 
 func assertMemberships(person *Person, assert *assert.Assertions) {
@@ -218,7 +183,6 @@ func writeJsonToService(service baseftrwapp.Service, pathToJsonFile string, asse
 func getDatabaseConnectionAndCheckClean(t *testing.T, assert *assert.Assertions) *neoism.Database {
 	db := getDatabaseConnection(t, assert)
 	cleanDB(db, t, assert)
-	//	checkDbClean(db, t)
 	return db
 }
 
