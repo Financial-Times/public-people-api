@@ -1,32 +1,69 @@
 package people
 
 import (
-	"encoding/json"
-	"net"
-	"net/http"
-	"testing"
-	"time"
-
+	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
-//TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
-func TestCanGetAPerson(t *testing.T) {
-	t.SkipNow()
-	// TODO figure out how best to test handlers.
-	assert := assert.New(t)
-	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
-	person := neoReadStructToPerson(neoReadStruct{}, "prod")
-	personJSON, err := json.Marshal(person)
-	assert.NoError(err, "Unable to marshal Person to JSON")
-	assert.Equal(expected, string(personJSON), "Actual: %s doesn't match Expected: %s", string(personJSON), expected)
+var (
+	server    *httptest.Server
+	personURL string
+	isFound   bool
+)
+
+const (
+	expectedCacheControlHeader string = "special header"
+)
+
+type mockPeopleDriver struct{}
+
+func (driver mockPeopleDriver) Read(id uuid.UUID) (person Person, found bool, err error) {
+	returnPerson := Person{}
+	returnPerson.Thing = &Thing{}
+	returnPerson.ID = id.String()
+	return returnPerson, isFound, nil
 }
 
-var httpClient = &http.Client{
-	Transport: &http.Transport{
-		MaxIdleConnsPerHost: 32,
-		Dial: (&net.Dialer{
-			Timeout: 30 * time.Second,
-		}).Dial,
-	},
+func (driver mockPeopleDriver) CheckConnectivity() error {
+	return nil
+}
+
+func init() {
+	PeopleDriver = mockPeopleDriver{}
+	CacheControlHeader = expectedCacheControlHeader
+	r := mux.NewRouter()
+	r.HandleFunc("/people/{uuid}", GetPerson).Methods("GET")
+	server = httptest.NewServer(r)
+	personURL = fmt.Sprintf("%s/people", server.URL) //Grab the address for the API endpoint
+	isFound = true
+}
+
+func TestHeadersOKOnFound(t *testing.T) {
+	assert := assert.New(t)
+	isFound = true
+	req, _ := http.NewRequest("GET", personURL+"/00000000-0000-002a-0000-00000000002a", nil)
+	req.Close = true
+	res, err := http.DefaultClient.Do(req)
+	defer res.Body.Close()
+	assert.NoError(err)
+	assert.EqualValues(200, res.StatusCode)
+	assert.Equal(expectedCacheControlHeader, res.Header.Get("Cache-Control"))
+	assert.Equal("application/json; charset=UTF-8", res.Header.Get("Content-Type"))
+}
+
+func TestReturnNotFoundIfPersonNotFound(t *testing.T) {
+	assert := assert.New(t)
+	isFound = false
+	req, _ := http.NewRequest("GET", personURL+"/00000000-0000-002a-0000-00000000002a", nil)
+	req.Close = true
+	res, err := http.DefaultClient.Do(req)
+	defer res.Body.Close()
+	assert.NoError(err)
+	assert.EqualValues(404, res.StatusCode)
+	assert.Equal("application/json; charset=UTF-8", res.Header.Get("Content-Type"))
 }

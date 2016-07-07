@@ -6,7 +6,11 @@ import (
 	"net/http"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/satori/go.uuid"
+	"net/url"
+	"strings"
 )
 
 // PeopleDriver for cypher queries
@@ -64,15 +68,16 @@ func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
 // GetPerson is the public API
 func GetPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	uuid := vars["uuid"]
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if uuid == "" {
-		http.Error(w, "uuid required", http.StatusBadRequest)
+	requestedId, err := uuid.FromString(vars["uuid"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	person, found, err := PeopleDriver.Read(uuid)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	person, found, err := PeopleDriver.Read(requestedId)
 	if err != nil {
+		log.WithFields(log.Fields{"requestedId": requestedId, "err": err}).Debug("Redirecting...")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return
@@ -83,6 +88,19 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the client requested the non-canonical UUID, then we redirect them to the URL for the canonical ID.
+	canonicalId, err := extractCanonicalUUID(person)
+	if err != nil {
+		log.WithFields(log.Fields{"ID": person.ID, "err": err}).Error("Error reading canonical ID")
+	}
+	if !uuid.Equal(canonicalId, requestedId) {
+		log.WithFields(log.Fields{"canonicalId": canonicalId, "requestedId": requestedId}).Debug("Redirecting...")
+		redirectURL := strings.Replace(r.RequestURI, requestedId.String(), canonicalId.String(), 1)
+		w.Header().Set("Location", redirectURL)
+		w.WriteHeader(http.StatusMovedPermanently)
+		return
+	}
+
 	w.Header().Set("Cache-Control", CacheControlHeader)
 	w.WriteHeader(http.StatusOK)
 
@@ -90,4 +108,15 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message":"Person could not be retrieved, err=` + err.Error() + `"}`))
 	}
+}
+
+// extract the UUID from the person ID URL by taking the last element of the path.
+func extractCanonicalUUID(person Person) (uuid.UUID, error) {
+	u, err := url.Parse(person.ID)
+	path := strings.Split(u.Path, "/")
+	id, err := uuid.FromString(path[len(path)-1])
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return id, nil
 }

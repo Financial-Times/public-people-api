@@ -8,11 +8,12 @@ import (
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
+	"github.com/satori/go.uuid"
 )
 
 // Driver interface
 type Driver interface {
-	Read(id string) (person Person, found bool, err error)
+	Read(id uuid.UUID) (person Person, found bool, err error)
 	CheckConnectivity() error
 }
 
@@ -37,7 +38,6 @@ func (pcw CypherDriver) CheckConnectivity() error {
 		Result:    &results,
 	}
 	err := pcw.db.Cypher(query)
-	log.Debugf("CheckConnectivity results:%+v  err: %+v", results, err)
 	return err
 }
 
@@ -83,14 +83,15 @@ type neoReadStruct struct {
 	}
 }
 
-func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error) {
+func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err error) {
 	person = Person{}
 	results := []struct {
 		Rs []neoReadStruct
 	}{}
 	query := &neoism.CypherQuery{
 		Statement: `
-                        MATCH (p:Person{uuid:{uuid}})
+                        MATCH (identifier:UPPIdentifier{value:{uuid}})
+                        MATCH (identifier)-[:IDENTIFIES]->(p:Person)
                         OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
                         OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content)
@@ -107,7 +108,7 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 														 Description:p.description, descriptionXML:p.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
-		Parameters: neoism.Props{"uuid": uuid},
+		Parameters: neoism.Props{"uuid": uuid.String()},
 		Result:     &results,
 	}
 	err = pcw.db.Cypher(query)
@@ -115,8 +116,8 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 		log.Errorf("Error looking up uuid %s with query %s from neoism: %+v\n", uuid, query.Statement, err)
 		return Person{}, false, fmt.Errorf("Error accessing Person datastore for uuid: %s", uuid)
 	}
-	log.Infof("CypherResult ReadPeople for uuid: %s was: %+v", uuid, results)
 	if (len(results)) == 0 || len(results[0].Rs) == 0 {
+		log.WithFields(log.Fields{"uuid": uuid.String()}).Debug("Result not found")
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
 		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
@@ -124,7 +125,6 @@ func (pcw CypherDriver) Read(uuid string) (person Person, found bool, err error)
 		return Person{}, true, errors.New(errMsg)
 	}
 	person = neoReadStructToPerson(results[0].Rs[0], pcw.env)
-	log.Debugf("Returning %v", person)
 	return person, true, nil
 }
 
@@ -181,7 +181,6 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 			public.Memberships[mIdx] = membership
 		}
 	}
-	log.Debugf("neoReadStructToPerson neo: %+v result: %+v", neo, public)
 	return public
 }
 
@@ -204,7 +203,5 @@ func changeEvent(neoChgEvts []neoChangeEvent) (bool, *[]ChangeEvent) {
 			results = append(results, ChangeEvent{EndedAt: t.Format(layout)})
 		}
 	}
-
-	log.Debugf("changeEvent converted: %+v result:%+v", neoChgEvts, results)
 	return true, &results
 }

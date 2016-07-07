@@ -1,21 +1,19 @@
 {
   "uuid": "13a9d251-71db-467a-af2f-7e56a61c910a",
-  "name": "Siobhan Morden",
+  "prefLabel": "Siobhan Morden",
   "salutation": "Ms.",
+  "alternativeIdentifiers" : {
+    "uuids": ["13a9d251-71db-467a-af2f-7e56a61c910a", "d755c384-c302-485c-b12e-ea3c6751a6b6"],
+    "factsetIdentifier" : "01ABCD-E"
+  },
+  "aliases": [
+    "Siobhan J Morden",
+    "Siobhan Morden"
+  ],
   "birthYear": 1974,
   "emailAddress": "test@example.com",
   "twitterHandle": "@something",
   "description": "Some text",
   "descriptionXML": "Some text containing <strong>markup</strong>",
-  "_imageUrl": "http://someimage.jpg",
-  "identifiers": [
-    {
-      "authority": "http://api.ft.com/system/FACTSET-PPL",
-      "identifierValue": "01ABCD-E"
-    }
-  ],
-  "aliases": [
-    "Siobhan J Morden",
-    "Siobhan Morden"
-  ]
+  "_imageUrl": "http://someimage.jpg"
 }

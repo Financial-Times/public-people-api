@@ -13,6 +13,7 @@ import (
 	person "github.com/Financial-Times/people-rw-neo4j/people"
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
 	"github.com/jmcvetta/neoism"
+	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,6 +36,12 @@ func TestNeoReadStructToPersonEnvIsTest(t *testing.T) {
 	assert.Equal(expected, string(personJSON))
 }
 
+// uses library functions from other services to write the following objects to a local Neo instance:
+// * a person called Siobhan Morden
+// * 3 orgs
+// * 3 memberships
+// * one annotation
+// * a partridge in a pear tree (maybe not)
 func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	assert := assert.New(t)
 	db := getDatabaseConnectionAndCheckClean(t, assert)
@@ -43,7 +50,8 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 
 	peopleRW := person.NewCypherPeopleService(batchRunner, db)
 	assert.NoError(peopleRW.Initialise())
-	writeJsonToService(peopleRW, "./fixtures/Person-Siobhan_Morden-13a9d251-71db-467a-af2f-7e56a61c910a.json", assert)
+	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
+	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
 
 	organisationRW := organisations.NewCypherOrganisationService(batchRunner, db)
 	assert.NoError(organisationRW.Initialise())
@@ -66,28 +74,82 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	defer organisationRW.Delete("ac4be3c3-6dc1-4966-9cc5-ac824780f631")
 	defer organisationRW.Delete("638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b")
 	defer rolesRW.Delete("0ee8e7b7-bac9-4db1-b94b-5605ce1d2907")
-	defer peopleRW.Delete("13a9d251-71db-467a-af2f-7e56a61c910a")
+	defer peopleRW.Delete(personId.String())
 	defer membershipsRW.Delete("e903861d-7709-4ab3-aeb4-4d272ac4d105")
 	defer membershipsRW.Delete("d137a439-3efd-4820-9cab-c200031e3dd9")
 	defer membershipsRW.Delete("8865b295-c1f1-442e-8972-eb100dc50292")
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
-	person, found, err := publicPeopleDriver.Read("13a9d251-71db-467a-af2f-7e56a61c910a")
+	person, found, err := publicPeopleDriver.Read(personId)
 	assert.NoError(err)
-	assert.True(found)
+	assert.True(found, "Person not found in database")
 	assert.NotNil(person)
 	assertMemberships(&person, assert)
+	assert.Equal([]string{"Siobhan J Morden", "Siobhan Morden"}, *person.Labels)
+	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
+	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
+	assert.Equal("Siobhan Morden", person.PrefLabel)
+
 	assert.Equal(*person.Labels, []string{"Siobhan J Morden", "Siobhan Morden"})
-	assert.Equal(person.ID, "http://api.ft.com/things/13a9d251-71db-467a-af2f-7e56a61c910a")
-	assert.Equal(person.APIURL, "http://api.ft.com/people/13a9d251-71db-467a-af2f-7e56a61c910a")
 	assert.Equal(person.PrefLabel, "Siobhan Morden")
 	assert.Equal(person.BirthYear, 1974)
+
 	assert.Equal(person.Salutation, "Ms.")
 	assert.Equal(person.Description, "Some text")
 	assert.Equal(person.DescriptionXML, "Some text containing <strong>markup</strong>")
 	assert.Equal(person.ImageURL, "http://someimage.jpg")
 	assert.Equal(person.EmailAddress, "test@example.com")
 	assert.Equal(person.TwitterHandle, "@something")
+}
+
+func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
+	assert := assert.New(t)
+	db := getDatabaseConnectionAndCheckClean(t, assert)
+
+	batchRunner := neoutils.NewBatchCypherRunner(neoutils.StringerDb{db}, 1)
+
+	peopleRW := person.NewCypherPeopleService(batchRunner, db)
+	assert.NoError(peopleRW.Initialise())
+
+	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
+	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
+	defer peopleRW.Delete(personId.String())
+
+	publicPeopleDriver := NewCypherDriver(db, "prod")
+	person, found, err := publicPeopleDriver.Read(personId)
+	assert.NoError(err)
+	assert.True(found, "Person not found in database")
+	assert.NotNil(person)
+
+	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
+	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
+}
+
+func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
+	assert := assert.New(t)
+	db := getDatabaseConnectionAndCheckClean(t, assert)
+
+	batchRunner := neoutils.NewBatchCypherRunner(neoutils.StringerDb{db}, 1)
+
+	peopleRW := person.NewCypherPeopleService(batchRunner, db)
+	assert.NoError(peopleRW.Initialise())
+
+	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
+	alternativePersonId, _ := uuid.FromString("d755c384-c302-485c-b12e-ea3c6751a6b6")
+	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
+	defer peopleRW.Delete(personId.String())
+
+	publicPeopleDriver := NewCypherDriver(db, "prod")
+	person, found, err := publicPeopleDriver.Read(alternativePersonId)
+	person1, found, err := publicPeopleDriver.Read(personId)
+
+	assert.NoError(err)
+	assert.True(found, "Person not found in database")
+	assert.NotNil(person)
+	assert.Equal(person, person1)
+
+	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
+	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
 }
 
 func assertMemberships(person *Person, assert *assert.Assertions) {
@@ -121,7 +183,6 @@ func writeJsonToService(service baseftrwapp.Service, pathToJsonFile string, asse
 func getDatabaseConnectionAndCheckClean(t *testing.T, assert *assert.Assertions) *neoism.Database {
 	db := getDatabaseConnection(t, assert)
 	cleanDB(db, t, assert)
-	//	checkDbClean(db, t)
 	return db
 }
 

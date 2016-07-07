@@ -24,6 +24,7 @@ func main() {
 	log.Infof("Application starting with args %s", os.Args)
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
 	neoURL := app.StringOpt("neo-url", "http://localhost:7474/db/data", "neo4j endpoint URL")
+	logLevel := app.StringOpt("log-level", "INFO", "Log level to use")
 	// neoURL := app.StringOpt("neo-url", "http://ftper60304-law1a-eu-t:8080/db/data", "neo4j endpoint URL")
 	port := app.StringOpt("port", "8080", "Port to listen on")
 	env := app.StringOpt("env", "local", "environment this app is running in")
@@ -35,6 +36,11 @@ func main() {
 	cacheDuration := app.StringOpt("cache-duration", "1h", "Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds")
 
 	app.Action = func() {
+		parsedLogLevel, err := log.ParseLevel(*logLevel)
+		if err != nil {
+			log.WithFields(log.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level")
+		}
+		log.SetLevel(parsedLogLevel)
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
 
 		if *env != "local" {
@@ -52,7 +58,7 @@ func main() {
 		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
 		runServer(*neoURL, *port, *cacheDuration, *env)
 	}
-	log.SetLevel(log.InfoLevel)
+
 	log.Infof("Application started with args %s", os.Args)
 	app.Run(os.Args)
 }
@@ -75,7 +81,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 
 	servicesRouter := mux.NewRouter()
 
-	// Healthchecks and standards first
+	// Health checks and standards first
 	servicesRouter.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
 		"Checks for accessing neo4j", people.HealthCheck()))
 
