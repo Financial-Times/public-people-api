@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/Financial-Times/go-fthealth/v1a"
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/satori/go.uuid"
-	log "github.com/Sirupsen/logrus"
 	"net/url"
 	"strings"
 )
@@ -113,7 +113,6 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 // extract the UUID from the person ID URL by taking the last element of the path.
 func extractCanonicalUUID(person Person) (uuid.UUID, error) {
 	u, err := url.Parse(person.ID)
-	log.WithFields(log.Fields{"u": u}).Debug("Parsed URL")
 	path := strings.Split(u.Path, "/")
 	id, err := uuid.FromString(path[len(path)-1])
 	if err != nil {
