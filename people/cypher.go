@@ -88,7 +88,7 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 	results := []struct {
 		Rs []neoReadStruct
 	}{}
-	sixMonthsEpoch := time.Now().Unix() - 15552000
+	sixMonthsEpoch := time.Now().Unix() - (60 * 60 * 24 * 30 * 6)
 	query := &neoism.CypherQuery{
 		Statement: `
                         MATCH (identifier:UPPIdentifier{value:{uuid}})
