@@ -88,14 +88,15 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 	results := []struct {
 		Rs []neoReadStruct
 	}{}
+	sixMonthsEpoch := time.Now().Unix() - 15552000
 	query := &neoism.CypherQuery{
 		Statement: `
                         MATCH (identifier:UPPIdentifier{value:{uuid}})
                         MATCH (identifier)-[:IDENTIFIES]->(p:Person)
                         OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
-                        OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content)
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
+                        OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content) WHERE c.publishedDateEpoch > {publishedDateEpoch}
                         WITH    p,
                                 { id:o.uuid, types:labels(o), prefLabel:o.prefLabel, annCount:COUNT(c)} as o,
                                 { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
@@ -108,7 +109,7 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 														 Description:p.description, descriptionXML:p.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
-		Parameters: neoism.Props{"uuid": uuid.String()},
+		Parameters: neoism.Props{"uuid": uuid.String(), "publishedDateEpoch": sixMonthsEpoch},
 		Result:     &results,
 	}
 	err = pcw.db.Cypher(query)
