@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
+	"github.com/Financial-Times/neo-utils-go/neoutils"
 	log "github.com/Sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
 	"github.com/satori/go.uuid"
@@ -19,26 +20,18 @@ type Driver interface {
 
 // CypherDriver struct
 type CypherDriver struct {
-	db  *neoism.Database
-	env string
+	conn neoutils.NeoConnection
+	env  string
 }
 
 //NewCypherDriver instantiate driver
-func NewCypherDriver(db *neoism.Database, env string) CypherDriver {
-	return CypherDriver{db, env}
+func NewCypherDriver(conn neoutils.NeoConnection, env string) CypherDriver {
+	return CypherDriver{conn, env}
 }
 
 // CheckConnectivity tests neo4j by running a simple cypher query
 func (pcw CypherDriver) CheckConnectivity() error {
-	results := []struct {
-		ID int
-	}{}
-	query := &neoism.CypherQuery{
-		Statement: "MATCH (x) RETURN ID(x) LIMIT 1",
-		Result:    &results,
-	}
-	err := pcw.db.Cypher(query)
-	return err
+	return neoutils.Check(pcw.conn)
 }
 
 type neoChangeEvent struct {
@@ -112,19 +105,15 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 		Parameters: neoism.Props{"uuid": uuid.String(), "publishedDateEpoch": sixMonthsEpoch},
 		Result:     &results,
 	}
-	err = pcw.db.Cypher(query)
-	if err != nil {
-		log.Errorf("Error looking up uuid %s with query %s from neoism: %+v\n", uuid, query.Statement, err)
-		return Person{}, false, fmt.Errorf("Error accessing Person datastore for uuid: %s", uuid)
-	}
-	if (len(results)) == 0 || len(results[0].Rs) == 0 {
-		log.WithFields(log.Fields{"uuid": uuid.String()}).Debug("Result not found")
-		return Person{}, false, nil
+
+	if err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query}); err != nil || len(results) == 0 {
+		return Person{}, false, err
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
 		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
 		log.Error(errMsg)
 		return Person{}, true, errors.New(errMsg)
 	}
+
 	person = neoReadStructToPerson(results[0].Rs[0], pcw.env)
 	return person, true, nil
 }
