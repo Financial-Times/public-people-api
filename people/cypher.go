@@ -106,7 +106,7 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 		Result:     &results,
 	}
 
-	if err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query}); err != nil || len(results) == 0 {
+	if err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query}); err != nil || len(results) == 0 || len(results[0].Rs) == 0 {
 		return Person{}, false, err
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
 		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
