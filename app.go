@@ -94,8 +94,18 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 		people.CacheControlHeader = fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(duration.Seconds(), 'f', 0, 64))
 	}
 
-	conf := neoutils.DefaultConnectionConfig()
-	db, err := neoutils.Connect(neoURL, conf)
+	conf := neoutils.ConnectionConfig{
+		BatchSize:     1024,
+		Transactional: false,
+		HTTPClient: &http.Client{
+			Transport: &http.Transport{
+				MaxIdleConnsPerHost: 100,
+			},
+			Timeout: 1 * time.Minute,
+		},
+		BackgroundConnect: true,
+	}
+	db, err := neoutils.Connect(neoURL, &conf)
 
 	if err != nil {
 		log.Fatalf("Error connecting to neo4j %s", err)

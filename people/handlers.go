@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"net/url"
+	"strings"
+
 	"github.com/Financial-Times/go-fthealth/v1a"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/satori/go.uuid"
-	"net/url"
-	"strings"
 )
 
 // PeopleDriver for cypher queries
