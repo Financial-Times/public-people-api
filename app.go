@@ -95,7 +95,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	}
 
 	conf := neoutils.ConnectionConfig{
-		BatchSize:     0,
+		BatchSize:     -1,
 		Transactional: false,
 		HTTPClient: &http.Client{
 			Transport: &http.Transport{
