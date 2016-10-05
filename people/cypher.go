@@ -89,12 +89,11 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
                         OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
-                        OPTIONAL MATCH (o)<-[rel:MENTIONS]-(c:Content) WHERE c.publishedDateEpoch > {publishedDateEpoch}
                         WITH    p,
-                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel, annCount:COUNT(c)} as o,
+                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel} as o,
                                 { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
                                 { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
-                        WITH p, m, o, collect(r) as r ORDER BY o.annCount DESC
+                        WITH p, m, o, collect(r) as r ORDER BY o.uuid DESC
                         WITH p, collect({m:m, o:o, r:r}) as m
                         WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases,
 												     birthYear:p.birthYear, salutation:p.salutation, emailAddress:p.emailAddress,
