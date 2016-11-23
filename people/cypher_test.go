@@ -98,6 +98,8 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	assert.Equal(person.ImageURL, "http://someimage.jpg")
 	assert.Equal(person.EmailAddress, "test@example.com")
 	assert.Equal(person.TwitterHandle, "@something")
+	assert.Equal(person.FacebookProfile, "the-facebook-profile")
+	assert.Equal(person.LinkedinProfile, "the-linkedin-profile")
 }
 
 func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
