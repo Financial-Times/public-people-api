@@ -41,17 +41,19 @@ type neoChangeEvent struct {
 
 type neoReadStruct struct {
 	P struct {
-		ID             string
-		Types          []string
-		PrefLabel      string
-		Labels         []string
-		Salutation     string
-		BirthYear      int
-		EmailAddress   string
-		TwitterHandle  string
-		Description    string
-		DescriptionXML string
-		ImageURL       string
+		ID              string
+		Types           []string
+		PrefLabel       string
+		Labels          []string
+		Salutation      string
+		BirthYear       int
+		EmailAddress    string
+		TwitterHandle   string
+		FacebookProfile string
+		LinkedinProfile string
+		Description     string
+		DescriptionXML  string
+		ImageURL        string
 	}
 	M []struct {
 		M struct {
@@ -97,8 +99,8 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
                         WITH p, collect({m:m, o:o, r:r}) as m
                         WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases,
 												     birthYear:p.birthYear, salutation:p.salutation, emailAddress:p.emailAddress,
-														 twitterHandle:p.twitterHandle, imageURL:p.imageURL,
-														 Description:p.description, descriptionXML:p.descriptionXML} as p
+														 twitterHandle:p.twitterHandle, facebookProfile:p.facebookProfile, linkedinProfile:p.linkedinProfile,
+														 imageURL:p.imageURL, Description:p.description, descriptionXML:p.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
 		Parameters: neoism.Props{"uuid": uuid.String(), "publishedDateEpoch": sixMonthsEpoch},
@@ -133,6 +135,8 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public.DescriptionXML = neo.P.DescriptionXML
 	public.EmailAddress = neo.P.EmailAddress
 	public.TwitterHandle = neo.P.TwitterHandle
+	public.FacebookProfile = neo.P.FacebookProfile
+	public.LinkedinProfile = neo.P.LinkedinProfile
 	public.ImageURL = neo.P.ImageURL
 
 	if len(neo.M) == 1 && (neo.M[0].M.ID == "") {

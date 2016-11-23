@@ -13,6 +13,8 @@
   "birthYear": 1974,
   "emailAddress": "test@example.com",
   "twitterHandle": "@something",
+  "facebookProfile": "the-facebook-profile",
+  "linkedinProfile": "the-linkedin-profile",
   "description": "Some text",
   "descriptionXML": "Some text containing <strong>markup</strong>",
   "_imageUrl": "http://someimage.jpg"
