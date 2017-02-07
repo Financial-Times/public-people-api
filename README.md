@@ -9,7 +9,7 @@ Build & deployment
 * Built by Docker Hub: [coco/public-people-api](https://hub.docker.com/r/coco/public-people-api/)
 * CI provided by CircleCI: [public-people-api](https://circleci.com/gh/Financial-Times/public-people-api)
 
-[![CircleCI](https://circleci.com/gh/Financial-Times/public-people-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/public-people-api)
+[![Coverage Status](https://coveralls.io/repos/github/Financial-Times/public-people-api/badge.svg?branch=circle-coveralls)](https://coveralls.io/github/Financial-Times/public-people-api?branch=circle-coveralls)[![CircleCI](https://circleci.com/gh/Financial-Times/public-people-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/public-people-api)
 
 Installation & running locally
 ------------------------------
