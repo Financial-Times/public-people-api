@@ -68,14 +68,14 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	writeJsonToService(rolesRW, "./fixtures/Role-0ee8e7b7-bac9-4db1-b94b-5605ce1d2907.json", assert)
 
 	defer cleanDB(db, t, assert)
+	defer membershipsRW.Delete("e903861d-7709-4ab3-aeb4-4d272ac4d105")
+	defer membershipsRW.Delete("d137a439-3efd-4820-9cab-c200031e3dd9")
+	defer membershipsRW.Delete("8865b295-c1f1-442e-8972-eb100dc50292")
 	defer organisationRW.Delete("2802a267-aa96-4f68-897c-66e90d7d57e8")
 	defer organisationRW.Delete("ac4be3c3-6dc1-4966-9cc5-ac824780f631")
 	defer organisationRW.Delete("638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b")
 	defer rolesRW.Delete("0ee8e7b7-bac9-4db1-b94b-5605ce1d2907")
 	defer peopleRW.Delete(personId.String())
-	defer membershipsRW.Delete("e903861d-7709-4ab3-aeb4-4d272ac4d105")
-	defer membershipsRW.Delete("d137a439-3efd-4820-9cab-c200031e3dd9")
-	defer membershipsRW.Delete("8865b295-c1f1-442e-8972-eb100dc50292")
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
 	person, found, err := publicPeopleDriver.Read(personId)
@@ -198,44 +198,36 @@ func getDatabaseConnection(t *testing.T, assert *assert.Assertions) neoutils.Neo
 func cleanDB(db neoutils.NeoConnection, t *testing.T, assert *assert.Assertions) {
 	qs := []*neoism.CypherQuery{
 		{
-			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) DETACH DELETE a", "638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (b:Thing {uuid: '%v'}) DETACH DELETE b", "ac4be3c3-6dc1-4966-9cc5-ac824780f631"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "ac4be3c3-6dc1-4966-9cc5-ac824780f631"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (c:Thing {uuid: '%v'}) DETACH DELETE c", "13a9d251-71db-467a-af2f-7e56a61c910a"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "13a9d251-71db-467a-af2f-7e56a61c910a"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (d:Thing {uuid: '%v'}) DETACH DELETE d", "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (e:Thing {uuid: '%v'}) DETACH DELETE e", "e903861d-7709-4ab3-aeb4-4d272ac4d105"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "e903861d-7709-4ab3-aeb4-4d272ac4d105"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (f:Thing {uuid: '%v'}) DETACH DELETE f", "d137a439-3efd-4820-9cab-c200031e3dd9"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "d137a439-3efd-4820-9cab-c200031e3dd9"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (g:Thing {uuid: '%v'}) DETACH DELETE g", "8865b295-c1f1-442e-8972-eb100dc50292"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "8865b295-c1f1-442e-8972-eb100dc50292"),
 		},
 		{
-			Statement: fmt.Sprintf("MATCH (h:Thing {uuid: '%v'}) DETACH DELETE h", "2802a267-aa96-4f68-897c-66e90d7d57e8"),
-		},
-		{
-			//deletes parent 'org' which only has type Thing
-			Statement: fmt.Sprintf("MATCH (i:Thing {uuid: '%v'}) DETACH DELETE i", "7b00924d-6115-4126-9bb5-5e3cfdfc8114"),
-		},
-		{
-			//deletes upp identifier for the above parent 'org'
-			Statement: fmt.Sprintf("MATCH (l:Identifier {value: '%v'}) DETACH DELETE l", "7b00924d-6115-4126-9bb5-5e3cfdfc8114"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "2802a267-aa96-4f68-897c-66e90d7d57e8"),
 		},
 		{
 			//deletes parent 'org' which only has type Thing
-			Statement: fmt.Sprintf("MATCH (j:Thing {uuid: '%v'}) DETACH DELETE j", "195df1b2-7e04-4c70-a865-4361c71e9a6b"),
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "7b00924d-6115-4126-9bb5-5e3cfdfc8114"),
 		},
 		{
-			//deletes upp identifier for the above parent 'org'
-			Statement: fmt.Sprintf("MATCH (k:Identifier {value: '%v'}) DETACH DELETE k", "195df1b2-7e04-4c70-a865-4361c71e9a6b"),
+			//deletes parent 'org' which only has type Thing
+			Statement: fmt.Sprintf("MATCH (a:Thing {uuid: '%v'}) OPTIONAL MATCH (a)-[]-(b:Identifier) DETACH DELETE a,b", "195df1b2-7e04-4c70-a865-4361c71e9a6b"),
 		},
 	}
 

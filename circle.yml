@@ -1,9 +1,25 @@
 machine:
   services:
-    - neo4j
+    - docker
   environment:
-    NEO4J_TEST_URL: http://neo4j:x@localhost:7474/db/data/
+    NEO4J_TEST_URL: http://localhost:7474/db/data/
 
+dependencies:
+  pre:
+    - go get -u github.com/jstemmer/go-junit-report
 test:
   pre:
-    - 'curl -u neo4j:neo4j -H "Content-Type: application/json" -X POST -d ''{"password":"x"}''  http://localhost:7474/user/neo4j/password'
+    - docker info; docker run -d -e "NEO4J_AUTH=none" -e "NEO4J_HEAP_MEMORY=256" -e "NEO4J_CACHE_MEMORY=256M" -p 7474:7474 -p 7473:7473 neo4j:$NEO4J_VERSION
+    - wget --retry-connrefused --no-check-certificate -T 60 $NEO4J_TEST_URL; curl $NEO4J_TEST_URL
+    - go get github.com/mattn/goveralls
+  override:
+    - mkdir -p $CIRCLE_TEST_REPORTS/golang
+    - go test -race -v ./...
+    - go test -race -v ./... | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
+    - go list ./... | awk -F/ '{print $4}' | xargs -I {} go test -v -cover -race -coverprofile=$CIRCLE_ARTIFACTS/{}.out ./{}
+    - cd $CIRCLE_ARTIFACTS && sed -i '1d' *.out
+    - |
+      echo "mode: atomic" > $CIRCLE_ARTIFACTS/overall-coverage.result
+    - cd $CIRCLE_ARTIFACTS && cat *.out >> overall-coverage.result
+  post:
+    - goveralls -coverprofile=$CIRCLE_ARTIFACTS/overall-coverage.result -service=circle-ci -repotoken=$COVERALLS_TOKEN
