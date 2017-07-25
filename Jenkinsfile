@@ -1,3 +1,3 @@
-@Library('k8s-pipeline-lib')
+@Library('k8s-pipeline-lib') _
 
 entryPointForReleaseAndDev()
