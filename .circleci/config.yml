@@ -21,12 +21,12 @@ jobs:
             name: Make /go owned by circleci
             command: sudo chown -R circleci:circleci /go
         - run:
-            name: Download dependancies
+            name: Download dependencies
             command: |
-            go get -u github.com/kardianos/govendor
-            go get -u github.com/jstemmer/go-junit-report
-            go get -u github.com/mattn/goveralls
-            wget https://raw.githubusercontent.com/Financial-Times/cookiecutter-upp-golang/master/coverage.sh && chmod +x coverage.sh
+                go get -u github.com/kardianos/govendor
+                go get -u github.com/jstemmer/go-junit-report
+                go get -u github.com/mattn/goveralls
+                wget https://raw.githubusercontent.com/Financial-Times/cookiecutter-upp-golang/master/coverage.sh && chmod +x coverage.sh
         - run:
             name: Sync vendored packages
             command: govendor sync -v
@@ -39,10 +39,10 @@ jobs:
         - run:
             name: Run tests and coverage
             command: |
-            mkdir -p $CIRCLE_TEST_REPORTS/golang
-            mkdir -p $CIRCLE_ARTIFACTS
-            govendor test -race -v +local | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
-            ./coverage.sh
+                mkdir -p $CIRCLE_TEST_REPORTS/golang
+                mkdir -p $CIRCLE_ARTIFACTS
+                govendor test -race -v +local | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
+                ./coverage.sh
         - run:
             name: Upload to coveralls
             command: goveralls -coverprofile=$CIRCLE_ARTIFACTS/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
