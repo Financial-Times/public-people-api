@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "5b1Y79xoNFuE/XXi5LDN3ys4OYA=",
+			"checksumSHA1": "fg1dZ/MIpnMKoW0vJE2y5HpHXXc=",
 			"path": "github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp",
-			"revision": "27f4c78ff5bff819fea09533b4444693bca2136b",
-			"revisionTime": "2017-07-13T11:10:17Z"
+			"revision": "01975d9da464dc2b864f1a5cf603827fdaa8e661",
+			"revisionTime": "2016-09-09T09:52:18Z"
 		},
 		{
 			"checksumSHA1": "FUhczVSvt/VQAlWfzATo1YLez2E=",
@@ -39,16 +39,20 @@
 			"revisionTime": "2017-01-04T12:16:44Z"
 		},
 		{
-			"checksumSHA1": "OViPZtQxGJ8ECf9BBDvQ112tzP4=",
+			"checksumSHA1": "RD+FYKV2mErGsNvqPVZId9NiBd8=",
 			"path": "github.com/Financial-Times/organisations-rw-neo4j/organisations",
-			"revision": "b7b60e2b98b49178cbfec5a91fc17e5245a5e360",
-			"revisionTime": "2017-07-25T15:56:17Z"
+			"revision": "b36f756fd042ab4ab06ae8b896c0f1f9a8b3db85",
+			"revisionTime": "2017-02-14T11:11:53Z",
+			"version": "0.5.2",
+			"versionExact": "0.5.2"
 		},
 		{
-			"checksumSHA1": "/wxgSLJ/9Qo+nm/YTRSxbUTh8jM=",
+			"checksumSHA1": "aTbE6j4aUuXSwiuoDeHf+IEw6hA=",
 			"path": "github.com/Financial-Times/people-rw-neo4j/people",
-			"revision": "f4db16eb2060aae806fba0d27bad2a914fd5c971",
-			"revisionTime": "2017-07-11T16:01:30Z"
+			"revision": "13429d84f39603e6957694a0ea75134a495999f5",
+			"revisionTime": "2017-02-14T11:11:06Z",
+			"version": "0.1.9",
+			"versionExact": "0.1.9"
 		},
 		{
 			"checksumSHA1": "sm+3HRUl24JDAp+guwpTJ1B+Apc=",
@@ -81,10 +85,10 @@
 			"revisionTime": "2017-03-28T16:39:54Z"
 		},
 		{
-			"checksumSHA1": "diw1KueSVzsMHPCNDvj+xQiXSTE=",
+			"checksumSHA1": "TC6pkBrqs0MYZEbikQcrloZw4Ec=",
 			"path": "github.com/Financial-Times/up-rw-app-api-go/rwapi",
-			"revision": "d9d93a1f689538313d12fee6f5f10715cfe280e0",
-			"revisionTime": "2017-07-10T12:58:28Z"
+			"revision": "c7976a0b575e3cad95ec10ebca53798567b39845",
+			"revisionTime": "2016-08-24T12:50:00Z"
 		},
 		{
 			"checksumSHA1": "z8eIoxM5sUY8HCOjDKR8hAMrP8s=",
