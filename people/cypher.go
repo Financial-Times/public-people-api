@@ -43,6 +43,7 @@ type neoReadStruct struct {
 	P struct {
 		ID              string
 		Types           []string
+		DirectType      string
 		PrefLabel       string
 		Labels          []string
 		Salutation      string
@@ -59,19 +60,22 @@ type neoReadStruct struct {
 		M struct {
 			ID           string
 			Types        []string
+			DirectType   string
 			PrefLabel    string
 			Title        string
 			ChangeEvents []neoChangeEvent
 		}
 		O struct {
-			ID        string
-			Types     []string
-			PrefLabel string
-			Labels    []string
+			ID         string
+			Types      []string
+			DirectType string
+			PrefLabel  string
+			Labels     []string
 		}
 		R []struct {
 			ID           string
 			Types        []string
+			DirectType   string
 			PrefLabel    string
 			ChangeEvents []neoChangeEvent
 		}
@@ -125,6 +129,7 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public.ID = mapper.IDURL(neo.P.ID)
 	public.APIURL = mapper.APIURL(neo.P.ID, neo.P.Types, env)
 	public.Types = mapper.TypeURIs(neo.P.Types)
+	public.DirectType = filterToMostSpecificType(neo.P.Types)
 	public.PrefLabel = neo.P.PrefLabel
 	if len(neo.P.Labels) > 0 {
 		public.Labels = &neo.P.Labels
@@ -146,11 +151,14 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 		for mIdx, neoMem := range neo.M {
 			membership := Membership{}
 			membership.Title = neoMem.M.PrefLabel
+			membership.Types = mapper.TypeURIs(neoMem.M.Types)
+			membership.DirectType = filterToMostSpecificType(neoMem.M.Types)
 			membership.Organisation = Organisation{}
 			membership.Organisation.Thing = &Thing{}
 			membership.Organisation.ID = mapper.IDURL(neoMem.O.ID)
 			membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types, env)
 			membership.Organisation.Types = mapper.TypeURIs(neoMem.O.Types)
+			membership.Organisation.DirectType = filterToMostSpecificType(neoMem.O.Types)
 			membership.Organisation.PrefLabel = neoMem.O.PrefLabel
 			if len(neoMem.O.Labels) > 0 {
 				membership.Organisation.Labels = &neoMem.O.Labels
@@ -164,6 +172,8 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 				role.Thing = &Thing{}
 				role.ID = mapper.IDURL(neoRole.ID)
 				role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types, env)
+				role.Types = mapper.TypeURIs(neoRole.Types)
+				role.DirectType = filterToMostSpecificType(neoRole.Types)
 				role.PrefLabel = neoRole.PrefLabel
 				if a, b := changeEvent(neoRole.ChangeEvents); a == true {
 					role.ChangeEvents = b
@@ -197,4 +207,13 @@ func changeEvent(neoChgEvts []neoChangeEvent) (bool, *[]ChangeEvent) {
 		}
 	}
 	return true, &results
+}
+
+func filterToMostSpecificType(unfilteredTypes []string) string {
+	mostSpecificType, err := mapper.MostSpecificType(unfilteredTypes)
+	if err != nil {
+		return ""
+	}
+	fullURI := mapper.TypeURIs([]string{mostSpecificType})
+	return fullURI[0]
 }

@@ -11,6 +11,7 @@ type Thing struct {
 type Person struct {
 	*Thing
 	Types           []string     `json:"types"`
+	DirectType      string       `json:"directType,omitempty"`
 	Labels          *[]string    `json:"labels,omitempty"`
 	Memberships     []Membership `json:"memberships,omitempty"`
 	Salutation      string       `json:"salutation,omitempty"`
@@ -27,6 +28,8 @@ type Person struct {
 // Membership represents the relationship between a person and their roles associated with an organisation
 type Membership struct {
 	Title        string         `json:"title,omitempty"`
+	Types        []string       `json:"types"`
+	DirectType   string         `json:"directType,omitempty"`
 	Organisation Organisation   `json:"organisation"`
 	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`
 	Roles        []Role         `json:"roles"`
@@ -35,13 +38,16 @@ type Membership struct {
 // Organisation simplified representation used in Person API
 type Organisation struct {
 	*Thing
-	Types  []string  `json:"types"`
-	Labels *[]string `json:"labels,omitempty"`
+	Types      []string  `json:"types"`
+	DirectType string    `json:"directType,omitempty"`
+	Labels     *[]string `json:"labels,omitempty"`
 }
 
 // Role represents the capacity or funciton that a person performs for an organisation
 type Role struct {
 	*Thing
+	Types        []string       `json:"types"`
+	DirectType   string         `json:"directType,omitempty"`
 	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`
 }
 
