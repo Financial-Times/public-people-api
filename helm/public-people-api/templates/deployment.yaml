@@ -1,0 +1,55 @@
+##this is an example deployment.yaml that should be customized in order to meet the configuration for app k8s deployment
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.service.name }} 
+  labels:
+    chart: "{{ .Chart.Name | trunc 63 }}"
+    chartVersion: "{{ .Chart.Version | trunc 63 }}" 
+    visualize: "true" 
+    app: {{ .Values.service.name }} 
+spec:
+  replicas: {{ .Values.replicaCount }} 
+  selector: 
+    matchLabels:
+      app: {{ .Values.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}
+        visualize: "true" 
+    spec:
+      containers: 
+      - name: {{ .Values.service.name }} 
+        image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env: 
+        - name: CACHE_DURATION
+          value: {{ .Values.cache_duration }}
+        - name: NEO_URL 
+          valueFrom: 
+            configMapKeyRef: 
+              name: global-config 
+              key: neo4j.read.only.url
+        - name: GRAPHITE_ADDRESS 
+          valueFrom: 
+            configMapKeyRef: 
+              name: global-config 
+              key: graphite.address
+        - name: GRAPHITE_PREFIX
+          value: coco.services.k8s.public-people-api 
+        ports: 
+        - containerPort: 8080 
+        livenessProbe: 
+          tcpSocket: 
+            port: 8080 
+          initialDelaySeconds: 10 
+        readinessProbe: 
+          httpGet: 
+            path: "/__gtg" 
+            port: 8080 
+          initialDelaySeconds: 15 
+          periodSeconds: 30 
+        resources: 
+{{ toYaml .Values.resources | indent 12 }}
