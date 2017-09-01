@@ -87,6 +87,8 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
 	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
 	assert.Equal("Siobhan Morden", person.PrefLabel)
+	assertListContainsAll(assert, person.Types, "http://www.ft.com/ontology/core/Thing", "http://www.ft.com/ontology/concept/Concept", "http://www.ft.com/ontology/person/Person")
+	assert.Equal("http://www.ft.com/ontology/person/Person", person.DirectType)
 
 	assert.Equal(*person.Labels, []string{"Siobhan J Morden", "Siobhan Morden"})
 	assert.Equal(person.PrefLabel, "Siobhan Morden")
@@ -121,6 +123,9 @@ func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
 
 	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
 	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
+	assertListContainsAll(assert, person.Types, "http://www.ft.com/ontology/core/Thing", "http://www.ft.com/ontology/concept/Concept", "http://www.ft.com/ontology/person/Person")
+	assert.Equal("http://www.ft.com/ontology/person/Person", person.DirectType)
+
 }
 
 func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
@@ -146,6 +151,9 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 
 	assert.Equal(fmt.Sprintf("http://api.ft.com/things/%s", personId.String()), person.ID)
 	assert.Equal(fmt.Sprintf("http://api.ft.com/people/%s", personId.String()), person.APIURL)
+	assertListContainsAll(assert, person.Types, "http://www.ft.com/ontology/core/Thing", "http://www.ft.com/ontology/concept/Concept", "http://www.ft.com/ontology/person/Person")
+	assert.Equal("http://www.ft.com/ontology/person/Person", person.DirectType)
+
 }
 
 func assertMemberships(person *Person, assert *assert.Assertions) {
@@ -233,4 +241,11 @@ func cleanDB(db neoutils.NeoConnection, t *testing.T, assert *assert.Assertions)
 
 	err := db.CypherBatch(qs)
 	assert.NoError(err)
+}
+
+func assertListContainsAll(assert *assert.Assertions, list interface{}, items ...interface{}) {
+	assert.Len(list, len(items))
+	for _, item := range items {
+		assert.Contains(list, item)
+	}
 }

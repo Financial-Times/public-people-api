@@ -24,4 +24,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
-/public-people-api
+
+public-people-api
+vendor/*/
+
