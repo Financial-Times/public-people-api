@@ -133,10 +133,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	// The following endpoints should not be monitored or logged (varnish calls one of these every second, depending on config)
 	// The top one of these build info endpoints feels more correct, but the lower one matches what we have in Dropwizard,
 	// so it's what apps expect currently same as ping, the content of build-info needs more definition
-	http.HandleFunc(status.PingPath, status.PingHandler)
-	http.HandleFunc(status.PingPathDW, status.PingHandler)
 	http.HandleFunc(status.BuildInfoPath, status.BuildInfoHandler)
-	http.HandleFunc(status.BuildInfoPathDW, status.BuildInfoHandler)
 	http.HandleFunc("/__gtg", people.GoodToGo)
 	http.Handle("/", monitoringRouter)
 
