@@ -71,11 +71,14 @@ func main() {
 	})
 
 	app.Action = func() {
-		parsedLogLevel, err := log.ParseLevel(*logLevel)
+		lvl, err := log.ParseLevel(*logLevel)
 		if err != nil {
-			log.WithFields(log.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level")
+			log.Warnf("Log level %s could not be parsed, defaulting to info")
+			lvl = log.InfoLevel
 		}
-		log.SetLevel(parsedLogLevel)
+		log.SetLevel(lvl)
+		log.Info(lvl.String() + ": log level set")
+		log.SetFormatter(&log.JSONFormatter{})
 
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
 
