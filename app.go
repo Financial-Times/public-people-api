@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
-	"github.com/Financial-Times/go-fthealth/v1a"
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/http-handlers-go/httphandlers"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/public-people-api/people"
 	status "github.com/Financial-Times/service-status-go/httphandlers"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
@@ -119,8 +119,13 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	servicesRouter := mux.NewRouter()
 
 	// Health checks and standards first
-	servicesRouter.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
-		"Checks for accessing neo4j", people.HealthCheck()))
+	var checks []fthealth.Check = []fthealth.Check{people.HealthCheck()}
+	servicesRouter.HandleFunc("/__health", fthealth.Handler(fthealth.HealthCheck{
+		SystemCode: "public-people-api",
+		Name: "public-people-api",
+		Description: "Public API for serving information on People within UPP",
+		Checks: checks,
+	}))
 
 	// Then API specific ones:
 	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")

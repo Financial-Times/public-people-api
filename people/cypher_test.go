@@ -49,33 +49,33 @@ func TestNeoReadStructToPersonIncludingMultipleMemberships(t *testing.T) {
 	peopleRW := person.NewCypherPeopleService(db)
 	assert.NoError(peopleRW.Initialise())
 	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
-	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
+	writeJSONToService(t, peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()))
 
 	organisationRW := organisations.NewCypherOrganisationService(db)
 	assert.NoError(organisationRW.Initialise())
-	writeJsonToService(organisationRW, "./fixtures/Organisation-Parent_A-638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b.json", assert)
-	writeJsonToService(organisationRW, "./fixtures/Organisation-Child_Of_A-ac4be3c3-6dc1-4966-9cc5-ac824780f631.json", assert)
-	writeJsonToService(organisationRW, "./fixtures/Organisation-Other-2802a267-aa96-4f68-897c-66e90d7d57e8.json", assert)
+	writeJSONToService(t, organisationRW, "./fixtures/Organisation-Parent_A-638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b.json")
+	writeJSONToService(t, organisationRW, "./fixtures/Organisation-Child_Of_A-ac4be3c3-6dc1-4966-9cc5-ac824780f631.json")
+	writeJSONToService(t, organisationRW, "./fixtures/Organisation-Other-2802a267-aa96-4f68-897c-66e90d7d57e8.json")
 
 	membershipsRW := memberships.NewCypherMembershipService(db)
 	assert.NoError(membershipsRW.Initialise())
-	writeJsonToService(membershipsRW, "./fixtures/Membership-Siobhan_Morden-8865b295-c1f1-442e-8972-eb100dc50292.json", assert)
-	writeJsonToService(membershipsRW, "./fixtures/Membership-Siobhan_Morden-d137a439-3efd-4820-9cab-c200031e3dd9.json", assert)
-	writeJsonToService(membershipsRW, "./fixtures/Membership-Siobhan_Morden-e903861d-7709-4ab3-aeb4-4d272ac4d105.json", assert)
+	writeJSONToService(t, membershipsRW, "./fixtures/Membership-Siobhan_Morden-8865b295-c1f1-442e-8972-eb100dc50292.json")
+	writeJSONToService(t, membershipsRW, "./fixtures/Membership-Siobhan_Morden-d137a439-3efd-4820-9cab-c200031e3dd9.json")
+	writeJSONToService(t, membershipsRW, "./fixtures/Membership-Siobhan_Morden-e903861d-7709-4ab3-aeb4-4d272ac4d105.json")
 
 	rolesRW := roles.NewCypherDriver(db)
 	assert.NoError(rolesRW.Initialise())
-	writeJsonToService(rolesRW, "./fixtures/Role-0ee8e7b7-bac9-4db1-b94b-5605ce1d2907.json", assert)
+	writeJSONToService(t, rolesRW, "./fixtures/Role-0ee8e7b7-bac9-4db1-b94b-5605ce1d2907.json")
 
 	defer cleanDB(db, t, assert)
-	defer membershipsRW.Delete("e903861d-7709-4ab3-aeb4-4d272ac4d105")
-	defer membershipsRW.Delete("d137a439-3efd-4820-9cab-c200031e3dd9")
-	defer membershipsRW.Delete("8865b295-c1f1-442e-8972-eb100dc50292")
-	defer organisationRW.Delete("2802a267-aa96-4f68-897c-66e90d7d57e8")
-	defer organisationRW.Delete("ac4be3c3-6dc1-4966-9cc5-ac824780f631")
-	defer organisationRW.Delete("638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b")
-	defer rolesRW.Delete("0ee8e7b7-bac9-4db1-b94b-5605ce1d2907")
-	defer peopleRW.Delete(personId.String())
+	defer membershipsRW.Delete("e903861d-7709-4ab3-aeb4-4d272ac4d105", "trans_id")
+	defer membershipsRW.Delete("d137a439-3efd-4820-9cab-c200031e3dd9", "trans_id")
+	defer membershipsRW.Delete("8865b295-c1f1-442e-8972-eb100dc50292", "trans_id")
+	defer organisationRW.Delete("2802a267-aa96-4f68-897c-66e90d7d57e8", "trans_id")
+	defer organisationRW.Delete("ac4be3c3-6dc1-4966-9cc5-ac824780f631", "trans_id")
+	defer organisationRW.Delete("638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b", "trans_id")
+	defer rolesRW.Delete("0ee8e7b7-bac9-4db1-b94b-5605ce1d2907", "trans_id")
+	defer peopleRW.Delete(personId.String(), "trans_id")
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
 	person, found, err := publicPeopleDriver.Read(personId)
@@ -109,11 +109,12 @@ func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
 	db := getDatabaseConnectionAndCheckClean(t, assert)
 
 	peopleRW := person.NewCypherPeopleService(db)
+
 	assert.NoError(peopleRW.Initialise())
 
 	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
-	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
-	defer peopleRW.Delete(personId.String())
+	writeJSONToService(t, peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()))
+	defer peopleRW.Delete(personId.String(), "trans_id")
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
 	person, found, err := publicPeopleDriver.Read(personId)
@@ -137,8 +138,8 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 
 	personId, _ := uuid.FromString("13a9d251-71db-467a-af2f-7e56a61c910a")
 	alternativePersonId, _ := uuid.FromString("d755c384-c302-485c-b12e-ea3c6751a6b6")
-	writeJsonToService(peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()), assert)
-	defer peopleRW.Delete(personId.String())
+	writeJSONToService(t, peopleRW, fmt.Sprintf("./fixtures/Person-Siobhan_Morden-%s.json", personId.String()))
+	defer peopleRW.Delete(personId.String(), "trans_id")
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
 	person, found, err := publicPeopleDriver.Read(alternativePersonId)
@@ -174,14 +175,15 @@ func assertMemberships(person *Person, assert *assert.Assertions) {
 	assert.Equal(roleIds["http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907"], "Market Strategist")
 }
 
-func writeJsonToService(service baseftrwapp.Service, pathToJsonFile string, assert *assert.Assertions) {
-	f, err := os.Open(pathToJsonFile)
-	assert.NoError(err)
+func writeJSONToService(t *testing.T, service baseftrwapp.Service, pathToJSONFile string) {
+	f, err := os.Open(pathToJSONFile)
+	assert.NoError(t, err)
 	dec := json.NewDecoder(f)
 	inst, _, errr := service.DecodeJSON(dec)
-	assert.NoError(errr)
-	errrr := service.Write(inst)
-	assert.NoError(errrr)
+	assert.NoError(t, errr)
+
+	errs := service.Write(inst, "TRANS_ID")
+	assert.NoError(t, errs)
 }
 
 func getDatabaseConnectionAndCheckClean(t *testing.T, assert *assert.Assertions) neoutils.NeoConnection {

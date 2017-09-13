@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Financial-Times/go-fthealth/v1a"
-	log "github.com/Sirupsen/logrus"
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/satori/go.uuid"
 	"net/url"
@@ -20,8 +20,8 @@ var CacheControlHeader string
 //var maxAge = 24 * time.Hour
 
 // HealthCheck does something
-func HealthCheck() v1a.Check {
-	return v1a.Check{
+func HealthCheck() fthealth.Check {
+	return fthealth.Check{
 		BusinessImpact: "Unable to respond to Public People api requests",
 		Name:           "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
 		PanicGuide:     "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/public-people-api",
