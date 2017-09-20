@@ -2,12 +2,12 @@ package people
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/satori/go.uuid"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -22,10 +22,10 @@ const (
 
 type mockPeopleDriver struct{}
 
-func (driver mockPeopleDriver) Read(id uuid.UUID) (person Person, found bool, err error) {
+func (driver mockPeopleDriver) Read(id string) (person Person, found bool, err error) {
 	returnPerson := Person{}
-	returnPerson.Thing = &Thing{}
-	returnPerson.ID = id.String()
+	returnPerson.Thing = Thing{}
+	returnPerson.ID = id
 	return returnPerson, isFound, nil
 }
 

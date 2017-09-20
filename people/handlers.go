@@ -75,7 +75,7 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	person, found, err := PeopleDriver.Read(requestedId)
+	person, found, err := PeopleDriver.Read(requestedId.String())
 	if err != nil {
 		log.WithFields(log.Fields{"requestedId": requestedId, "err": err}).Debug("Redirecting...")
 		w.WriteHeader(http.StatusInternalServerError)

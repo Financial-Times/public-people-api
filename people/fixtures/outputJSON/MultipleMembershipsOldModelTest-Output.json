@@ -1,0 +1,151 @@
+{
+  "salutation": "Ms.",
+  "birthYear": 1974,
+  "emailAddress": "test@example.com",
+  "twitterHandle": "@something",
+  "facebookProfile": "the-facebook-profile",
+  "description": "Some text",
+  "descriptionXML": "Some text containing <strong>markup</strong>",
+  "_imageUrl": "http://someimage.jpg",
+  "id": "http://api.ft.com/things/13a9d251-71db-467a-af2f-7e56a61c910a",
+  "apiUrl": "http://api.ft.com/people/13a9d251-71db-467a-af2f-7e56a61c910a",
+  "prefLabel": "Siobhan Morden",
+  "types": [
+    "http://www.ft.com/ontology/core/Thing",
+    "http://www.ft.com/ontology/concept/Concept",
+    "http://www.ft.com/ontology/person/Person"
+  ],
+  "directType": "http://www.ft.com/ontology/person/Person",
+  "labels": [
+    "Siobhan J Morden",
+    "Siobhan Morden"
+  ],
+  "memberships": [
+    {
+      "title": "Head of Latin American Research & Strategy",
+      "types": [
+        "http://www.ft.com/ontology/core/Thing",
+        "http://www.ft.com/ontology/concept/Concept",
+        "http://www.ft.com/ontology/organisation/Membership"
+      ],
+      "directType": "http://www.ft.com/ontology/organisation/Membership",
+      "organisation": {
+        "id": "http://api.ft.com/things/2802a267-aa96-4f68-897c-66e90d7d57e8",
+        "apiUrl": "http://api.ft.com/organisations/2802a267-aa96-4f68-897c-66e90d7d57e8",
+        "types": [
+          "http://www.ft.com/ontology/core/Thing",
+          "http://www.ft.com/ontology/concept/Concept",
+          "http://www.ft.com/ontology/organisation/Organisation"
+        ],
+        "directType": "http://www.ft.com/ontology/organisation/Organisation"
+      },
+      "changeEvents": [
+        {
+          "endedAt": "2012-01-01T00:00:00Z"
+        }
+      ],
+      "roles": [
+        {
+          "id": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "apiUrl": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "prefLabel": "Market Strategist",
+          "types": [
+            "http://www.ft.com/ontology/core/Thing",
+            "http://www.ft.com/ontology/organisation/Role"
+          ],
+          "directType": "http://www.ft.com/ontology/organisation/Role",
+          "changeEvents": [
+            {
+              "startedAt": "2010-12-11T00:00:00Z"
+            },
+            {
+              "endedAt": "2012-01-01T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Market Strategist",
+      "types": [
+        "http://www.ft.com/ontology/core/Thing",
+        "http://www.ft.com/ontology/concept/Concept",
+        "http://www.ft.com/ontology/organisation/Membership"
+      ],
+      "directType": "http://www.ft.com/ontology/organisation/Membership",
+      "organisation": {
+        "id": "http://api.ft.com/things/638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b",
+        "apiUrl": "http://api.ft.com/organisations/638fc0c1-c4d9-4be4-b6d9-c97a057e7d1b",
+        "types": [
+          "http://www.ft.com/ontology/core/Thing",
+          "http://www.ft.com/ontology/concept/Concept",
+          "http://www.ft.com/ontology/organisation/Organisation"
+        ],
+        "directType": "http://www.ft.com/ontology/organisation/Organisation"
+      },
+      "changeEvents": [
+        {
+          "endedAt": "2007-12-31T00:00:00Z"
+        }
+      ],
+      "roles": [
+        {
+          "id": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "apiUrl": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "prefLabel": "Market Strategist",
+          "types": [
+            "http://www.ft.com/ontology/core/Thing",
+            "http://www.ft.com/ontology/organisation/Role"
+          ],
+          "directType": "http://www.ft.com/ontology/organisation/Role",
+          "changeEvents": [
+            {
+              "endedAt": "2007-12-31T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Market Strategist",
+      "types": [
+        "http://www.ft.com/ontology/core/Thing",
+        "http://www.ft.com/ontology/concept/Concept",
+        "http://www.ft.com/ontology/organisation/Membership"
+      ],
+      "directType": "http://www.ft.com/ontology/organisation/Membership",
+      "organisation": {
+        "id": "http://api.ft.com/things/ac4be3c3-6dc1-4966-9cc5-ac824780f631",
+        "apiUrl": "http://api.ft.com/organisations/ac4be3c3-6dc1-4966-9cc5-ac824780f631",
+        "types": [
+          "http://www.ft.com/ontology/core/Thing",
+          "http://www.ft.com/ontology/concept/Concept",
+          "http://www.ft.com/ontology/organisation/Organisation"
+        ],
+        "directType": "http://www.ft.com/ontology/organisation/Organisation"
+      },
+      "changeEvents": [
+        {
+          "startedAt": "2008-01-16T00:00:00Z"
+        }
+      ],
+      "roles": [
+        {
+          "id": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "apiUrl": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "prefLabel": "Market Strategist",
+          "types": [
+            "http://www.ft.com/ontology/core/Thing",
+            "http://www.ft.com/ontology/organisation/Role"
+          ],
+          "directType": "http://www.ft.com/ontology/organisation/Role",
+          "changeEvents": [
+            {
+              "startedAt": "2008-01-16T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

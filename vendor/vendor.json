@@ -9,6 +9,14 @@
 			"revisionTime": "2017-08-31T12:49:05Z"
 		},
 		{
+			"checksumSHA1": "OPTyX82CqHmwmrHpgHB2eDl+Kwk=",
+			"path": "github.com/Financial-Times/concepts-rw-neo4j/concepts",
+			"revision": "18069e0bfae8efa0c50c431d173a57910888662c",
+			"revisionTime": "2017-09-15T10:35:11Z",
+			"version": "1.4.0",
+			"versionExact": "1.4.0"
+		},
+		{
 			"checksumSHA1": "fNgRM8ZlaDzdvSpuhSdGxEOrWi4=",
 			"path": "github.com/Financial-Times/go-fthealth/v1_1",
 			"revision": "e7ccca038327a0091303a52445ec1f0fb66cb97b",
@@ -33,10 +41,12 @@
 			"revisionTime": "2017-09-13T11:30:57Z"
 		},
 		{
-			"checksumSHA1": "ZmT6PPQSF7C4aHQ2HO8QsKtYStg=",
+			"checksumSHA1": "D7KuaoKQKCq4SRzRGgaXWFy9shY=",
 			"path": "github.com/Financial-Times/neo-model-utils-go/mapper",
-			"revision": "1a5407658c842183647f4799bb66ecac73af97a8",
-			"revisionTime": "2017-04-05T08:23:10Z"
+			"revision": "3c2faafc0c2e7f886ab799e888d469eaa2de5cda",
+			"revisionTime": "2017-09-20T10:01:40Z",
+			"version": "0.3.1",
+			"versionExact": "0.3.1"
 		},
 		{
 			"checksumSHA1": "ibld3tkf8qmEKpF69JI4mrSN0T8=",
@@ -104,6 +114,12 @@
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "05e8a0eda380579888eb53c394909df027f06991",
 			"revisionTime": "2017-07-13T16:51:06Z"
+		},
+		{
+			"checksumSHA1": "/lWfaq/Ok+El1amGaf3wPY5JpUc=",
+			"path": "github.com/gorilla/handlers",
+			"revision": "a4d79d4487c2430a17d9dc8a1f74d1a6ed6908ca",
+			"revisionTime": "2017-06-02T15:16:48Z"
 		},
 		{
 			"checksumSHA1": "hIbmXmNbwyP44fi1hh6zJrMcYws=",

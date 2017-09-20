@@ -9,17 +9,16 @@ type Thing struct {
 
 // Person is the structure used for the people API
 type Person struct {
-	*Thing
+	Thing
 	Types           []string     `json:"types"`
 	DirectType      string       `json:"directType,omitempty"`
-	Labels          *[]string    `json:"labels,omitempty"`
+	Labels          []string    `json:"labels,omitempty"`
 	Memberships     []Membership `json:"memberships,omitempty"`
 	Salutation      string       `json:"salutation,omitempty"`
 	BirthYear       int          `json:"birthYear,omitempty"`
 	EmailAddress    string       `json:"emailAddress,omitempty"`
 	TwitterHandle   string       `json:"twitterHandle,omitempty"`
 	FacebookProfile string       `json:"facebookProfile,omitempty"`
-	LinkedinProfile string       `json:"linkedinProfile,omitempty"`
 	Description     string       `json:"description,omitempty"`
 	DescriptionXML  string       `json:"descriptionXML,omitempty"`
 	ImageURL        string       `json:"_imageUrl,omitempty"` // TODO this is a temporary thing - needs to be integrated into images properly
@@ -37,7 +36,7 @@ type Membership struct {
 
 // Organisation simplified representation used in Person API
 type Organisation struct {
-	*Thing
+	Thing
 	Types      []string  `json:"types"`
 	DirectType string    `json:"directType,omitempty"`
 	Labels     *[]string `json:"labels,omitempty"`
@@ -45,7 +44,7 @@ type Organisation struct {
 
 // Role represents the capacity or funciton that a person performs for an organisation
 type Role struct {
-	*Thing
+	Thing
 	Types        []string       `json:"types"`
 	DirectType   string         `json:"directType,omitempty"`
 	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`

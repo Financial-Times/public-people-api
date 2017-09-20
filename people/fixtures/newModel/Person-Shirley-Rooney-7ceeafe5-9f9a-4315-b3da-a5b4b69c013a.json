@@ -1,0 +1,37 @@
+{
+  "prefUUID": "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+  "prefLabel": "Shirley Rooney",
+  "type": "Person",
+  "salutation": "Ms.",
+  "birthYear": 1974,
+  "emailAddress": "test@example.com",
+  "twitterHandle": "@something",
+  "facebookProfile": "the-facebook-profile",
+  "description": "Some text",
+  "descriptionXML": "Some text containing <strong>markup</strong>",
+  "_imageUrl": "http://someimage.jpg",
+  "sourceRepresentations": [
+    {
+      "uuid": "e7d54d96-e653-4349-aec9-eb8ab601d62d",
+      "prefLabel": "Shirley Rooney",
+      "authority": "TME",
+      "authorityValue": "1234",
+      "type": "Person",
+      "salutation": "Ms.",
+      "birthYear": 1974
+    }, {
+      "uuid": "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+      "prefLabel": "Shirley Rooney",
+      "authority": "SmartLogic",
+      "authorityValue": "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+      "type": "Person",
+      "emailAddress": "test@example.com",
+      "twitterHandle": "@something",
+      "facebookProfile": "the-facebook-profile",
+      "linkedinProfile": "the-linkedin-profile",
+      "description": "Some text",
+      "descriptionXML": "Some text containing <strong>markup</strong>",
+      "_imageUrl": "http://someimage.jpg"
+    }
+  ]
+}

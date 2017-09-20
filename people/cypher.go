@@ -7,14 +7,13 @@ import (
 
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
-	log "github.com/sirupsen/logrus"
 	"github.com/jmcvetta/neoism"
-	"github.com/satori/go.uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 // Driver interface
 type Driver interface {
-	Read(id uuid.UUID) (person Person, found bool, err error)
+	Read(id string) (person Person, found bool, err error)
 	CheckConnectivity() error
 }
 
@@ -82,19 +81,18 @@ type neoReadStruct struct {
 	}
 }
 
-func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err error) {
-	person = Person{}
-	results := []struct {
-		Rs []neoReadStruct
-	}{}
-	sixMonthsEpoch := time.Now().Unix() - (60 * 60 * 24 * 30 * 6)
+func (pcw CypherDriver) Read(uuid string) (Person, bool, error) {
+	person := Person{}
+	results := []neoReadStruct{}
+
 	query := &neoism.CypherQuery{
 		Statement: `
                         MATCH (identifier:UPPIdentifier{value:{uuid}})
-                        MATCH (identifier)-[:IDENTIFIES]->(p:Person)
+                        MATCH (identifier)-[:IDENTIFIES]->(pp:Person)-[:EQUIVALENT_TO]->(canonical:Person)
+						MATCH (canonical)<-[:EQUIVALENT_TO]-(p:Person)
                         OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
-                        OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Role)
+                        OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Concept)
                         WITH    p,
                                 { id:o.uuid, types:labels(o), prefLabel:o.prefLabel} as o,
                                 { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
@@ -107,11 +105,67 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 														 imageURL:p.imageURL, Description:p.description, descriptionXML:p.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
-		Parameters: neoism.Props{"uuid": uuid.String(), "publishedDateEpoch": sixMonthsEpoch},
+		Parameters: neoism.Props{"uuid": uuid},
 		Result:     &results,
 	}
 
-	if err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query}); err != nil || len(results) == 0 || len(results[0].Rs) == 0 {
+	err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
+
+	if err != nil {
+		log.WithError(err).WithField("UUID", uuid).Info("Error Querying Neo4J for a Person")
+		return Person{}, true, err
+	}
+
+	// TODO Sort this out by using pointers
+	if results[0].P.ID == "" {
+		p, f, e := pcw.ReadOldConcordanceModel(uuid)
+		return p, f, e
+	}
+
+	if len(results) == 0 || len(results) == 0 {
+		return Person{}, false, err
+	} else if len(results) != 1 && len(results) != 1 {
+		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
+		log.Error(errMsg)
+		return Person{}, true, errors.New(errMsg)
+	}
+
+	person = neoReadStructToPerson(results[0], pcw.env)
+	return person, true, nil
+}
+
+func (pcw CypherDriver) ReadOldConcordanceModel(uuid string) (person Person, found bool, err error) {
+	person = Person{}
+	results := []struct {
+		Rs []neoReadStruct
+	}{}
+
+	query := &neoism.CypherQuery{
+		Statement: `
+                        MATCH (identifier:UPPIdentifier{value:{uuid}})
+                        MATCH (identifier)-[:IDENTIFIES]->(p:Person)
+                        OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
+                        OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
+                        OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:Concept)
+                        WITH    p,
+                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel} as o,
+                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
+                                { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
+                        WITH p, m, o, collect(r) as r ORDER BY o.uuid DESC
+                        WITH p, collect({m:m, o:o, r:r}) as m
+                        WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases,
+												     birthYear:p.birthYear, salutation:p.salutation, emailAddress:p.emailAddress,
+														 twitterHandle:p.twitterHandle, facebookProfile:p.facebookProfile, linkedinProfile:p.linkedinProfile,
+														 imageURL:p.imageURL, Description:p.description, descriptionXML:p.descriptionXML} as p
+                        RETURN collect ({p:p, m:m}) as rs
+                        `,
+		Parameters: neoism.Props{"uuid": uuid},
+		Result:     &results,
+	}
+
+	err = pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
+
+	if err != nil || len(results) == 0 || len(results[0].Rs) == 0 {
 		return Person{}, false, err
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
 		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
@@ -125,14 +179,14 @@ func (pcw CypherDriver) Read(uuid uuid.UUID) (person Person, found bool, err err
 
 func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public := Person{}
-	public.Thing = &Thing{}
+	public.Thing = Thing{}
 	public.ID = mapper.IDURL(neo.P.ID)
 	public.APIURL = mapper.APIURL(neo.P.ID, neo.P.Types, env)
 	public.Types = mapper.TypeURIs(neo.P.Types)
 	public.DirectType = filterToMostSpecificType(neo.P.Types)
 	public.PrefLabel = neo.P.PrefLabel
 	if len(neo.P.Labels) > 0 {
-		public.Labels = &neo.P.Labels
+		public.Labels = neo.P.Labels
 	}
 	public.BirthYear = neo.P.BirthYear
 	public.Salutation = neo.P.Salutation
@@ -141,7 +195,6 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public.EmailAddress = neo.P.EmailAddress
 	public.TwitterHandle = neo.P.TwitterHandle
 	public.FacebookProfile = neo.P.FacebookProfile
-	public.LinkedinProfile = neo.P.LinkedinProfile
 	public.ImageURL = neo.P.ImageURL
 
 	if len(neo.M) == 1 && (neo.M[0].M.ID == "") {
@@ -154,7 +207,7 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 			membership.Types = mapper.TypeURIs(neoMem.M.Types)
 			membership.DirectType = filterToMostSpecificType(neoMem.M.Types)
 			membership.Organisation = Organisation{}
-			membership.Organisation.Thing = &Thing{}
+			membership.Organisation.Thing = Thing{}
 			membership.Organisation.ID = mapper.IDURL(neoMem.O.ID)
 			membership.Organisation.APIURL = mapper.APIURL(neoMem.O.ID, neoMem.O.Types, env)
 			membership.Organisation.Types = mapper.TypeURIs(neoMem.O.Types)
@@ -169,7 +222,7 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 			membership.Roles = make([]Role, len(neoMem.R))
 			for rIdx, neoRole := range neoMem.R {
 				role := Role{}
-				role.Thing = &Thing{}
+				role.Thing = Thing{}
 				role.ID = mapper.IDURL(neoRole.ID)
 				role.APIURL = mapper.APIURL(neoRole.ID, neoRole.Types, env)
 				role.Types = mapper.TypeURIs(neoRole.Types)
