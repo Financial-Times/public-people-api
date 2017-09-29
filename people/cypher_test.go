@@ -154,7 +154,7 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 
 // New Model and backwards compatibility tests
 func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
-	// New model to new model fully Type Org and Person and Role
+	//New model to new model fully Type Org and Person and Role
 
 	defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2")
 	writeJSONToConceptsService(t, "./fixtures/newModel/MembershipRole-SmartyPants-7d0738b1-0ea2-47cb-bb82-e86744b389f0.json")
@@ -166,12 +166,35 @@ func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
 	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
 }
 
-func TestNewModelWithFullyOldModelMembershipRelatedConcepts(t *testing.T) {
-	// New model to old model fully Type Org - Some form of hybrid of both old and new
-}
+// TODO: When we concord to Factset we will need to handle a mixture of old model and new model
 
 func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t *testing.T) {
 	// New model to org/person/role that is only a Thing - No membership should be returned
+
+	defer cleanDB(db, t, "ef0921e4-c862-43ac-8936-f345b9fb131a", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907", "ac4be3c3-6dc1-4966-9cc5-ac824780f631")
+
+	writeJSONToService(t, membershipsDriver, "./fixtures/oldModel/Membership-Shirley-Rooney-ef0921e4-c862-43ac-8936-f345b9fb131a.json")
+	writeJSONToConceptsService(t, "./fixtures/newModel/Person-Shirley-Rooney-7ceeafe5-9f9a-4315-b3da-a5b4b69c013a.json")
+
+	person := Person{
+		Thing: Thing{
+			ID: "http://api.ft.com/things/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+			APIURL: "http://api.ft.com/people/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+			PrefLabel: "Shirley Rooney",
+		},
+		Types: []string{
+			"http://www.ft.com/ontology/core/Thing",
+			"http://www.ft.com/ontology/concept/Concept",
+			"http://www.ft.com/ontology/person/Person",
+		},
+		Memberships: []Membership{},
+		DirectType: "http://www.ft.com/ontology/person/Person",
+		TwitterHandle: "@something",
+		EmailAddress: "test@example.com",
+		DescriptionXML:"Some text containing <strong>markup</strong>",
+
+	}
+	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
 }
 
 func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
@@ -183,11 +206,11 @@ func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
 	assert.NotNil(t, actual)
 
 	sort.Slice(expected.Memberships, func(i, j int) bool {
-		return expected.Memberships[i].Title < expected.Memberships[j].Title
+		return expected.Memberships[i].Organisation.ID < expected.Memberships[j].Organisation.ID
 	})
 
 	sort.Slice(actual.Memberships, func(i, j int) bool {
-		return actual.Memberships[i].Title < actual.Memberships[j].Title
+		return actual.Memberships[i].Organisation.ID < actual.Memberships[j].Organisation.ID
 	})
 
 	assert.Equal(t, expected.Memberships, actual.Memberships, "Expected Memberships differ from actual \nExpected: %v \nActual: %v", expected.Memberships, actual.Memberships)
@@ -199,6 +222,34 @@ func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
 	sort.Slice(actual.Labels, func(i, j int) bool {
 		return actual.Labels[i] < actual.Labels[j]
 	})
+
+	for _, membership := range actual.Memberships {
+		sort.Slice(membership.Roles, func(i, j int) bool {
+			return membership.Roles[i].ID < membership.Roles[j].ID
+		})
+
+		sort.Slice(membership.Types, func(i, j int) bool {
+			return membership.Types[i] < membership.Types[j]
+		})
+
+		sort.Slice(membership.ChangeEvents, func(i, j int) bool {
+			return membership.ChangeEvents[i].StartedAt < membership.ChangeEvents[j].StartedAt
+		})
+	}
+
+	for _, membership := range expected.Memberships {
+		sort.Slice(membership.Roles, func(i, j int) bool {
+			return membership.Roles[i].ID < membership.Roles[j].ID
+		})
+
+		sort.Slice(membership.Types, func(i, j int) bool {
+			return membership.Types[i] < membership.Types[j]
+		})
+
+		sort.Slice(membership.ChangeEvents, func(i, j int) bool {
+			return membership.ChangeEvents[i].StartedAt < membership.ChangeEvents[j].StartedAt
+		})
+	}
 
 	assert.Equal(t, expected.Labels, actual.Labels, "Expected labels differ from actual \nExpected: %v \nActual: %v", expected.Labels, actual.Labels)
 	assert.Equal(t, expected.ID, actual.ID, "Expected labels differ from actual \nExpected: %v \nActual: %v", expected.ID, actual.ID)

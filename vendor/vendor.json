@@ -41,12 +41,12 @@
 			"revisionTime": "2017-09-13T11:30:57Z"
 		},
 		{
-			"checksumSHA1": "D7KuaoKQKCq4SRzRGgaXWFy9shY=",
+			"checksumSHA1": "3tnAEvyLJTCGCucU9n0lMZrxLBk=",
 			"path": "github.com/Financial-Times/neo-model-utils-go/mapper",
-			"revision": "3c2faafc0c2e7f886ab799e888d469eaa2de5cda",
-			"revisionTime": "2017-09-20T10:01:40Z",
-			"version": "0.3.1",
-			"versionExact": "0.3.1"
+			"revision": "c14b518e8c6f89e8c26cee6f7c3a2686198c09f7",
+			"revisionTime": "2017-09-22T11:24:48Z",
+			"version": "0.3.2",
+			"versionExact": "0.3.2"
 		},
 		{
 			"checksumSHA1": "ibld3tkf8qmEKpF69JI4mrSN0T8=",
@@ -67,10 +67,12 @@
 			"revisionTime": "2017-09-01T15:57:34Z"
 		},
 		{
-			"checksumSHA1": "P4zEFnuFAQCntcCPn40JKAjcJY4=",
+			"checksumSHA1": "0jevofo1qafPckggqVPlSWBu2l8=",
 			"path": "github.com/Financial-Times/roles-rw-neo4j/roles",
-			"revision": "f8d8a59b0fd92e4bf4aa30e0d2edc1a7b8918457",
-			"revisionTime": "2017-09-01T14:00:51Z"
+			"revision": "756d7ae8b40e01ff3a3371e26bc4001f6423bb86",
+			"revisionTime": "2017-09-27T14:52:58Z",
+			"version": "0.2.0",
+			"versionExact": "0.2.0"
 		},
 		{
 			"checksumSHA1": "fqpohN7Qp2qj7TLMbUxh/cK4oH0=",

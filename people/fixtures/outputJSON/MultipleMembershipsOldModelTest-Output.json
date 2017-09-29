@@ -1,12 +1,4 @@
 {
-  "salutation": "Ms.",
-  "birthYear": 1974,
-  "emailAddress": "test@example.com",
-  "twitterHandle": "@something",
-  "facebookProfile": "the-facebook-profile",
-  "description": "Some text",
-  "descriptionXML": "Some text containing <strong>markup</strong>",
-  "_imageUrl": "http://someimage.jpg",
   "id": "http://api.ft.com/things/13a9d251-71db-467a-af2f-7e56a61c910a",
   "apiUrl": "http://api.ft.com/people/13a9d251-71db-467a-af2f-7e56a61c910a",
   "prefLabel": "Siobhan Morden",
@@ -21,6 +13,48 @@
     "Siobhan Morden"
   ],
   "memberships": [
+    {
+      "title": "Market Strategist",
+      "types": [
+        "http://www.ft.com/ontology/core/Thing",
+        "http://www.ft.com/ontology/concept/Concept",
+        "http://www.ft.com/ontology/organisation/Membership"
+      ],
+      "directType": "http://www.ft.com/ontology/organisation/Membership",
+      "organisation": {
+        "id": "http://api.ft.com/things/ac4be3c3-6dc1-4966-9cc5-ac824780f631",
+        "apiUrl": "http://api.ft.com/organisations/ac4be3c3-6dc1-4966-9cc5-ac824780f631",
+        "prefLabel": "ABN AMRO Rothschild LLC",
+        "types": [
+          "http://www.ft.com/ontology/core/Thing",
+          "http://www.ft.com/ontology/concept/Concept",
+          "http://www.ft.com/ontology/organisation/Organisation"
+        ],
+        "directType": "http://www.ft.com/ontology/organisation/Organisation"
+      },
+      "changeEvents": [
+        {
+          "startedAt": "2008-01-16T00:00:00Z"
+        }
+      ],
+      "roles": [
+        {
+          "id": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "apiUrl": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
+          "prefLabel": "Market Strategist",
+          "types": [
+            "http://www.ft.com/ontology/core/Thing",
+            "http://www.ft.com/ontology/MembershipRole"
+          ],
+          "directType": "http://www.ft.com/ontology/MembershipRole",
+          "changeEvents": [
+            {
+              "startedAt": "2008-01-16T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
     {
       "title": "Head of Latin American Research & Strategy",
       "types": [
@@ -51,9 +85,9 @@
           "prefLabel": "Market Strategist",
           "types": [
             "http://www.ft.com/ontology/core/Thing",
-            "http://www.ft.com/ontology/organisation/Role"
+            "http://www.ft.com/ontology/MembershipRole"
           ],
-          "directType": "http://www.ft.com/ontology/organisation/Role",
+          "directType": "http://www.ft.com/ontology/MembershipRole",
           "changeEvents": [
             {
               "startedAt": "2010-12-11T00:00:00Z"
@@ -95,9 +129,9 @@
           "prefLabel": "Market Strategist",
           "types": [
             "http://www.ft.com/ontology/core/Thing",
-            "http://www.ft.com/ontology/organisation/Role"
+            "http://www.ft.com/ontology/MembershipRole"
           ],
-          "directType": "http://www.ft.com/ontology/organisation/Role",
+          "directType": "http://www.ft.com/ontology/MembershipRole",
           "changeEvents": [
             {
               "endedAt": "2007-12-31T00:00:00Z"
@@ -105,47 +139,14 @@
           ]
         }
       ]
-    },
-    {
-      "title": "Market Strategist",
-      "types": [
-        "http://www.ft.com/ontology/core/Thing",
-        "http://www.ft.com/ontology/concept/Concept",
-        "http://www.ft.com/ontology/organisation/Membership"
-      ],
-      "directType": "http://www.ft.com/ontology/organisation/Membership",
-      "organisation": {
-        "id": "http://api.ft.com/things/ac4be3c3-6dc1-4966-9cc5-ac824780f631",
-        "apiUrl": "http://api.ft.com/organisations/ac4be3c3-6dc1-4966-9cc5-ac824780f631",
-        "types": [
-          "http://www.ft.com/ontology/core/Thing",
-          "http://www.ft.com/ontology/concept/Concept",
-          "http://www.ft.com/ontology/organisation/Organisation"
-        ],
-        "directType": "http://www.ft.com/ontology/organisation/Organisation"
-      },
-      "changeEvents": [
-        {
-          "startedAt": "2008-01-16T00:00:00Z"
-        }
-      ],
-      "roles": [
-        {
-          "id": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
-          "apiUrl": "http://api.ft.com/things/0ee8e7b7-bac9-4db1-b94b-5605ce1d2907",
-          "prefLabel": "Market Strategist",
-          "types": [
-            "http://www.ft.com/ontology/core/Thing",
-            "http://www.ft.com/ontology/organisation/Role"
-          ],
-          "directType": "http://www.ft.com/ontology/organisation/Role",
-          "changeEvents": [
-            {
-              "startedAt": "2008-01-16T00:00:00Z"
-            }
-          ]
-        }
-      ]
     }
-  ]
+  ],
+  "salutation": "Ms.",
+  "birthYear": 1974,
+  "emailAddress": "test@example.com",
+  "twitterHandle": "@something",
+  "facebookProfile": "the-facebook-profile",
+  "description": "Some text",
+  "descriptionXML": "Some text containing <strong>markup</strong>",
+  "_imageUrl": "http://someimage.jpg"
 }

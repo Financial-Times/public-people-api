@@ -30,7 +30,7 @@ type Membership struct {
 	Types        []string       `json:"types"`
 	DirectType   string         `json:"directType,omitempty"`
 	Organisation Organisation   `json:"organisation"`
-	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`
+	ChangeEvents []ChangeEvent `json:"changeEvents,omitempty"`
 	Roles        []Role         `json:"roles"`
 }
 
@@ -39,7 +39,7 @@ type Organisation struct {
 	Thing
 	Types      []string  `json:"types"`
 	DirectType string    `json:"directType,omitempty"`
-	Labels     *[]string `json:"labels,omitempty"`
+	Labels     []string `json:"labels,omitempty"`
 }
 
 // Role represents the capacity or funciton that a person performs for an organisation
@@ -47,7 +47,7 @@ type Role struct {
 	Thing
 	Types        []string       `json:"types"`
 	DirectType   string         `json:"directType,omitempty"`
-	ChangeEvents *[]ChangeEvent `json:"changeEvents,omitempty"`
+	ChangeEvents []ChangeEvent `json:"changeEvents,omitempty"`
 }
 
 // ChangeEvent represent when something started or ended
