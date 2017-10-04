@@ -93,6 +93,7 @@ func GetPerson(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{"UUID": requestId}).Info("Person " + requestId + " is concorded to " + canonicalId + "; serving redirect")
 		w.Header().Set("Location", person.APIURL)
 		w.WriteHeader(http.StatusMovedPermanently)
+		w.Write([]byte(`"{\"message\":\"Person ` + requestId + ` is concorded, redirecting...\"}"`))
 		return
 	}
 
