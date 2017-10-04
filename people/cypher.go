@@ -116,7 +116,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 		return Person{}, true, err
 	}
 
-	if len(results) == 0  || (len(results[0].Rs) == 0  || results[0].Rs[0].P.ID == "" ){
+	if len(results) == 0 || (len(results[0].Rs) == 0 || results[0].Rs[0].P.ID == "") {
 		p, f, e := pcw.ReadOldConcordanceModel(uuid, transactionID)
 		return p, f, e
 	} else if len(results) != 1 {
@@ -198,7 +198,7 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	if len(neo.M) > 0 {
 		memberships := []Membership{}
 		for _, neoMem := range neo.M {
-			if neoMem.M.ID != "" && neoMem.O.ID != "" && len(neoMem.R) > 0  {
+			if neoMem.M.ID != "" && neoMem.O.ID != "" && len(neoMem.R) > 0 {
 				membership := Membership{}
 				membership.Title = neoMem.M.PrefLabel
 				membership.Types = mapper.TypeURIs(neoMem.M.Types)
@@ -233,7 +233,7 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 						roles = append(roles, role)
 					}
 				}
-				if (len(roles) > 0) {
+				if len(roles) > 0 {
 					membership.Roles = roles
 					memberships = append(memberships, membership)
 				}

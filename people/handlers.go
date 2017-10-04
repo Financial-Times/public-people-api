@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
-	log "github.com/sirupsen/logrus"
-	"github.com/gorilla/mux"
-	"strings"
-	"regexp"
-	"github.com/Financial-Times/transactionid-utils-go"
 	"fmt"
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	"github.com/Financial-Times/transactionid-utils-go"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+	"regexp"
+	"strings"
 )
 
 const (

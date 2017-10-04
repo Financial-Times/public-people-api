@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
+	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
 	"github.com/Financial-Times/memberships-rw-neo4j/memberships"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/organisations-rw-neo4j/organisations"
@@ -19,11 +20,10 @@ import (
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
 	"github.com/jmcvetta/neoism"
 	"github.com/stretchr/testify/assert"
-	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
 )
 
 const (
-	personId = "13a9d251-71db-467a-af2f-7e56a61c910a"
+	personId          = "13a9d251-71db-467a-af2f-7e56a61c910a"
 	testTransactionID = "test_tid"
 )
 
@@ -181,8 +181,8 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 
 	person := Person{
 		Thing: Thing{
-			ID: "http://api.ft.com/things/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
-			APIURL: "http://api.ft.com/people/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+			ID:        "http://api.ft.com/things/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+			APIURL:    "http://api.ft.com/people/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
 			PrefLabel: "Shirley Rooney",
 		},
 		Types: []string{
@@ -190,12 +190,11 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 			"http://www.ft.com/ontology/concept/Concept",
 			"http://www.ft.com/ontology/person/Person",
 		},
-		Memberships: []Membership{},
-		DirectType: "http://www.ft.com/ontology/person/Person",
-		TwitterHandle: "@something",
-		EmailAddress: "test@example.com",
-		DescriptionXML:"Some text containing <strong>markup</strong>",
-
+		Memberships:    []Membership{},
+		DirectType:     "http://www.ft.com/ontology/person/Person",
+		TwitterHandle:  "@something",
+		EmailAddress:   "test@example.com",
+		DescriptionXML: "Some text containing <strong>markup</strong>",
 	}
 	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
 }

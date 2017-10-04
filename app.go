@@ -14,10 +14,10 @@ import (
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/public-people-api/people"
 	status "github.com/Financial-Times/service-status-go/httphandlers"
-	log "github.com/sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -121,10 +121,10 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	// Health checks and standards first
 	var checks []fthealth.Check = []fthealth.Check{people.HealthCheck()}
 	servicesRouter.HandleFunc("/__health", fthealth.Handler(fthealth.HealthCheck{
-		SystemCode: "public-people-api",
-		Name: "public-people-api",
+		SystemCode:  "public-people-api",
+		Name:        "public-people-api",
 		Description: "Public API for serving information on People within UPP",
-		Checks: checks,
+		Checks:      checks,
 	}))
 
 	// Then API specific ones:
