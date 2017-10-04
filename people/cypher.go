@@ -1,7 +1,6 @@
 package people
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 
 // Driver interface
 type Driver interface {
-	Read(id string) (person Person, found bool, err error)
+	Read(id string, transactionID string) (person Person, found bool, err error)
 	CheckConnectivity() error
 }
 
@@ -81,7 +80,7 @@ type neoReadStruct struct {
 	}
 }
 
-func (pcw CypherDriver) Read(uuid string) (Person, bool, error) {
+func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, error) {
 	person := Person{}
 	results := []struct {
 		Rs []neoReadStruct
@@ -113,29 +112,24 @@ func (pcw CypherDriver) Read(uuid string) (Person, bool, error) {
 
 	err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
-		log.WithError(err).WithField("UUID", uuid).Info("Error Querying Neo4J for a Person")
+		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Error Querying Neo4J for a Person")
 		return Person{}, true, err
 	}
 
-	// TODO Sort this out by using pointers
-	if (len(results[0].Rs) == 0  || results[0].Rs[0].P.ID == "" ){
-		p, f, e := pcw.ReadOldConcordanceModel(uuid)
+	if len(results) == 0  || (len(results[0].Rs) == 0  || results[0].Rs[0].P.ID == "" ){
+		p, f, e := pcw.ReadOldConcordanceModel(uuid, transactionID)
 		return p, f, e
-	}
-
-	if len(results) == 0 || len(results) == 0 {
-		return Person{}, false, err
-	} else if len(results) != 1 && len(results) != 1 {
-		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
-		log.Error(errMsg)
-		return Person{}, true, errors.New(errMsg)
+	} else if len(results) != 1 {
+		err := fmt.Errorf("Multiple people found with the same uuid: %s", uuid)
+		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
+		return Person{}, true, err
 	}
 
 	person = neoReadStructToPerson(results[0].Rs[0], pcw.env)
 	return person, true, nil
 }
 
-func (pcw CypherDriver) ReadOldConcordanceModel(uuid string) (person Person, found bool, err error) {
+func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID string) (person Person, found bool, err error) {
 	person = Person{}
 	results := []struct {
 		Rs []neoReadStruct
@@ -165,12 +159,16 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string) (person Person, fou
 	}
 
 	err = pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
-	if err != nil || len(results) == 0 || len(results[0].Rs) == 0 {
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Query execution failed")
 		return Person{}, false, err
+	} else if len(results) == 0 || len(results[0].Rs) == 0 {
+		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Info("Person not found")
+		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
-		errMsg := fmt.Sprintf("Multiple people found with the same uuid:%s !", uuid)
-		log.Error(errMsg)
-		return Person{}, true, errors.New(errMsg)
+		err = fmt.Errorf("Multiple people found with the same uuid:%s !", uuid)
+		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
+		return Person{}, true, err
 	}
 
 	person = neoReadStructToPerson(results[0].Rs[0], pcw.env)

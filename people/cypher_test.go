@@ -22,7 +22,10 @@ import (
 	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
 )
 
-const personId = "13a9d251-71db-467a-af2f-7e56a61c910a"
+const (
+	personId = "13a9d251-71db-467a-af2f-7e56a61c910a"
+	testTransactionID = "test_tid"
+)
 
 //Reusable Neo4J connection
 var db neoutils.NeoConnection
@@ -78,7 +81,7 @@ func neoUrl() string {
 	return url
 }
 
-// TestNeoReadStructToPersonMandatoryFields checks that madatory fields are set even if they are empty or nil / null
+// TestNeoReadStructToPersonMandatoryFields checks that mandatory fields are set even if they are empty or nil / null
 func TestNeoReadStructToPersonMandatoryFields(t *testing.T) {
 	expected := `{"id":"http://api.ft.com/things/","apiUrl":"http://api.ft.com/things/","types":null}`
 	person := neoReadStructToPerson(neoReadStruct{}, "prod")
@@ -141,8 +144,8 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 	writeJSONToService(t, peopleDriver, fmt.Sprintf("./fixtures/oldModel/Person-Siobhan_Morden-%s.json", personId))
 
 	publicPeopleDriver := NewCypherDriver(db, "prod")
-	person, found, err := publicPeopleDriver.Read(alternativePersonId)
-	person1, found, err := publicPeopleDriver.Read(personId)
+	person, found, err := publicPeopleDriver.Read(alternativePersonId, testTransactionID)
+	person1, found, err := publicPeopleDriver.Read(personId, testTransactionID)
 
 	assert.NoError(t, err, "Error on reading Person with alternative id: %v", alternativePersonId)
 	assert.True(t, found, "Person not found in database")
@@ -198,8 +201,7 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 }
 
 func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
-
-	actual, found, err := publicPeopleDriver.Read(uuid)
+	actual, found, err := publicPeopleDriver.Read(uuid, testTransactionID)
 
 	assert.NoError(t, err, "Unexpected Error occurred reading UUID: %v", uuid)
 	assert.True(t, found, "Person not found with UUID: %v", uuid)

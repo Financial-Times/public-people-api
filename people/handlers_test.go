@@ -22,7 +22,7 @@ const (
 
 type mockPeopleDriver struct{}
 
-func (driver mockPeopleDriver) Read(id string) (person Person, found bool, err error) {
+func (driver mockPeopleDriver) Read(id string, transactionID string) (person Person, found bool, err error) {
 	returnPerson := Person{}
 	returnPerson.Thing = Thing{}
 	returnPerson.ID = id
