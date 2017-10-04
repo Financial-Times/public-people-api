@@ -129,7 +129,6 @@ func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
 		FacebookProfile: "the-facebook-profile",
 		Description:     "Some text",
 		DescriptionXML:  "Some text containing <strong>markup</strong>",
-		ImageURL:        "http://someimage.jpg",
 		Memberships:     []Membership{},
 	}
 
@@ -195,6 +194,7 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 		TwitterHandle:  "@something",
 		EmailAddress:   "test@example.com",
 		DescriptionXML: "Some text containing <strong>markup</strong>",
+		ImageURL:       "http://someimage.jpg",
 	}
 	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
 }
@@ -326,11 +326,4 @@ func cleanDB(db neoutils.NeoConnection, t *testing.T, uuids ...string) {
 	}
 	err := db.CypherBatch(qs)
 	assert.NoError(t, err, fmt.Sprintf("Error executing clean up cypher. Error: %v", err))
-}
-
-func assertListContainsAll(assert *assert.Assertions, list interface{}, items ...interface{}) {
-	assert.Len(list, len(items))
-	for _, item := range items {
-		assert.Contains(list, item)
-	}
 }

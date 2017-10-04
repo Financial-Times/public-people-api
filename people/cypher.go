@@ -103,7 +103,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
                         WITH m, { ID:canonical.prefUUID, types:labels(canonical), prefLabel:canonical.prefLabel, labels:canonical.aliases,
 								birthYear:canonical.birthYear, salutation:canonical.salutation, emailAddress:canonical.emailAddress,
 								twitterHandle:canonical.twitterHandle, facebookProfile:canonical.facebookProfile, linkedinProfile:canonical.linkedinProfile,
-								imageURL:canonical.imageURL, Description:canonical.description, descriptionXML:canonical.descriptionXML} as p
+								imageUrl:canonical.imageUrl, Description:canonical.description, descriptionXML:canonical.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
 		Parameters: neoism.Props{"uuid": uuid},
@@ -151,7 +151,7 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID strin
                         WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases,
 												     birthYear:p.birthYear, salutation:p.salutation, emailAddress:p.emailAddress,
 														 twitterHandle:p.twitterHandle, facebookProfile:p.facebookProfile, linkedinProfile:p.linkedinProfile,
-														 imageURL:p.imageURL, Description:p.description, descriptionXML:p.descriptionXML} as p
+														 imageUrl:p.imageUrl, Description:p.description, descriptionXML:p.descriptionXML} as p
                         RETURN collect ({p:p, m:m}) as rs
                         `,
 		Parameters: neoism.Props{"uuid": uuid},

@@ -16,6 +16,5 @@
   "facebookProfile": "the-facebook-profile",
   "linkedinProfile": "the-linkedin-profile",
   "description": "Some text",
-  "descriptionXML": "Some text containing <strong>markup</strong>",
-  "_imageUrl": "http://someimage.jpg"
+  "descriptionXML": "Some text containing <strong>markup</strong>"
 }

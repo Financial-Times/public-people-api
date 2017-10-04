@@ -147,6 +147,5 @@
   "twitterHandle": "@something",
   "facebookProfile": "the-facebook-profile",
   "description": "Some text",
-  "descriptionXML": "Some text containing <strong>markup</strong>",
-  "_imageUrl": "http://someimage.jpg"
+  "descriptionXML": "Some text containing <strong>markup</strong>"
 }
