@@ -1,0 +1,20 @@
+{
+  "prefUUID": "8cdff2ba-3062-471e-b98a-7ee961239cd2",
+  "prefLabel": "Head of Smarty Pants Town",
+  "type": "Membership",
+  "membershipRoles" : ["7d0738b1-0ea2-47cb-bb82-e86744b389f0"],
+  "organisationUUID": "184cbe9b-b630-40d5-a5d0-99ecabd7fd86",
+  "personUUID": "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+  "sourceRepresentations": [
+    {
+      "uuid": "8cdff2ba-3062-471e-b98a-7ee961239cd2",
+      "prefLabel": "Head of Smarty Pant Town",
+      "authority": "Smartlogic",
+      "authorityValue": "8cdff2ba-3062-471e-b98a-7ee961239cd2",
+      "type": "Membership",
+      "membershipRoles" : ["7d0738b1-0ea2-47cb-bb82-e86744b389f0"],
+      "organisationUUID": "184cbe9b-b630-40d5-a5d0-99ecabd7fd86",
+      "personUUID": "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a"
+    }
+  ]
+}

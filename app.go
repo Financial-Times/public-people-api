@@ -9,15 +9,15 @@ import (
 	"time"
 
 	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
-	"github.com/Financial-Times/go-fthealth/v1a"
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/http-handlers-go/httphandlers"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/public-people-api/people"
 	status "github.com/Financial-Times/service-status-go/httphandlers"
-	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -71,11 +71,14 @@ func main() {
 	})
 
 	app.Action = func() {
-		parsedLogLevel, err := log.ParseLevel(*logLevel)
+		lvl, err := log.ParseLevel(*logLevel)
 		if err != nil {
-			log.WithFields(log.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level")
+			log.Warnf("Log level %s could not be parsed, defaulting to info")
+			lvl = log.InfoLevel
 		}
-		log.SetLevel(parsedLogLevel)
+		log.SetLevel(lvl)
+		log.Info(lvl.String() + ": log level set")
+		log.SetFormatter(&log.JSONFormatter{})
 
 		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
 
@@ -116,8 +119,13 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	servicesRouter := mux.NewRouter()
 
 	// Health checks and standards first
-	servicesRouter.HandleFunc("/__health", v1a.Handler("PeopleReadWriteNeo4j Healthchecks",
-		"Checks for accessing neo4j", people.HealthCheck()))
+	var checks []fthealth.Check = []fthealth.Check{people.HealthCheck()}
+	servicesRouter.HandleFunc("/__health", fthealth.Handler(fthealth.HealthCheck{
+		SystemCode:  "public-people-api",
+		Name:        "public-people-api",
+		Description: "Public API for serving information on People within UPP",
+		Checks:      checks,
+	}))
 
 	// Then API specific ones:
 	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
@@ -130,10 +138,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	// The following endpoints should not be monitored or logged (varnish calls one of these every second, depending on config)
 	// The top one of these build info endpoints feels more correct, but the lower one matches what we have in Dropwizard,
 	// so it's what apps expect currently same as ping, the content of build-info needs more definition
-	http.HandleFunc(status.PingPath, status.PingHandler)
-	http.HandleFunc(status.PingPathDW, status.PingHandler)
 	http.HandleFunc(status.BuildInfoPath, status.BuildInfoHandler)
-	http.HandleFunc(status.BuildInfoPathDW, status.BuildInfoHandler)
 	http.HandleFunc("/__gtg", people.GoodToGo)
 	http.Handle("/", monitoringRouter)
 
