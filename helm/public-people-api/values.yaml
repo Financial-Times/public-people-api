@@ -10,7 +10,9 @@ image:
   pullPolicy: IfNotPresent
 cache_duration: 10m
 resources:
+ requests:
+   memory: 12Mi
  limits:
-   memory: 256Mi
+   memory: 72Mi
 
 
