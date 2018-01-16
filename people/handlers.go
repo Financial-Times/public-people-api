@@ -11,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
+	"github.com/Financial-Times/service-status-go/gtg"
 )
 
 const (
@@ -46,11 +47,19 @@ func Checker() (string, error) {
 	return "Error connecting to neo4j", err
 }
 
-//GoodToGo returns a 503 if the healthcheck fails - suitable for use from varnish to check availability of a node
-func GoodToGo(writer http.ResponseWriter, req *http.Request) {
-	if _, err := Checker(); err != nil {
-		writer.WriteHeader(http.StatusServiceUnavailable)
+func GTG() gtg.Status {
+	statusCheck := func() gtg.Status {
+		return gtgCheck(Checker)
 	}
+
+	return gtg.FailFastParallelCheck([]gtg.StatusChecker{statusCheck})()
+}
+
+func gtgCheck(handler func() (string, error)) gtg.Status {
+	if _, err := handler(); err != nil {
+		return gtg.Status{GoodToGo: false, Message: err.Error()}
+	}
+	return gtg.Status{GoodToGo: true}
 }
 
 // MethodNotAllowedHandler handles 405

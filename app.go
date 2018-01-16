@@ -119,13 +119,18 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	servicesRouter := mux.NewRouter()
 
 	// Health checks and standards first
-	var checks []fthealth.Check = []fthealth.Check{people.HealthCheck()}
-	servicesRouter.HandleFunc("/__health", fthealth.Handler(fthealth.HealthCheck{
-		SystemCode:  "public-people-api",
-		Name:        "public-people-api",
-		Description: "Public API for serving information on People within UPP",
-		Checks:      checks,
-	}))
+	checks := []fthealth.Check{people.HealthCheck()}
+	timedHC := fthealth.TimedHealthCheck{
+		HealthCheck: fthealth.HealthCheck{
+			SystemCode:  "public-people-api",
+			Name:        "Public people api",
+			Description: "Public API for serving information on People within UPP",
+			Checks:      checks,
+		},
+		Timeout: 10 * time.Second,
+	}
+
+	servicesRouter.HandleFunc("/__health", fthealth.Handler(timedHC))
 
 	// Then API specific ones:
 	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
@@ -139,7 +144,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	// The top one of these build info endpoints feels more correct, but the lower one matches what we have in Dropwizard,
 	// so it's what apps expect currently same as ping, the content of build-info needs more definition
 	http.HandleFunc(status.BuildInfoPath, status.BuildInfoHandler)
-	http.HandleFunc("/__gtg", people.GoodToGo)
+	http.HandleFunc("/__gtg", status.NewGoodToGoHandler(people.GTG))
 	http.Handle("/", monitoringRouter)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

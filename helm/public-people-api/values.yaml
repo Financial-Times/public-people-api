@@ -11,8 +11,8 @@ image:
 cache_duration: 10m
 resources:
  requests:
-   memory: 12Mi
+   memory: 32Mi
  limits:
-   memory: 72Mi
+   memory: 128Mi
 
 
