@@ -138,7 +138,7 @@ func TestNeoReadPersonWithCanonicalUPPID(t *testing.T) {
 func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 	alternativePersonId := "d755c384-c302-485c-b12e-ea3c6751a6b6"
 
-	cleanDB(db, t, alternativePersonId, personId)
+	defer cleanDB(db, t, alternativePersonId, personId)
 
 	writeJSONToService(t, peopleDriver, fmt.Sprintf("./fixtures/oldModel/Person-Siobhan_Morden-%s.json", personId))
 
@@ -158,7 +158,7 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
 	//New model to new model fully Type Org and Person and Role
 
-	defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2")
+	defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2", "e7d54d96-e653-4349-aec9-eb8ab601d62d", "c02d18d9-e98e-4bf4-b437-b1a5ea85b999")
 	writeJSONToConceptsService(t, "./fixtures/newModel/MembershipRole-SmartyPants-7d0738b1-0ea2-47cb-bb82-e86744b389f0.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Organisation-RooneyRoosters-184cbe9b-b630-40d5-a5d0-99ecabd7fd86.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Person-Shirley-Rooney-7ceeafe5-9f9a-4315-b3da-a5b4b69c013a.json")
@@ -173,7 +173,7 @@ func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
 func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t *testing.T) {
 	// New model to org/person/role that is only a Thing - No membership should be returned
 
-	defer cleanDB(db, t, "ef0921e4-c862-43ac-8936-f345b9fb131a", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907", "ac4be3c3-6dc1-4966-9cc5-ac824780f631")
+	defer cleanDB(db, t, "ef0921e4-c862-43ac-8936-f345b9fb131a", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "0ee8e7b7-bac9-4db1-b94b-5605ce1d2907", "ac4be3c3-6dc1-4966-9cc5-ac824780f631", "e7d54d96-e653-4349-aec9-eb8ab601d62d")
 
 	writeJSONToService(t, membershipsDriver, "./fixtures/oldModel/Membership-Shirley-Rooney-ef0921e4-c862-43ac-8936-f345b9fb131a.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Person-Shirley-Rooney-7ceeafe5-9f9a-4315-b3da-a5b4b69c013a.json")
