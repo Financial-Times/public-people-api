@@ -6,12 +6,12 @@ import (
 
 	"fmt"
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	"github.com/Financial-Times/service-status-go/gtg"
 	"github.com/Financial-Times/transactionid-utils-go"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
-	"github.com/Financial-Times/service-status-go/gtg"
 )
 
 const (
@@ -31,7 +31,7 @@ func HealthCheck() fthealth.Check {
 		BusinessImpact: "Unable to respond to Public People api requests",
 		Name:           "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
 		PanicGuide:     "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/public-people-api",
-		Severity:       1,
+		Severity:       2,
 		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find
 				the neoUrl as a parameter in hieradata for this service. `,
 		Checker: Checker,
