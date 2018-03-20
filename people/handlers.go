@@ -28,12 +28,11 @@ var CacheControlHeader string
 // HealthCheck does something
 func HealthCheck() fthealth.Check {
 	return fthealth.Check{
-		BusinessImpact: "Unable to respond to Public People api requests",
-		Name:           "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
-		PanicGuide:     "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/public-people-api",
+		BusinessImpact: "Unable to respond to Public People API requests",
+		Name:           "Check connectivity to Neo4j",
+		PanicGuide:     "https://dewey.in.ft.com/view/system/public-people-api",
 		Severity:       2,
-		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find
-				the neoUrl as a parameter in hieradata for this service. `,
+		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.  `,
 		Checker: Checker,
 	}
 }
