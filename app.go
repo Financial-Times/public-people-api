@@ -123,7 +123,7 @@ func runServer(neoURL string, port string, cacheDuration string, env string) {
 	timedHC := fthealth.TimedHealthCheck{
 		HealthCheck: fthealth.HealthCheck{
 			SystemCode:  "public-people-api",
-			Name:        "Public people api",
+			Name:        "Public People API",
 			Description: "Public API for serving information on People within UPP",
 			Checks:      checks,
 		},
