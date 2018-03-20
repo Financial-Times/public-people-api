@@ -29,7 +29,7 @@ var CacheControlHeader string
 func HealthCheck() fthealth.Check {
 	return fthealth.Check{
 		BusinessImpact: "Unable to respond to Public People API requests",
-		Name:           "Check connectivity to Neo4j",
+		Name:           "Public People Heathchecks",
 		PanicGuide:     "https://dewey.in.ft.com/view/system/public-people-api",
 		Severity:       2,
 		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.  `,
