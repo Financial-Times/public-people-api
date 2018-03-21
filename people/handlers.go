@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/Financial-Times/transactionid-utils-go"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 	"html"
@@ -21,6 +20,11 @@ const (
 	urlPrefix = "http://api.ft.com/things/"
 	validUUID = "([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
 	contentTypeJson  = "application/json; charset=UTF-8"
+
+	personNotFoundMsg = "Person could not be retrieved"
+	personUnableToBeRetrieved = "Person could not be retrieved"
+	badRequestMsg = "Invalid UUID"
+	redirectedPerson = "Person %s is concorded to %s; serving redirect"
 )
 
 type Handler struct {
@@ -41,42 +45,42 @@ func (h *Handler) RegisterHandlers(router *mux.Router) {
 	handler := handlers.MethodHandler{
 		"GET":    http.HandlerFunc(h.GetPerson),
 	}
-	router.Handle("/people/{uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}", handler)
+	router.Handle("/people/{uuid}", handler)
 }
 
 // GetPerson is the public API
 func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	requestId := vars["uuid"]
+	uuid := vars["uuid"]
 	transId := transactionidutils.GetTransactionIDFromRequest(r)
 	w.Header().Set("X-Request-Id", transId)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	validRegexp := regexp.MustCompile(validUUID)
 
-	if requestId == "" || !validRegexp.MatchString(requestId) {
-		msg := fmt.Sprintf("Invalid request id %s", requestId)
-		log.WithFields(log.Fields{"UUID": requestId, "transaction_id": transId}).Error(msg)
-		writeJSONStaus(w,msg, http.StatusInternalServerError)
+	logger.Errorf("UUID: %s", uuid)
+	if uuid == "" || !validRegexp.MatchString(uuid) {
+		logger.WithTransactionID(transId).WithField("UUID", uuid).Error(badRequestMsg)
+		writeJSONStaus(w, badRequestMsg, http.StatusBadRequest)
 		return
 	}
 
-	person, found, err := h.driver.Read(requestId, transId)
+	person, found, err := h.driver.Read(uuid, transId)
 	if err != nil {
-		writeJSONStaus(w,"Person could not be retrieved", http.StatusInternalServerError)
+		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		writeJSONStaus(w,`Person ` + requestId + ` not found in DB`, http.StatusNotFound)
+		writeJSONStaus(w, personNotFoundMsg, http.StatusNotFound)
 		return
 	}
 
 	canonicalId := strings.TrimPrefix(person.ID, urlPrefix)
-	if strings.Compare(canonicalId, requestId) != 0 {
-		log.WithFields(log.Fields{"UUID": requestId}).Info("Person " + requestId + " is concorded to " + canonicalId + "; serving redirect")
-		redirectURL := strings.Replace(r.URL.String(), requestId, canonicalId, 1)
+	if strings.Compare(canonicalId, uuid) != 0 {
+		logger.WithTransactionID(transId).WithField("UUID", uuid).Infof(redirectedPerson, uuid, canonicalId)
+		redirectURL := strings.Replace(r.URL.String(), uuid, canonicalId, 1)
 		w.Header().Set("Location", redirectURL)
-		writeJSONStaus(w,`Person ` + requestId + ` is concorded, redirecting...`, http.StatusMovedPermanently)
+		writeJSONStaus(w, fmt.Sprintf(redirectedPerson, uuid, canonicalId), http.StatusMovedPermanently)
 		return
 	}
 
@@ -93,7 +97,7 @@ func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {
 	rw.WriteHeader(statusCode)
 	logMsg := fmt.Sprintf(`{"message":"%s"}`, html.EscapeString(message))
 	if _, err := rw.Write([]byte(logMsg)); err != nil {
-		log.WithError(err).Warnf("could not read json error")
+		logger.WithError(err).Warnf("could not read json error")
 	}
 }
 
