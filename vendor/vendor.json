@@ -205,14 +205,26 @@
 			"revisionTime": "2018-01-29T17:20:03Z"
 		},
 		{
-			"checksumSHA1": "J+ppEq6nYMKxhB9+c+MD1x9UwSc=",
+			"checksumSHA1": "6LwXZI7kXm1C0h4Ui0Y52p9uQhk=",
 			"path": "github.com/stretchr/testify/assert",
-			"revision": "05e8a0eda380579888eb53c394909df027f06991",
-			"revisionTime": "2017-07-13T16:51:06Z"
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
 		},
 		{
 			"checksumSHA1": "Qloi2PTvZv+D9FDHXM/banCoaFY=",
 			"path": "github.com/stretchr/testify/mock",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
+			"checksumSHA1": "KqYmXUcuGwsvBL6XVsQnXsFb3LI=",
+			"path": "github.com/stretchr/testify/require",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
+			"checksumSHA1": "uefllr2OtKBGo/kQSAPbW3w6p0A=",
+			"path": "github.com/stretchr/testify/suite",
 			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
 			"revisionTime": "2018-03-14T08:05:35Z"
 		},

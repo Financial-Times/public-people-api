@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/suite"
 	"github.com/Financial-Times/go-logger"
-	//"github.com/stretchr/testify/mock"
 	"encoding/json"
 	"io"
 	"bytes"
