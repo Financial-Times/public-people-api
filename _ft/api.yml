@@ -12,7 +12,7 @@ info:
 host: api.ft.com
 schemes:
   - https
-basePath: /__public-people-api
+basePath: /
 paths:
   /people/{uuid}:
     get:
@@ -28,9 +28,18 @@ paths:
           type: string
           required: true
           description: UUID of a person
+        - in: query
+          name: apiKey
+          schema:
+            type: string
+          description: api.ft.com API key
       responses:
         200:
           description: Success body if the Person representation are found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
         400:
           description: Bad request if the uuid path parameter is badly formed or missing.
         404:
@@ -97,3 +106,14 @@ paths:
            description: The application is healthy enough to perform all its functions correctly - i.e. good to go.
         503:
            description: One or more of the applications healthchecks have failed, so please do not use the app. See the /__health endpoint for more detailed information.
+
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        UUID:
+          type: string
+          description: UUID of the person
+
+

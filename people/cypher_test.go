@@ -30,7 +30,7 @@ const (
 //Reusable Neo4J connection
 var db neoutils.NeoConnection
 
-var publicPeopleDriver CypherDriver
+var publicPeopleDriver Driver
 
 //Concept Services
 var conceptsDriver concepts.ConceptService

@@ -25,6 +25,12 @@
 			"versionExact": "0.4.0"
 		},
 		{
+			"checksumSHA1": "M4GVNB+VQeA8vABvYyuSmkL7t5E=",
+			"path": "github.com/Financial-Times/go-logger",
+			"revision": "0be8a1588ade8801ad4852222e11fca8e47eb153",
+			"revisionTime": "2018-03-15T14:43:45Z"
+		},
+		{
 			"checksumSHA1": "dqF1g4reeLPNN10qTXgDJj3fHm4=",
 			"path": "github.com/Financial-Times/http-handlers-go/httphandlers",
 			"revision": "229ac16f1d9ec9bca485d2dafb9ec14dc7e9ba24",

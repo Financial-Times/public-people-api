@@ -1,13 +1,16 @@
 package people
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-
 	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+	"github.com/Financial-Times/go-logger"
+	"github.com/stretchr/testify/mock"
+	"encoding/json"
+	"io"
+	"bytes"
+	"testing"
 )
 
 var (
@@ -16,54 +19,58 @@ var (
 	isFound   bool
 )
 
-const (
-	expectedCacheControlHeader string = "special header"
-)
-
-type mockPeopleDriver struct{}
-
-func (driver mockPeopleDriver) Read(id string, transactionID string) (person Person, found bool, err error) {
-	returnPerson := Person{}
-	returnPerson.Thing = Thing{}
-	returnPerson.ID = id
-	return returnPerson, isFound, nil
+type HandlerTestSuite struct {
+	suite.Suite
+	mockDriver  *MockDriver
+	router      *mux.Router
+	handler     *Handler
 }
 
-func (driver mockPeopleDriver) CheckConnectivity() error {
-	return nil
+func (suite *HandlerTestSuite) SetupTest() {
+	logger.InitDefaultLogger("handler-test")
+	suite.router = mux.NewRouter()
+	suite.mockDriver = &MockDriver{}
+	suite.handler = NewHandler(suite.mockDriver, 0)
+	suite.handler.RegisterHandlers(suite.router)
 }
 
-func init() {
-	PeopleDriver = mockPeopleDriver{}
-	CacheControlHeader = expectedCacheControlHeader
-	r := mux.NewRouter()
-	r.HandleFunc("/people/{uuid}", GetPerson).Methods("GET")
-	server = httptest.NewServer(r)
-	personURL = fmt.Sprintf("%s/people", server.URL) //Grab the address for the API endpoint
-	isFound = true
+func (suite *HandlerTestSuite) TestGetPeople_Success() {
+	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
+
+	person  := Person{
+		Thing: Thing{
+			ID:        "http://api.ft.com/things/70f4732b-7f7d-30a1-9c29-0cceec23760e",
+			APIURL:    "http://api.ft.com/people/70f4732b-7f7d-30a1-9c29-0cceec23760e",
+			PrefLabel: "Someone",
+		},
+	}
+
+	suite.mockDriver.On("Read", uuid, mock.Anything).Return(person, nil)
+
+	req := newRequest("GET", "/people/" + uuid, "")
+	rec := httptest.NewRecorder()
+	suite.router.ServeHTTP(rec, req)
+
+	retPerson := Person{}
+	json.NewDecoder(rec.Result().Body).Decode(&retPerson)
+	suite.Equal(http.StatusOK, rec.Result().StatusCode)
+	suite.Equal(person, retPerson)
+	suite.mockDriver.AssertExpectations(suite.T())
 }
 
-func TestHeadersOKOnFound(t *testing.T) {
-	assert := assert.New(t)
-	isFound = true
-	req, _ := http.NewRequest("GET", personURL+"/00000000-0000-002a-0000-00000000002a", nil)
-	req.Close = true
-	res, err := http.DefaultClient.Do(req)
-	defer res.Body.Close()
-	assert.NoError(err)
-	assert.EqualValues(200, res.StatusCode)
-	assert.Equal(expectedCacheControlHeader, res.Header.Get("Cache-Control"))
-	assert.Equal("application/json; charset=UTF-8", res.Header.Get("Content-Type"))
+func TestHandlersTestSuite(t *testing.T) {
+	suite.Run(t, new(HandlerTestSuite))
 }
 
-func TestReturnNotFoundIfPersonNotFound(t *testing.T) {
-	assert := assert.New(t)
-	isFound = false
-	req, _ := http.NewRequest("GET", personURL+"/00000000-0000-002a-0000-00000000002a", nil)
-	req.Close = true
-	res, err := http.DefaultClient.Do(req)
-	defer res.Body.Close()
-	assert.NoError(err)
-	assert.EqualValues(404, res.StatusCode)
-	assert.Equal("application/json; charset=UTF-8", res.Header.Get("Content-Type"))
+func newRequest(method, url string, body string) *http.Request {
+	var payload io.Reader
+	if body != "" {
+		payload = bytes.NewReader([]byte(body))
+	}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		panic(err)
+	}
+	return req
 }

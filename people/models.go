@@ -21,7 +21,7 @@ type Person struct {
 	FacebookProfile string       `json:"facebookProfile,omitempty"`
 	Description     string       `json:"description,omitempty"`
 	DescriptionXML  string       `json:"descriptionXML,omitempty"`
-	ImageURL        string       `json:"_imageUrl,omitempty"` // TODO this is a temporary thing - needs to be integrated into images properly
+	ImageURL        string       `json:"_imageUrl,omitempty"` // TODO this needs to be removed as it has been deprecated
 }
 
 // Membership represents the relationship between a person and their roles associated with an organisation

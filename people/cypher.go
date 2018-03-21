@@ -8,13 +8,20 @@ import (
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/jmcvetta/neoism"
 	log "github.com/sirupsen/logrus"
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+)
+
+const (
+	messageServiceNotHealthy = "Service is NOT healthy"
+	messageServiceHealthy    = "Service is healthy"
 )
 
 // Driver interface
 type Driver interface {
 	Read(id string, transactionID string) (person Person, found bool, err error)
-	CheckConnectivity() error
+	Healthchecks() []fthealth.Check
 }
+
 
 // CypherDriver struct
 type CypherDriver struct {
@@ -23,14 +30,32 @@ type CypherDriver struct {
 }
 
 //NewCypherDriver instantiate driver
-func NewCypherDriver(conn neoutils.NeoConnection, env string) CypherDriver {
-	return CypherDriver{conn, env}
+func NewCypherDriver(conn neoutils.NeoConnection, env string) Driver {
+	return &CypherDriver{conn, env}
 }
 
 // CheckConnectivity tests neo4j by running a simple cypher query
-func (pcw CypherDriver) CheckConnectivity() error {
-	return neoutils.Check(pcw.conn)
+func (pcw *CypherDriver) CheckConnectivity() (string, error)  {
+	err := neoutils.Check(pcw.conn)
+	if err != nil {
+		return messageServiceNotHealthy, err
+	}
+	return messageServiceHealthy, nil
 }
+
+func (pcw *CypherDriver) Healthchecks() []fthealth.Check {
+	checks := []fthealth.Check{ fthealth.Check{
+		Name:           "Neo4j Connectivity",
+		BusinessImpact: "Unable to retrieve People from Neo4j",
+		PanicGuide:     "https://dewey.ft.com/public-people-api.html",
+		Severity:       1,
+		TechnicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.",
+		Checker: pcw.CheckConnectivity,
+		},
+	}
+	return checks
+}
+
 
 type neoChangeEvent struct {
 	StartedAt string
@@ -275,3 +300,5 @@ func filterToMostSpecificType(unfilteredTypes []string) string {
 	fullURI := mapper.TypeURIs([]string{mostSpecificType})
 	return fullURI[0]
 }
+
+

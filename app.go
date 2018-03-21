@@ -5,23 +5,39 @@ import (
 	"os"
 
 	"fmt"
-	"strconv"
+
 	"time"
 
-	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
-	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
-	"github.com/Financial-Times/http-handlers-go/httphandlers"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/public-people-api/people"
-	status "github.com/Financial-Times/service-status-go/httphandlers"
+
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
-	log "github.com/sirupsen/logrus"
+	logger "github.com/Financial-Times/go-logger"
+	standardLog "log"
+	"os/signal"
+	"syscall"
+	"net"
+	"github.com/cyberdelia/go-metrics-graphite"
 )
+
+const appDescription = "This service reads people from Neo4j"
 
 func main() {
 	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
+	appSystemCode := app.String(cli.StringOpt{
+		Name:   "app-system-code",
+		Value:  "public-people-api",
+		Desc:   "System Code of the application",
+		EnvVar: "APP_SYSTEM_CODE",
+	})
+	appName := app.String(cli.StringOpt{
+		Name:   "app-name",
+		Value:  "Public People API",
+		Desc:   "Application name",
+		EnvVar: "APP_NAME",
+	})
 	neoURL := app.String(cli.StringOpt{
 		Name:   "neo-url",
 		Value:  "http://localhost:7474/db/data",
@@ -69,85 +85,103 @@ func main() {
 		Desc:   "Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds",
 		EnvVar: "CACHE_DURATION",
 	})
+	requestLoggingEnabled := app.Bool(cli.BoolOpt{
+		Name:   "requestLoggingEnabled",
+		Value:  true,
+		Desc:   "Whether to log requests",
+		EnvVar: "REQUEST_LOGGING_ENABLED",
+	})
+
+	logger.InitLogger(*appSystemCode, *logLevel)
+	logger.Infof("[Startup] public-people-api is starting ")
+
 
 	app.Action = func() {
-		lvl, err := log.ParseLevel(*logLevel)
-		if err != nil {
-			log.Warnf("Log level %s could not be parsed, defaulting to info")
-			lvl = log.InfoLevel
+		logger.Infof("System code: %s, App Name: %s, Port: %s", *appSystemCode, *appName, *port)
+		if *neoURL == "" {
+			logger.Fatal("Neo4j connection string not set")
+			return
 		}
-		log.SetLevel(lvl)
-		log.Info(lvl.String() + ": log level set")
-		log.SetFormatter(&log.JSONFormatter{})
 
-		baseftrwapp.OutputMetricsIfRequired(*graphiteTCPAddress, *graphitePrefix, *logMetrics)
+		// This will send metrics to Graphite if a non-empty graphiteTCPAddress is passed in, or to the standard log if logMetrics is true.
+		// Make sure a sensible graphitePrefix that will uniquely identify your service is passed in, e.g. "content.test.people.rw.neo4j.ftaps58938-law1a-eu-t
+		if *graphiteTCPAddress != "" {
+			addr, _ := net.ResolveTCPAddr("tcp", *graphiteTCPAddress)
+			go graphite.Graphite(metrics.DefaultRegistry, 5*time.Second, *graphitePrefix, addr)
+		}
+		if *logMetrics { //useful locally
+			//messy use of the 'standard' log package here as this method takes the log struct, not an interface, so can't use logrus.Logger
+			go metrics.Log(metrics.DefaultRegistry, 60*time.Second, standardLog.New(os.Stdout, "metrics", standardLog.Lmicroseconds))
+		}
 
-		log.Infof("public-people-api will listen on port: %s, connecting to: %s", *port, *neoURL)
-		runServer(*neoURL, *port, *cacheDuration, *env)
-	}
-	log.Infof("Application started with args %s", os.Args)
-	app.Run(os.Args)
-}
+		appConfig := people.HealthConfig{
+			AppName:           *appName,
+			AppSystemCode:     *appSystemCode,
+			Description:       appDescription,
+			ReqLoggingEnabled: *requestLoggingEnabled,
+		}
 
-func runServer(neoURL string, port string, cacheDuration string, env string) {
-
-	if duration, durationErr := time.ParseDuration(cacheDuration); durationErr != nil {
-		log.Fatalf("Failed to parse cache duration string, %v", durationErr)
-	} else {
-		people.CacheControlHeader = fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(duration.Seconds(), 'f', 0, 64))
-	}
-
-	conf := neoutils.ConnectionConfig{
-		BatchSize:     1024,
-		Transactional: false,
-		HTTPClient: &http.Client{
-			Transport: &http.Transport{
-				MaxIdleConnsPerHost: 100,
+		conf := neoutils.ConnectionConfig{
+			BatchSize:     1024,
+			Transactional: false,
+			HTTPClient: &http.Client{
+				Transport: &http.Transport{
+					MaxIdleConnsPerHost: 100,
+				},
+				Timeout: 1 * time.Minute,
 			},
-			Timeout: 1 * time.Minute,
-		},
-		BackgroundConnect: true,
-	}
-	db, err := neoutils.Connect(neoURL, &conf)
+			BackgroundConnect: true,
+		}
+		db, err := neoutils.Connect(*neoURL, &conf)
 
+		if err != nil {
+			logger.Fatalf("Error connecting to neo4j %s", err)
+		}
+
+		cacheDuration, durationErr := time.ParseDuration(*cacheDuration)
+		if durationErr != nil {
+			logger.Fatalf("Failed to parse cache duration string, %v", durationErr)
+		}
+
+		driver := people.NewCypherDriver(db, *env)
+		handler := people.NewHandler(driver, cacheDuration)
+
+		router := mux.NewRouter()
+		healthCheckService := people.NewHealthCheckService(driver.Healthchecks(), appConfig)
+
+		handler.RegisterHandlers(router)
+		r := healthCheckService.RegisterAdminHandlers(router)
+
+		httpServer := &http.Server{
+			Addr:         fmt.Sprintf("0.0.0.0:%d", *port),
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 10 * time.Second,
+		}
+		httpServer.Handler = r
+
+		sig := make(chan os.Signal)
+		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+
+		go func() {
+			logger.Infof("Listening on port %v", *port)
+			if err := httpServer.ListenAndServe(); err != nil {
+				logger.Errorf("HTTP server got shut downl error: %v", err)
+			}
+			sig <- os.Interrupt
+		}()
+
+		<-sig
+		logger.Infof("Caught SIG: %#v", sig)
+		logger.Infof("Wait for 5 seconds to finish processing")
+
+		time.Sleep(5 * time.Second)
+		os.Exit(0)
+	}
+
+	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatalf("Error connecting to neo4j %s", err)
-	}
-
-	people.PeopleDriver = people.NewCypherDriver(db, env)
-
-	servicesRouter := mux.NewRouter()
-
-	// Health checks and standards first
-	checks := []fthealth.Check{people.HealthCheck()}
-	timedHC := fthealth.TimedHealthCheck{
-		HealthCheck: fthealth.HealthCheck{
-			SystemCode:  "public-people-api",
-			Name:        "Public People API",
-			Description: "Public API for serving information on People within UPP",
-			Checks:      checks,
-		},
-		Timeout: 10 * time.Second,
-	}
-
-	servicesRouter.HandleFunc("/__health", fthealth.Handler(timedHC))
-
-	// Then API specific ones:
-	servicesRouter.HandleFunc("/people/{uuid}", people.GetPerson).Methods("GET")
-	servicesRouter.HandleFunc("/people/{uuid}", people.MethodNotAllowedHandler)
-
-	var monitoringRouter http.Handler = servicesRouter
-	monitoringRouter = httphandlers.TransactionAwareRequestLoggingHandler(log.StandardLogger(), monitoringRouter)
-	monitoringRouter = httphandlers.HTTPMetricsHandler(metrics.DefaultRegistry, monitoringRouter)
-
-	// The following endpoints should not be monitored or logged (varnish calls one of these every second, depending on config)
-	// The top one of these build info endpoints feels more correct, but the lower one matches what we have in Dropwizard,
-	// so it's what apps expect currently same as ping, the content of build-info needs more definition
-	http.HandleFunc(status.BuildInfoPath, status.BuildInfoHandler)
-	http.HandleFunc("/__gtg", status.NewGoodToGoHandler(people.GTG))
-	http.Handle("/", monitoringRouter)
-
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatalf("Unable to start server: %v", err)
+		logger.Errorf("App could not start, error=[%s]\n", err)
+		return
 	}
 }
+
