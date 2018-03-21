@@ -8,8 +8,6 @@ import (
 	metrics "github.com/rcrowley/go-metrics"
 	log "github.com/sirupsen/logrus"
 
-	persistence "github.com/Financial-Times/concordances-rw-neo4j/persistence"
-	sns "github.com/Financial-Times/concordances-rw-neo4j/sns"
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	logger "github.com/Financial-Times/go-logger"
 	httphandlers "github.com/Financial-Times/http-handlers-go/httphandlers"
@@ -27,8 +25,6 @@ type HealthConfig struct {
 	AppName           string
 	Description       string
 	ReqLoggingEnabled bool
-	Neo               persistence.Client
-	SNS               sns.Client
 }
 
 func NewHealthCheckService(checks []fthealth.Check, config HealthConfig) *HealthcheckService {

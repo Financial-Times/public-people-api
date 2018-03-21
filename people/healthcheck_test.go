@@ -5,9 +5,6 @@ import (
 	"testing"
 
 	suite "github.com/stretchr/testify/suite"
-
-	persistence "github.com/Financial-Times/concordances-rw-neo4j/persistence"
-	sns "github.com/Financial-Times/concordances-rw-neo4j/sns"
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 )
 
@@ -28,8 +25,6 @@ func (suite *HealthCheckTestTestSuite) TestChecker() {
 		AppName:           "appName",
 		Description:       "appDescription",
 		ReqLoggingEnabled: false,
-		SNS:               &sns.MockClient{},
-		Neo:               &persistence.MockClient{},
 	}
 	expStatus := "Generic error"
 	expError := errors.New("generic.error")
