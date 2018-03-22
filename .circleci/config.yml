@@ -43,6 +43,7 @@ jobs:
                 mkdir -p $CIRCLE_ARTIFACTS
                 govendor test -race -v +local | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
                 ./coverage.sh
+                sed -i "/_mock/d" $CIRCLE_ARTIFACTS/coverage.out
         - run:
             name: Upload to coveralls
             command: goveralls -coverprofile=$CIRCLE_ARTIFACTS/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
