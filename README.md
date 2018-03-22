@@ -14,59 +14,53 @@ Build & deployment
 Installation & running locally
 ------------------------------
 
-1. Download the source code, dependencies and its test dependencies:
-
-        go get -u github.com/Financial-Times/public-people-api
-        cd $GOPATH/src/github.com/Financial-Times/public-people-api
-        go get -t
-
 1. Run the tests and install the binary:
 
-        go test ./...
+        govendor sync
+        govendor test -v -race
         go install
 
-1. Run the binary (using the `help` flag to see the available optional arguments):
+2. Run the binary (using the `help` flag to see the available optional arguments):
 
-        $GOPATH/bin/public-people-api [--help]
+        $GOPATH/bin/public-people-api [--help]  
 
-1. Test:
+Options:
 
-    1. Either using curl:
+      --app-system-code         System Code of the application (env $APP_SYSTEM_CODE) (default "public-people-api")
+      --app-name                Application name (env $APP_NAME) (default "Public People API")
+      --port                    Port to listen on (env $PORT) (default 8080)
+      --neoURL                  Connection string for NEO4J (env $NEO4J_CONNECTION) (default "bolt://localhost:7474")
+      --requestLoggingEnabled   Whether to log requests (env $REQUEST_LOGGING_ENABLED) (default true)
+      --logLevel                App log level (env $LOG_LEVEL) (default "info")
+      --graphiteTCPAddress      Graphite TCP address (default: "")
+      --graphitePrefix          Prefix to use. Should start with content, include the environment, and the host name. e.g. content.test.public.people.api. (default: "")
+      --logMetrics              Whether to log metrics. Set to true if running locally and you want metrics output (default: false)
+      --env                     environment this app is running in (default: local) - this is for setting apiUrl
+      --cache-duration          Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds (default:30s)
+      --requestLoggingEnabled   Whether to log requests (default: true)
 
-            curl http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517 | json_pp
+            
+Test locally
+------------------------------
 
-    1. Or using [httpie](https://github.com/jkbrzt/httpie):
+Tests in neo4j package rely on a running instance of Neo4j installed locally.  
 
-            http GET http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517
+```
+docker run \
+    --rm \
+    --publish=7474:7474 \
+    --publish=7687:7687 \
+    --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes \
+    --env=NEO4J_AUTH=none \
+    neo4j:3.3.3-enterprise
 
+govendor test -v -race -cover +local
+```
 
 Endpoints
 ---------
 
-### GET
-
-Using curl:
-
-    curl http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517 | json_pp`
-
-Or using [httpie](https://github.com/jkbrzt/httpie):
-
-    http GET http://localhost:8080/people/143ba45c-2fb3-35bc-b227-a6ed80b5c517
-
-The expected response will contain information about the person, and the organisations they are connected to (via memberships).
-
-Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83).
+* Based on the following [google doc](https://docs.google.com/document/d/1SC4Uskl-VD78y0lg5H2Gq56VCmM4OFHofZM-OvpsOFo/edit#heading=h.qjo76xuvpj83).
+* See the [api](_ft/api.yml) for the swagger definitions of the endpoints below.  
 
 
-Health Checks
--------------
-
-Health checks: [http://localhost:8080/__health](http://localhost:8080/__health)
-
-
-### Logging
-
-* The application uses [logrus](https://github.com/Sirupsen/logrus); the log file is initialised in [app.go](app.go).
-* Logging requires an `env` app parameter, for all environments other than `local` logs are written to file.
-* When running locally, logs are written to console. If you want to log locally to file, you need to pass in an env parameter that is != `local`.
-* NOTE: `/build-info` and `/__gtg` endpoints are not logged as they are called every second from varnish/vulcand and this information is not needed in logs/splunk.
