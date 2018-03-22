@@ -1,14 +1,13 @@
 package people
 
 import (
-	"fmt"
 	"time"
 
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	logger "github.com/Financial-Times/go-logger"
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/jmcvetta/neoism"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -135,7 +134,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 
 	err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Error Querying Neo4J for a Person")
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Error Querying Neo4J for a Person")
 		return Person{}, true, err
 	}
 
@@ -143,8 +142,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 		p, f, e := pcw.ReadOldConcordanceModel(uuid, transactionID)
 		return p, f, e
 	} else if len(results) != 1 {
-		err := fmt.Errorf("Multiple people found with the same uuid: %s", uuid)
-		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Errorf("Multiple people found with the same uuid: %s", uuid)
 		return Person{}, true, err
 	}
 
@@ -183,14 +181,13 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID strin
 
 	err = pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Query execution failed")
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Query execution failed")
 		return Person{}, false, err
 	} else if len(results) == 0 || len(results[0].Rs) == 0 {
-		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Info("Person not found")
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Person not found")
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
-		err = fmt.Errorf("Multiple people found with the same uuid:%s !", uuid)
-		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Errorf("Multiple people found with the same uuid:%s !", uuid)
 		return Person{}, true, err
 	}
 
