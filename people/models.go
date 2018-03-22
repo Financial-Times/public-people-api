@@ -10,19 +10,18 @@ type Thing struct {
 // Person is the structure used for the people API
 type Person struct {
 	Thing
-	Types              []string     `json:"types"`
-	DirectType         string       `json:"directType,omitempty"`
-	Labels             []string     `json:"labels,omitempty"`
-	Memberships        []Membership `json:"memberships,omitempty"`
-	Salutation         string       `json:"salutation,omitempty"`
-	BirthYear          int          `json:"birthYear,omitempty"`
-	EmailAddress       string       `json:"emailAddress,omitempty"`
-	TwitterHandle      string       `json:"twitterHandle,omitempty"`
-	FacebookProfile    string       `json:"facebookProfile,omitempty"`
-	Description        string       `json:"description,omitempty"`
-	DescriptionXML     string       `json:"descriptionXML,omitempty"`
-	ImageURLDeprecated string       `json:"_imageUrl,omitempty"`
-	ImageURL           string       `json:"imageUrl,omitempty"` // TODO this needs to be removed as it has been deprecated
+	Types           []string     `json:"types"`
+	DirectType      string       `json:"directType,omitempty"`
+	Labels          []string     `json:"labels,omitempty"`
+	Memberships     []Membership `json:"memberships,omitempty"`
+	Salutation      string       `json:"salutation,omitempty"`
+	BirthYear       int          `json:"birthYear,omitempty"`
+	EmailAddress    string       `json:"emailAddress,omitempty"`
+	TwitterHandle   string       `json:"twitterHandle,omitempty"`
+	FacebookProfile string       `json:"facebookProfile,omitempty"`
+	Description     string       `json:"description,omitempty"`
+	DescriptionXML  string       `json:"descriptionXML,omitempty"`
+	ImageURL        string       `json:"_imageUrl,omitempty"` // TODO we should implement this properly as an imageset
 }
 
 // Membership represents the relationship between a person and their roles associated with an organisation

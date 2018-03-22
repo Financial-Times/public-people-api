@@ -189,13 +189,12 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 			"http://www.ft.com/ontology/concept/Concept",
 			"http://www.ft.com/ontology/person/Person",
 		},
-		Memberships:        []Membership{},
-		DirectType:         "http://www.ft.com/ontology/person/Person",
-		TwitterHandle:      "@something",
-		EmailAddress:       "test@example.com",
-		DescriptionXML:     "Some text containing <strong>markup</strong>",
-		ImageURL:           "http://someimage.jpg",
-		ImageURLDeprecated: "http://someimage.jpg",
+		Memberships:    []Membership{},
+		DirectType:     "http://www.ft.com/ontology/person/Person",
+		TwitterHandle:  "@something",
+		EmailAddress:   "test@example.com",
+		DescriptionXML: "Some text containing <strong>markup</strong>",
+		ImageURL:       "http://someimage.jpg",
 	}
 	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
 }
@@ -262,7 +261,6 @@ func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
 	assert.Equal(t, expected.Description, actual.Description, "Expected Description differ from actual \nExpected: %v \nActual: %v", expected.Description, actual.Description)
 	assert.Equal(t, expected.DescriptionXML, actual.DescriptionXML, "Expected DescriptionXML differ from actual \nExpected: %v \nActual: %v", expected.DescriptionXML, actual.DescriptionXML)
 	assert.Equal(t, expected.ImageURL, actual.ImageURL, "Expected ImageURL differ from actual \nExpected: %v \nActual: %v", expected.ImageURL, actual.ImageURL)
-	assert.Equal(t, expected.ImageURLDeprecated, actual.ImageURLDeprecated, "Expected _ImageURL differ from actual \nExpected: %v \nActual: %v", expected.ImageURLDeprecated, actual.ImageURLDeprecated)
 	assert.Equal(t, expected.EmailAddress, actual.EmailAddress, "Expected EmailAddress differ from actual \nExpected: %v \nActual: %v", expected.EmailAddress, actual.EmailAddress)
 	assert.Equal(t, expected.TwitterHandle, actual.TwitterHandle, "Expected TwitterHandle differ from actual \nExpected: %v \nActual: %v", expected.TwitterHandle, actual.TwitterHandle)
 	assert.Equal(t, expected.FacebookProfile, actual.FacebookProfile, "Expected FacebookProfile differ from actual \nExpected: %v \nActual: %v", expected.FacebookProfile, actual.FacebookProfile)

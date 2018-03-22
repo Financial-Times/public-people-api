@@ -214,7 +214,6 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public.TwitterHandle = neo.P.TwitterHandle
 	public.FacebookProfile = neo.P.FacebookProfile
 	public.ImageURL = neo.P.ImageURL
-	public.ImageURLDeprecated = neo.P.ImageURL
 
 	if len(neo.M) > 0 {
 		memberships := []Membership{}
