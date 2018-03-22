@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	suite "github.com/stretchr/testify/suite"
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	suite "github.com/stretchr/testify/suite"
 )
 
 type HealthCheckTestTestSuite struct {
