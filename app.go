@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 
@@ -11,15 +12,16 @@ import (
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/public-people-api/people"
 
+	standardLog "log"
+	"net"
+	"os/signal"
+	"syscall"
+
+	logger "github.com/Financial-Times/go-logger"
+	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
-	logger "github.com/Financial-Times/go-logger"
-	standardLog "log"
-	"os/signal"
-	"syscall"
-	"net"
-	"github.com/cyberdelia/go-metrics-graphite"
 )
 
 const appDescription = "This service reads people from Neo4j"
@@ -95,7 +97,6 @@ func main() {
 	logger.InitLogger(*appSystemCode, *logLevel)
 	logger.Infof("[Startup] public-people-api is starting ")
 
-
 	app.Action = func() {
 		logger.Infof("System code: %s, App Name: %s, Port: %s", *appSystemCode, *appName, *port)
 		if *neoURL == "" {
@@ -153,7 +154,7 @@ func main() {
 		r := healthCheckService.RegisterAdminHandlers(router)
 
 		httpServer := &http.Server{
-			Addr:         fmt.Sprintf("0.0.0.0:%d", *port),
+			Addr:         fmt.Sprintf("0.0.0.0:%s", *port),
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 10 * time.Second,
 		}
@@ -163,9 +164,9 @@ func main() {
 		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 		go func() {
-			logger.Infof("Listening on port %v", *port)
+			logger.Infof("Listening on %s", httpServer.Addr)
 			if err := httpServer.ListenAndServe(); err != nil {
-				logger.Errorf("HTTP server got shut downl error: %v", err)
+				logger.Errorf("HTTP server got shut down, error: %v", err)
 			}
 			sig <- os.Interrupt
 		}()
@@ -173,6 +174,14 @@ func main() {
 		<-sig
 		logger.Infof("Caught SIG: %#v", sig)
 		logger.Infof("Wait for 5 seconds to finish processing")
+
+		logger.Info("Shutting down HTTP server...")
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if err := httpServer.Shutdown(ctx); err != nil {
+			logger.Info("HTTP server could not be properly shut down")
+		}
+		logger.Info("HTTP server shut down")
 
 		time.Sleep(5 * time.Second)
 		os.Exit(0)
@@ -184,4 +193,3 @@ func main() {
 		return
 	}
 }
-
