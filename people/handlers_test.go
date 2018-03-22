@@ -1,18 +1,18 @@
 package people
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/suite"
-	"github.com/Financial-Times/go-logger"
-	"encoding/json"
-	"io"
 	"bytes"
-	"testing"
-	"github.com/stretchr/testify/mock"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Financial-Times/go-logger"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 var (
@@ -23,9 +23,9 @@ var (
 
 type HandlerTestSuite struct {
 	suite.Suite
-	mockDriver  *MockDriver
-	router      *mux.Router
-	handler     *Handler
+	mockDriver *MockDriver
+	router     *mux.Router
+	handler    *Handler
 }
 
 func (suite *HandlerTestSuite) SetupTest() {
@@ -39,7 +39,7 @@ func (suite *HandlerTestSuite) SetupTest() {
 func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
 
-	person  := Person{
+	person := Person{
 		Thing: Thing{
 			ID:        "http://api.ft.com/things/70f4732b-7f7d-30a1-9c29-0cceec23760e",
 			APIURL:    "http://api.ft.com/people/70f4732b-7f7d-30a1-9c29-0cceec23760e",
@@ -49,7 +49,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 
 	suite.mockDriver.On("Read", uuid, mock.Anything).Return(person, true, nil)
 
-	req := newRequest("GET", "/people/" + uuid, "")
+	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 
@@ -65,11 +65,11 @@ func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
 
 	suite.mockDriver.On("Read", uuid, mock.Anything).Return(Person{}, false, nil)
 
-	req := newRequest("GET", "/people/" + uuid, "")
+	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 
-	msg := &errMsg {
+	msg := &errMsg{
 		Message: personNotFoundMsg,
 	}
 	returnMsg := &errMsg{}
@@ -85,7 +85,7 @@ func (suite *HandlerTestSuite) TestGetPeople_BadRequest() {
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 
-	msg := &errMsg {
+	msg := &errMsg{
 		Message: badRequestMsg,
 	}
 
@@ -101,7 +101,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
 	canonicalUUID := "dcd90ae4-52c2-4851-b5af-5c3d6ef527b6"
 
-	person  := Person{
+	person := Person{
 		Thing: Thing{
 			ID:        "http://api.ft.com/things/dcd90ae4-52c2-4851-b5af-5c3d6ef527b6",
 			APIURL:    "http://api.ft.com/people/dcd90ae4-52c2-4851-b5af-5c3d6ef527b6",
@@ -111,11 +111,11 @@ func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
 
 	suite.mockDriver.On("Read", uuid, mock.Anything).Return(person, true, nil)
 
-	req := newRequest("GET", "/people/" + uuid, "")
+	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 
-	msg := &errMsg {
+	msg := &errMsg{
 		Message: fmt.Sprintf(redirectedPerson, uuid, canonicalUUID),
 	}
 
@@ -132,11 +132,11 @@ func (suite *HandlerTestSuite) TestGetPeople_InternalError() {
 
 	suite.mockDriver.On("Read", uuid, mock.Anything).Return(Person{}, false, errors.New("Some error"))
 
-	req := newRequest("GET", "/people/" + uuid, "")
+	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 
-	msg := &errMsg {
+	msg := &errMsg{
 		Message: personUnableToBeRetrieved,
 	}
 
@@ -151,7 +151,7 @@ func (suite *HandlerTestSuite) TestGetPeople_InternalError() {
 
 func (suite *HandlerTestSuite) TestGetPeople_MethodNotAllowedOnPost() {
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
-	req := newRequest("POST", "/people/" + uuid, "")
+	req := newRequest("POST", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 	suite.Equal(http.StatusMethodNotAllowed, rec.Result().StatusCode)

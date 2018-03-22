@@ -5,36 +5,36 @@ import (
 	"net/http"
 
 	"fmt"
-	"github.com/Financial-Times/transactionid-utils-go"
-	"github.com/gorilla/mux"
-	"regexp"
-	"strings"
-	"html"
 	"github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/transactionid-utils-go"
 	"github.com/gorilla/handlers"
-	"time"
+	"github.com/gorilla/mux"
+	"html"
+	"regexp"
 	"strconv"
+	"strings"
+	"time"
 )
 
 const (
-	urlPrefix = "http://api.ft.com/things/"
-	validUUID = "([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
-	contentTypeJson  = "application/json; charset=UTF-8"
+	urlPrefix       = "http://api.ft.com/things/"
+	validUUID       = "([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
+	contentTypeJson = "application/json; charset=UTF-8"
 
-	personNotFoundMsg = "Person could not be retrieved"
+	personNotFoundMsg         = "Person could not be retrieved"
 	personUnableToBeRetrieved = "Person could not be retrieved"
-	badRequestMsg = "Invalid UUID"
-	redirectedPerson = "Person %s is concorded to %s; serving redirect"
+	badRequestMsg             = "Invalid UUID"
+	redirectedPerson          = "Person %s is concorded to %s; serving redirect"
 )
 
 type Handler struct {
-	driver Driver
+	driver        Driver
 	cacheDuration time.Duration
 }
 
 func NewHandler(driver Driver, cacheDuration time.Duration) *Handler {
 	h := &Handler{
-		driver: driver,
+		driver:        driver,
 		cacheDuration: cacheDuration,
 	}
 	return h
@@ -43,7 +43,7 @@ func NewHandler(driver Driver, cacheDuration time.Duration) *Handler {
 func (h *Handler) RegisterHandlers(router *mux.Router) {
 	logger.Info("Registering handlers")
 	handler := handlers.MethodHandler{
-		"GET":    http.HandlerFunc(h.GetPerson),
+		"GET": http.HandlerFunc(h.GetPerson),
 	}
 	router.Handle("/people/{uuid}", handler)
 }
@@ -88,7 +88,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	if err = json.NewEncoder(w).Encode(person); err != nil {
-		writeJSONStaus(w,"Person could not be retrieved", http.StatusInternalServerError)
+		writeJSONStaus(w, "Person could not be retrieved", http.StatusInternalServerError)
 	}
 }
 
@@ -100,4 +100,3 @@ func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {
 		logger.WithError(err).Warnf("could not read json error")
 	}
 }
-
