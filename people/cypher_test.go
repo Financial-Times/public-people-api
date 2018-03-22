@@ -158,7 +158,7 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
 	//New model to new model fully Type Org and Person and Role
 
-	//defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2", "e7d54d96-e653-4349-aec9-eb8ab601d62d", "c02d18d9-e98e-4bf4-b437-b1a5ea85b999")
+	defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2", "e7d54d96-e653-4349-aec9-eb8ab601d62d", "c02d18d9-e98e-4bf4-b437-b1a5ea85b999")
 	writeJSONToConceptsService(t, "./fixtures/newModel/MembershipRole-SmartyPants-7d0738b1-0ea2-47cb-bb82-e86744b389f0.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Organisation-RooneyRoosters-184cbe9b-b630-40d5-a5d0-99ecabd7fd86.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Person-Shirley-Rooney-7ceeafe5-9f9a-4315-b3da-a5b4b69c013a.json")
