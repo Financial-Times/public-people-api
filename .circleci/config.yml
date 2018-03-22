@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.8
+      - image: circleci/golang:1.10
       - image: neo4j:3.1.0-enterprise
         environment:
           NEO4J_AUTH: none
@@ -26,7 +26,6 @@ jobs:
                 go get -u github.com/kardianos/govendor
                 go get -u github.com/jstemmer/go-junit-report
                 go get -u github.com/mattn/goveralls
-                wget https://raw.githubusercontent.com/Financial-Times/cookiecutter-upp-golang/master/coverage.sh && chmod +x coverage.sh
         - run:
             name: Sync vendored packages
             command: govendor sync -v
@@ -41,12 +40,11 @@ jobs:
             command: |
                 mkdir -p $CIRCLE_TEST_REPORTS/golang
                 mkdir -p $CIRCLE_ARTIFACTS
-                govendor test -race -v +local | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
-                ./coverage.sh
-                sed -i "/_mock/d" $CIRCLE_ARTIFACTS/coverage.out
+                govendor test -race -v -coverprofile=$CIRCLE_ARTIFACTS/profile.out +local | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
+                sed -i "/_mock/d" $CIRCLE_ARTIFACTS/profile.out
         - run:
             name: Upload to coveralls
-            command: goveralls -coverprofile=$CIRCLE_ARTIFACTS/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+            command: goveralls -coverprofile=$CIRCLE_ARTIFACTS/profile.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
         - store_test_results:
             path: /tmp/test-reports
         - store_artifacts:
