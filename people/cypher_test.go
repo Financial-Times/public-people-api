@@ -158,7 +158,7 @@ func TestNeoReadPersonWithAlternateUPPID(t *testing.T) {
 func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
 	//New model to new model fully Type Org and Person and Role
 
-	defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2", "e7d54d96-e653-4349-aec9-eb8ab601d62d", "c02d18d9-e98e-4bf4-b437-b1a5ea85b999")
+	//defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "184cbe9b-b630-40d5-a5d0-99ecabd7fd86", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "8cdff2ba-3062-471e-b98a-7ee961239cd2", "e7d54d96-e653-4349-aec9-eb8ab601d62d", "c02d18d9-e98e-4bf4-b437-b1a5ea85b999")
 	writeJSONToConceptsService(t, "./fixtures/newModel/MembershipRole-SmartyPants-7d0738b1-0ea2-47cb-bb82-e86744b389f0.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Organisation-RooneyRoosters-184cbe9b-b630-40d5-a5d0-99ecabd7fd86.json")
 	writeJSONToConceptsService(t, "./fixtures/newModel/Person-Shirley-Rooney-7ceeafe5-9f9a-4315-b3da-a5b4b69c013a.json")
@@ -189,12 +189,13 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 			"http://www.ft.com/ontology/concept/Concept",
 			"http://www.ft.com/ontology/person/Person",
 		},
-		Memberships:    []Membership{},
-		DirectType:     "http://www.ft.com/ontology/person/Person",
-		TwitterHandle:  "@something",
-		EmailAddress:   "test@example.com",
-		DescriptionXML: "Some text containing <strong>markup</strong>",
-		ImageURL:       "http://someimage.jpg",
+		Memberships:        []Membership{},
+		DirectType:         "http://www.ft.com/ontology/person/Person",
+		TwitterHandle:      "@something",
+		EmailAddress:       "test@example.com",
+		DescriptionXML:     "Some text containing <strong>markup</strong>",
+		ImageURL:           "http://someimage.jpg",
+		ImageURLDeprecated: "http://someimage.jpg",
 	}
 	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
 }
@@ -261,6 +262,7 @@ func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
 	assert.Equal(t, expected.Description, actual.Description, "Expected Description differ from actual \nExpected: %v \nActual: %v", expected.Description, actual.Description)
 	assert.Equal(t, expected.DescriptionXML, actual.DescriptionXML, "Expected DescriptionXML differ from actual \nExpected: %v \nActual: %v", expected.DescriptionXML, actual.DescriptionXML)
 	assert.Equal(t, expected.ImageURL, actual.ImageURL, "Expected ImageURL differ from actual \nExpected: %v \nActual: %v", expected.ImageURL, actual.ImageURL)
+	assert.Equal(t, expected.ImageURLDeprecated, actual.ImageURLDeprecated, "Expected _ImageURL differ from actual \nExpected: %v \nActual: %v", expected.ImageURLDeprecated, actual.ImageURLDeprecated)
 	assert.Equal(t, expected.EmailAddress, actual.EmailAddress, "Expected EmailAddress differ from actual \nExpected: %v \nActual: %v", expected.EmailAddress, actual.EmailAddress)
 	assert.Equal(t, expected.TwitterHandle, actual.TwitterHandle, "Expected TwitterHandle differ from actual \nExpected: %v \nActual: %v", expected.TwitterHandle, actual.TwitterHandle)
 	assert.Equal(t, expected.FacebookProfile, actual.FacebookProfile, "Expected FacebookProfile differ from actual \nExpected: %v \nActual: %v", expected.FacebookProfile, actual.FacebookProfile)

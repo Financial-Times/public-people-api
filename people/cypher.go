@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/jmcvetta/neoism"
 	log "github.com/sirupsen/logrus"
-	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 )
 
 const (
@@ -22,7 +22,6 @@ type Driver interface {
 	Healthchecks() []fthealth.Check
 }
 
-
 // CypherDriver struct
 type CypherDriver struct {
 	conn neoutils.NeoConnection
@@ -35,7 +34,7 @@ func NewCypherDriver(conn neoutils.NeoConnection, env string) Driver {
 }
 
 // CheckConnectivity tests neo4j by running a simple cypher query
-func (pcw *CypherDriver) CheckConnectivity() (string, error)  {
+func (pcw *CypherDriver) CheckConnectivity() (string, error) {
 	err := neoutils.Check(pcw.conn)
 	if err != nil {
 		return messageServiceNotHealthy, err
@@ -44,18 +43,17 @@ func (pcw *CypherDriver) CheckConnectivity() (string, error)  {
 }
 
 func (pcw *CypherDriver) Healthchecks() []fthealth.Check {
-	checks := []fthealth.Check{ fthealth.Check{
-		Name:           "Neo4j Connectivity",
-		BusinessImpact: "Unable to retrieve People from Neo4j",
-		PanicGuide:     "https://dewey.ft.com/public-people-api.html",
-		Severity:       1,
+	checks := []fthealth.Check{fthealth.Check{
+		Name:             "Neo4j Connectivity",
+		BusinessImpact:   "Unable to retrieve People from Neo4j",
+		PanicGuide:       "https://dewey.ft.com/public-people-api.html",
+		Severity:         1,
 		TechnicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.",
-		Checker: pcw.CheckConnectivity,
-		},
+		Checker:          pcw.CheckConnectivity,
+	},
 	}
 	return checks
 }
-
 
 type neoChangeEvent struct {
 	StartedAt string
@@ -219,6 +217,7 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 	public.TwitterHandle = neo.P.TwitterHandle
 	public.FacebookProfile = neo.P.FacebookProfile
 	public.ImageURL = neo.P.ImageURL
+	public.ImageURLDeprecated = neo.P.ImageURL
 
 	if len(neo.M) > 0 {
 		memberships := []Membership{}
@@ -300,5 +299,3 @@ func filterToMostSpecificType(unfilteredTypes []string) string {
 	fullURI := mapper.TypeURIs([]string{mostSpecificType})
 	return fullURI[0]
 }
-
-
