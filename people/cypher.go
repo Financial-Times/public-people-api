@@ -3,6 +3,8 @@ package people
 import (
 	"fmt"
 	"time"
+	"errors"
+	"strings"
 
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
@@ -112,6 +114,8 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 
 	err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
+		err = handleEmptyError(err, "unknown error during query execution")
+
 		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Error Querying Neo4J for a Person")
 		return Person{}, true, err
 	}
@@ -120,7 +124,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 		p, f, e := pcw.ReadOldConcordanceModel(uuid, transactionID)
 		return p, f, e
 	} else if len(results) != 1 {
-		err := fmt.Errorf("Multiple people found with the same uuid: %s", uuid)
+		err := fmt.Errorf("multiple people found with the same uuid: %s", uuid)
 		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
 		return Person{}, true, err
 	}
@@ -160,6 +164,7 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID strin
 
 	err = pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
+		err = handleEmptyError(err, "unknown error during query execution")
 		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Query execution failed")
 		return Person{}, false, err
 	} else if len(results) == 0 || len(results[0].Rs) == 0 {
@@ -275,3 +280,40 @@ func filterToMostSpecificType(unfilteredTypes []string) string {
 	fullURI := mapper.TypeURIs([]string{mostSpecificType})
 	return fullURI[0]
 }
+
+func handleEmptyError(e error, defaultMessage string) error {
+
+	if e.Error() != "" {
+		return e
+	}
+
+	neoError, ok := e.(neoism.NeoError)
+
+	if !ok {
+		return errors.New(defaultMessage)
+	}
+
+	if neoError.Exception != "" {
+		neoError.Message = neoError.Exception
+		return neoError
+	}
+
+	if neoError.Cause != nil {
+		cause := fmt.Sprint(neoError.Cause)
+
+		if cause != "" {
+			neoError.Message = "Cause: " + cause
+			return neoError
+		}
+	}
+
+	if len(neoError.Stacktrace) > 0 {
+		neoError.Message = strings.Join(neoError.Stacktrace, ", ")
+		return neoError
+	}
+
+	neoError.Message = defaultMessage
+
+	return neoError
+}
+
