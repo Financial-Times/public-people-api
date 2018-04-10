@@ -20,6 +20,7 @@ import (
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
 	"github.com/jmcvetta/neoism"
 	"github.com/stretchr/testify/assert"
+	"errors"
 )
 
 const (
@@ -197,6 +198,50 @@ func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t
 		ImageURL:       "http://someimage.jpg",
 	}
 	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
+}
+
+func TestEmptyErrorHandlingWithException(t *testing.T) {
+	neoError := neoism.NeoError{
+		Cause:      "Underlying infra",
+		Stacktrace: []string{"something.exception at some.class\n", "\tterribly.broken.class.exception\n"},
+		Exception:  "something.exception at some.class",
+	}
+
+	err := handleEmptyError(neoError, "test-message")
+	assert.Equal(t, "something.exception at some.class", err.Error())
+}
+
+func TestEmptyErrorHandlingWithCause(t *testing.T) {
+	neoError := neoism.NeoError{
+		Cause:      "Underlying infra",
+		Stacktrace: []string{"something.exception at some.class\n", "\tterribly.broken.class.exception\n"},
+	}
+
+	err := handleEmptyError(neoError, "test-message")
+	assert.Equal(t, "Cause: Underlying infra", err.Error())
+}
+
+func TestEmptyErrorHandlingWithStacktrace(t *testing.T) {
+	neoError := neoism.NeoError{
+		Stacktrace: []string{"something.exception at some.class\n", "\tterribly.broken.class.exception\n"},
+	}
+
+	err := handleEmptyError(neoError, "test-message")
+	assert.Equal(t, "something.exception at some.class\n, \tterribly.broken.class.exception\n", err.Error())
+}
+
+func TestEmptyErrorHandlingWithDefaultMessage(t *testing.T) {
+	neoError := neoism.NeoError{}
+
+	err := handleEmptyError(neoError, "test-message")
+	assert.Equal(t, "test-message", err.Error())
+}
+
+func TestEmptyErrorHandlingWithGenericError(t *testing.T) {
+	err := errors.New("")
+
+	err = handleEmptyError(err, "test-message")
+	assert.Equal(t, "test-message", err.Error())
 }
 
 func readConceptAndCompare(t *testing.T, expected Person, uuid string) {
