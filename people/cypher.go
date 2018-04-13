@@ -1,13 +1,14 @@
 package people
 
 import (
-	"time"
-
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
-	logger "github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/go-logger"
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/jmcvetta/neoism"
+	"errors"
+	"fmt"
+	"strings"
 )
 
 const (
@@ -46,7 +47,7 @@ func (pcw *CypherDriver) Healthchecks() []fthealth.Check {
 		Name:             "Neo4j Connectivity",
 		BusinessImpact:   "Unable to retrieve People from Neo4j",
 		PanicGuide:       "https://dewey.ft.com/public-people-api.html",
-		Severity:         1,
+		Severity:         2,
 		TechnicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.",
 		Checker:          pcw.CheckConnectivity,
 	},
@@ -267,8 +268,6 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 
 func changeEvent(neoChgEvts []neoChangeEvent) (bool, []ChangeEvent) {
 	var results []ChangeEvent
-	currentLayout := "2006-01-02T15:04:05.999Z"
-	layout := "2006-01-02T15:04:05Z"
 
 	if neoChgEvts[0].StartedAt == "" && neoChgEvts[1].EndedAt == "" {
 		results = make([]ChangeEvent, 0, 0)
@@ -276,12 +275,10 @@ func changeEvent(neoChgEvts []neoChangeEvent) (bool, []ChangeEvent) {
 	}
 	for _, neoChgEvt := range neoChgEvts {
 		if neoChgEvt.StartedAt != "" {
-			t, _ := time.Parse(currentLayout, neoChgEvt.StartedAt)
-			results = append(results, ChangeEvent{StartedAt: t.Format(layout)})
+			results = append(results, ChangeEvent{StartedAt: neoChgEvt.StartedAt})
 		}
 		if neoChgEvt.EndedAt != "" {
-			t, _ := time.Parse(layout, neoChgEvt.EndedAt)
-			results = append(results, ChangeEvent{EndedAt: t.Format(layout)})
+			results = append(results, ChangeEvent{EndedAt: neoChgEvt.EndedAt})
 		}
 	}
 	return true, results
@@ -294,4 +291,40 @@ func filterToMostSpecificType(unfilteredTypes []string) string {
 	}
 	fullURI := mapper.TypeURIs([]string{mostSpecificType})
 	return fullURI[0]
+}
+
+func handleEmptyError(e error, defaultMessage string) error {
+
+	if e.Error() != "" {
+		return e
+	}
+
+	neoError, ok := e.(neoism.NeoError)
+
+	if !ok {
+		return errors.New(defaultMessage)
+	}
+
+	if neoError.Exception != "" {
+		neoError.Message = neoError.Exception
+		return neoError
+	}
+
+	if neoError.Cause != nil {
+		cause := fmt.Sprint(neoError.Cause)
+
+		if cause != "" {
+			neoError.Message = "Cause: " + cause
+			return neoError
+		}
+	}
+
+	if len(neoError.Stacktrace) > 0 {
+		neoError.Message = strings.Join(neoError.Stacktrace, ", ")
+		return neoError
+	}
+
+	neoError.Message = defaultMessage
+
+	return neoError
 }

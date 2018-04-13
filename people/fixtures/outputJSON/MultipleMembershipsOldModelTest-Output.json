@@ -34,7 +34,7 @@
       },
       "changeEvents": [
         {
-          "startedAt": "2008-01-16T00:00:00Z"
+          "startedAt": "2008-01-16"
         }
       ],
       "roles": [
@@ -49,7 +49,7 @@
           "directType": "http://www.ft.com/ontology/MembershipRole",
           "changeEvents": [
             {
-              "startedAt": "2008-01-16T00:00:00Z"
+              "startedAt": "2008-01-16"
             }
           ]
         }
@@ -75,7 +75,7 @@
       },
       "changeEvents": [
         {
-          "endedAt": "2012-01-01T00:00:00Z"
+          "endedAt": "2012-01-01"
         }
       ],
       "roles": [
@@ -90,10 +90,10 @@
           "directType": "http://www.ft.com/ontology/MembershipRole",
           "changeEvents": [
             {
-              "startedAt": "2010-12-11T00:00:00Z"
+              "startedAt": "2010-12-11"
             },
             {
-              "endedAt": "2012-01-01T00:00:00Z"
+              "endedAt": "2012-01-01"
             }
           ]
         }
@@ -119,7 +119,7 @@
       },
       "changeEvents": [
         {
-          "endedAt": "2007-12-31T00:00:00Z"
+          "endedAt": "2007-12-31"
         }
       ],
       "roles": [
@@ -134,7 +134,7 @@
           "directType": "http://www.ft.com/ontology/MembershipRole",
           "changeEvents": [
             {
-              "endedAt": "2007-12-31T00:00:00Z"
+              "endedAt": "2007-12-31"
             }
           ]
         }

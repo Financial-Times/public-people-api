@@ -30,7 +30,7 @@
       },
       "changeEvents": [
         {
-          "startedAt": "2008-01-16T00:00:00Z"
+          "startedAt": "2008-01-16"
         }
       ],
       "roles": [
@@ -45,7 +45,7 @@
           "directType": "http://www.ft.com/ontology/MembershipRole",
           "changeEvents": [
             {
-              "startedAt": "2008-01-16T00:00:00Z"
+              "startedAt": "2008-01-16"
             }
           ]
         }
