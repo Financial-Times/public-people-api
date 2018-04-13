@@ -26,5 +26,5 @@ _testmain.go
 *.prof
 
 public-people-api
-vendor/*/
+vendor/*
 

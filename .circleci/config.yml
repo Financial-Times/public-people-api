@@ -21,32 +21,28 @@ jobs:
             name: Make /go owned by circleci
             command: sudo chown -R circleci:circleci /go
         - run:
+            name: Create test folder
+            command: |
+              mkdir -p ${CIRCLE_TEST_REPORTS}/golang
+              mkdir -p ${CIRCLE_COVERAGE_REPORT}
+        - run:
             name: Download dependencies
             command: |
-                go get -u github.com/kardianos/govendor
+                go get -u github.com/golang/dep/cmd/dep
                 go get -u github.com/jstemmer/go-junit-report
                 go get -u github.com/mattn/goveralls
         - run:
-            name: Sync vendored packages
-            command: govendor sync -v
-        - run:
-            name: Build service
-            command: govendor build -v
+            name: Import libraries
+            command: dep ensure -v
         - run:
             name: Wait for Neo to be available
             command: wget --retry-connrefused --no-check-certificate -T 60 $NEO4J_TEST_URL; curl $NEO4J_TEST_URL
         - run:
             name: Run tests and coverage
             command: |
-                mkdir -p $CIRCLE_TEST_REPORTS/golang
-                mkdir -p $CIRCLE_ARTIFACTS
-                govendor test -race -v -coverprofile=$CIRCLE_ARTIFACTS/profile.out +local | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
-                sed -i "/_mock/d" $CIRCLE_ARTIFACTS/profile.out
+                go test ./... -race -cover -coverprofile=$CIRCLE_COVERAGE_REPORT/coverage.out | go-junit-report > $CIRCLE_TEST_REPORTS/golang/junit.xml
         - run:
-            name: Upload to coveralls
-            command: goveralls -coverprofile=$CIRCLE_ARTIFACTS/profile.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+            name: Upload Coverage
+            command: /go/bin/goveralls -coverprofile=$CIRCLE_COVERAGE_REPORT/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
         - store_test_results:
-            path: /tmp/test-reports
-        - store_artifacts:
-            path: /tmp/artifacts
-            destination: build
+            path: /tmp/test-results

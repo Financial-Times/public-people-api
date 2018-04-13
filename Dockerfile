@@ -1,4 +1,4 @@
-FROM golang:1.8-alpine
+FROM golang:1.10-alpine
 
 ENV PROJECT=public-people-api
 COPY . /${PROJECT}-sources/
@@ -19,8 +19,8 @@ RUN apk --no-cache --virtual .build-dependencies add git \
   && LDFLAGS="-X '"${BUILDINFO_PACKAGE}$VERSION"' -X '"${BUILDINFO_PACKAGE}$DATETIME"' -X '"${BUILDINFO_PACKAGE}$REPOSITORY"' -X '"${BUILDINFO_PACKAGE}$REVISION"' -X '"${BUILDINFO_PACKAGE}$BUILDER"'" \
   && echo "Build flags: $LDFLAGS" \
   && echo "Fetching dependencies..." \
-  && go get -u github.com/kardianos/govendor \
-  && $GOPATH/bin/govendor sync \
+  && go get -u github.com/golang/dep/cmd/dep \
+  && $GOPATH/bin/dep ensure \
   && go build -ldflags="${LDFLAGS}" \
   && mv ${PROJECT} /${PROJECT} \
   && apk del .build-dependencies \
