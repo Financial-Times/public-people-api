@@ -12,8 +12,8 @@ jobs:
     working_directory: /go/src/github.com/Financial-Times/public-people-api
     environment:
       NEO4J_TEST_URL: "http://localhost:7474/db/data/"
-      CIRCLE_TEST_REPORTS: /tmp/test-reports
-      CIRCLE_ARTIFACTS: /tmp/artifacts
+      CIRCLE_TEST_REPORTS: /tmp/test-results
+      CIRCLE_COVERAGE_REPORT: /tmp/coverage-results
 
     steps:
         - checkout
