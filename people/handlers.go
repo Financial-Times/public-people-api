@@ -58,7 +58,6 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 
 	validRegexp := regexp.MustCompile(validUUID)
 
-	logger.Errorf("UUID: %s", uuid)
 	if uuid == "" || !validRegexp.MatchString(uuid) {
 		logger.WithTransactionID(transId).WithField("UUID", uuid).Error(badRequestMsg)
 		writeJSONStaus(w, badRequestMsg, http.StatusBadRequest)
