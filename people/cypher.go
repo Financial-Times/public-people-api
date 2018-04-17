@@ -119,8 +119,9 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:MembershipRole)
                         WITH    canonical,
                                 { id:o.uuid, types:labels(o), prefLabel:o.prefLabel} as o,
-                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
-                                { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
+                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m ORDER BY m.terminationDateEpoch DESC, m.inceptionDateEpoch DESC, r, rr
+						WITH 	m, o,canonical,
+                        		{ id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate},{endedAt:rr.terminationDate}] } as r ORDER BY rr.terminationDateEpoch DESC, rr.inceptionDateEpoch DESC
                         WITH canonical, m, o, collect(r) as r ORDER BY o.uuid DESC
                         WITH canonical, collect({m:m, o:o, r:r}) as m
                         WITH m, { ID:canonical.prefUUID, types:labels(canonical), prefLabel:canonical.prefLabel, labels:canonical.aliases,
@@ -166,8 +167,9 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID strin
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:MembershipRole)
                         WITH    p,
                                 { id:o.uuid, types:labels(o), prefLabel:o.prefLabel} as o,
-                                { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
-                                { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
+								{ id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m ORDER BY m.terminationDateEpoch DESC, m.inceptionDateEpoch DESC, r, rr
+						WITH   	p, m, o,
+								{ id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate},{endedAt:rr.terminationDate}] } as r ORDER BY rr.terminationDateEpoch DESC, rr.inceptionDateEpoch DESC
                         WITH p, m, o, collect(r) as r ORDER BY o.uuid DESC
                         WITH p, collect({m:m, o:o, r:r}) as m
                         WITH m, { id:p.uuid, types:labels(p), prefLabel:p.prefLabel, labels:p.aliases,
