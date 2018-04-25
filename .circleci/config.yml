@@ -3,18 +3,16 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.10
-      - image: neo4j:3.1.0-enterprise
+      - image: neo4j:3.2.7-enterprise
         environment:
           NEO4J_AUTH: none
           NEO4J_HEAP_MEMORY: 256
           NEO4J_CACHE_MEMORY: 256M
-
     working_directory: /go/src/github.com/Financial-Times/public-people-api
     environment:
       NEO4J_TEST_URL: "http://localhost:7474/db/data/"
       CIRCLE_TEST_REPORTS: /tmp/test-results
       CIRCLE_COVERAGE_REPORT: /tmp/coverage-results
-
     steps:
         - checkout
         - run:
@@ -28,12 +26,12 @@ jobs:
         - run:
             name: Download dependencies
             command: |
-                go get -u github.com/golang/dep/cmd/dep
                 go get -u github.com/jstemmer/go-junit-report
                 go get -u github.com/mattn/goveralls
+                curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
         - run:
             name: Import libraries
-            command: dep ensure -v
+            command: dep ensure -v -vendor-only
         - run:
             name: Wait for Neo to be available
             command: wget --retry-connrefused --no-check-certificate -T 60 $NEO4J_TEST_URL; curl $NEO4J_TEST_URL
@@ -46,3 +44,13 @@ jobs:
             command: /go/bin/goveralls -coverprofile=$CIRCLE_COVERAGE_REPORT/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
         - store_test_results:
             path: /tmp/test-results
+  dockerfile:
+    working_directory: /public-people-api
+    docker:
+      - image: docker:18.03
+    steps:
+      - checkout
+      - setup_docker_engine
+      - run:
+          name: Build Dockerfile
+          command: docker build .

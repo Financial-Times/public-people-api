@@ -16,8 +16,8 @@ Installation & running locally
 
 1. Run the tests and install the binary:
 
-        govendor sync
-        govendor test -v -race
+        dep ensure -vendor-only
+        go test ./... -race
         go install
 
 2. Run the binary (using the `help` flag to see the available optional arguments):
@@ -43,7 +43,7 @@ Options:
 Test locally
 ------------------------------
 
-Tests in neo4j package rely on a running instance of Neo4j installed locally.  
+Tests in Neo4j package rely on a running instance of Neo4j installed locally.  
 
 ```
 docker run \
@@ -52,9 +52,9 @@ docker run \
     --publish=7687:7687 \
     --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes \
     --env=NEO4J_AUTH=none \
-    neo4j:3.3.3-enterprise
+    neo4j:3.2.7-enterprise
 
-govendor test -v -race -cover +local
+go test -v -race -cover +local
 ```
 
 Endpoints

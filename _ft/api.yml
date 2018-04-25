@@ -28,11 +28,6 @@ paths:
           type: string
           required: true
           description: UUID of a person
-        - in: query
-          name: apiKey
-          schema:
-            type: string
-          description: api.ft.com API key
       responses:
         200:
           description: Success body if the Person representation are found.

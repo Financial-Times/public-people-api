@@ -136,7 +136,7 @@ func main() {
 		db, err := neoutils.Connect(*neoURL, &conf)
 
 		if err != nil {
-			logger.Fatalf("Error connecting to neo4j %s", err)
+			logger.Fatalf("Error connecting to Neo4j %s", err)
 		}
 
 		cacheDuration, durationErr := time.ParseDuration(*cacheDuration)
