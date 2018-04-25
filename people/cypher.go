@@ -188,7 +188,7 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID strin
 		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Person not found")
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
-		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Errorf("Multiple people found with the same uuid:%s !", uuid)
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Errorf("Multiple people found with the same UUID:%s !", uuid)
 		return Person{}, true, err
 	}
 
