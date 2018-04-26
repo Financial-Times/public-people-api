@@ -5,113 +5,97 @@ import (
 	"net/http"
 
 	"fmt"
-	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
-	"github.com/Financial-Times/service-status-go/gtg"
+	"github.com/Financial-Times/go-logger"
 	"github.com/Financial-Times/transactionid-utils-go"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
+	"html"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 )
 
 const (
-	urlPrefix = "http://api.ft.com/things/"
-	validUUID = "([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
+	urlPrefix       = "http://api.ft.com/things/"
+	validUUID       = "([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
+	contentTypeJson = "application/json; charset=UTF-8"
+
+	personNotFoundMsg         = "Person could not be retrieved"
+	personUnableToBeRetrieved = "Person could not be retrieved"
+	badRequestMsg             = "Invalid UUID"
+	redirectedPerson          = "Person %s is concorded to %s; serving redirect"
 )
 
-// PeopleDriver for cypher queries
-var PeopleDriver Driver
-var CacheControlHeader string
-
-//var maxAge = 24 * time.Hour
-
-// HealthCheck does something
-func HealthCheck() fthealth.Check {
-	return fthealth.Check{
-		BusinessImpact: "Unable to respond to Public People api requests",
-		Name:           "Check connectivity to Neo4j - neoUrl is a parameter in hieradata for this service",
-		PanicGuide:     "https://sites.google.com/a/ft.com/ft-technology-service-transition/home/run-book-library/public-people-api",
-		Severity:       2,
-		TechnicalSummary: `Cannot connect to Neo4j. If this check fails, check that Neo4j instance is up and running. You can find
-				the neoUrl as a parameter in hieradata for this service. `,
-		Checker: Checker,
-	}
+type Handler struct {
+	driver        Driver
+	cacheDuration time.Duration
 }
 
-// Checker does more stuff
-func Checker() (string, error) {
-	err := PeopleDriver.CheckConnectivity()
-	if err == nil {
-		return "Connectivity to neo4j is ok", err
+func NewHandler(driver Driver, cacheDuration time.Duration) *Handler {
+	h := &Handler{
+		driver:        driver,
+		cacheDuration: cacheDuration,
 	}
-	return "Error connecting to neo4j", err
+	return h
 }
 
-func GTG() gtg.Status {
-	statusCheck := func() gtg.Status {
-		return gtgCheck(Checker)
+func (h *Handler) RegisterHandlers(router *mux.Router) {
+	logger.Info("Registering handlers")
+	handler := handlers.MethodHandler{
+		"GET": http.HandlerFunc(h.GetPerson),
 	}
-
-	return gtg.FailFastParallelCheck([]gtg.StatusChecker{statusCheck})()
-}
-
-func gtgCheck(handler func() (string, error)) gtg.Status {
-	if _, err := handler(); err != nil {
-		return gtg.Status{GoodToGo: false, Message: err.Error()}
-	}
-	return gtg.Status{GoodToGo: true}
-}
-
-// MethodNotAllowedHandler handles 405
-func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	return
+	router.Handle("/people/{uuid}", handler)
 }
 
 // GetPerson is the public API
-func GetPerson(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	requestId := vars["uuid"]
+	uuid := vars["uuid"]
 	transId := transactionidutils.GetTransactionIDFromRequest(r)
 	w.Header().Set("X-Request-Id", transId)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	validRegexp := regexp.MustCompile(validUUID)
-	if requestId == "" || !validRegexp.MatchString(requestId) {
-		msg := fmt.Sprintf("Invalid request id %s", requestId)
-		log.WithFields(log.Fields{"UUID": requestId, "transaction_id": transId}).Error(msg)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`"{\"message\":\"` + msg + `\"}"`))
+
+	if uuid == "" || !validRegexp.MatchString(uuid) {
+		logger.WithTransactionID(transId).WithField("UUID", uuid).Error(badRequestMsg)
+		writeJSONStaus(w, badRequestMsg, http.StatusBadRequest)
 		return
 	}
 
-	person, found, err := PeopleDriver.Read(requestId, transId)
+	person, found, err := h.driver.Read(uuid, transId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`"{\"message\": \"Person could not be retrieved\"}"`))
+		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`"{\"message\":\"Person ` + requestId + ` not found in DB\"}"`))
+		writeJSONStaus(w, personNotFoundMsg, http.StatusNotFound)
 		return
 	}
 
 	canonicalId := strings.TrimPrefix(person.ID, urlPrefix)
-	if strings.Compare(canonicalId, requestId) != 0 {
-		log.WithFields(log.Fields{"UUID": requestId}).Info("Person " + requestId + " is concorded to " + canonicalId + "; serving redirect")
-		redirectURL := strings.Replace(r.URL.String(), requestId, canonicalId, 1)
+	if strings.Compare(canonicalId, uuid) != 0 {
+		logger.WithTransactionID(transId).WithField("UUID", uuid).Infof(redirectedPerson, uuid, canonicalId)
+		redirectURL := strings.Replace(r.URL.String(), uuid, canonicalId, 1)
 		w.Header().Set("Location", redirectURL)
-		w.WriteHeader(http.StatusMovedPermanently)
-		w.Write([]byte(`"{\"message\":\"Person ` + requestId + ` is concorded, redirecting...\"}"`))
+		writeJSONStaus(w, fmt.Sprintf(redirectedPerson, uuid, canonicalId), http.StatusMovedPermanently)
 		return
 	}
 
-	w.Header().Set("Cache-Control", CacheControlHeader)
+	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%s, public", strconv.FormatFloat(h.cacheDuration.Seconds(), 'f', 0, 64)))
 	w.WriteHeader(http.StatusOK)
 
 	if err = json.NewEncoder(w).Encode(person); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`"{\"message\":\"Person could not be retrieved\"}"`))
+		writeJSONStaus(w, "Person could not be retrieved", http.StatusInternalServerError)
+	}
+}
+
+func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {
+	rw.Header().Set("Content-Type", contentTypeJson)
+	rw.WriteHeader(statusCode)
+	logMsg := fmt.Sprintf(`{"message":"%s"}`, html.EscapeString(message))
+	if _, err := rw.Write([]byte(logMsg)); err != nil {
+		logger.WithError(err).Warnf("could not read json error")
 	}
 }

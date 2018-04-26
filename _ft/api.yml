@@ -1,0 +1,114 @@
+swagger: "2.0"
+info:
+  description: "Public People API gives access to the UPP representation of a person"
+  version: "1.3.0"
+  title: "Public People API"
+  contact:
+    name: Universal Publishing
+    email: Universal.Publishing.Platform@ft.com
+  license:
+    name: Apache-2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+host: api.ft.com
+schemes:
+  - https
+basePath: /
+paths:
+  /people/{uuid}:
+    get:
+      summary: Retrieves a Person for a given UUID of a person.
+      description: Given UUID of a person as path parameter responds with a Person in json format.
+      tags:
+        - Public API
+      produces:
+        - application/json; charset=UTF-8
+      parameters:
+        - in: path
+          name: uuid
+          type: string
+          required: true
+          description: UUID of a person
+      responses:
+        200:
+          description: Success body if the Person representation are found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        400:
+          description: Bad request if the uuid path parameter is badly formed or missing.
+        404:
+          description: Not Found if there is no person record for the uuid path parameter is found.
+        500:
+          description: Internal Server Error if there was an issue processing the records.
+        503:
+          description: Service Unavailable if it cannot connect to Neo4j.
+
+  /__health:
+    get:
+      summary: Healthchecks
+      description: Runs application healthchecks and returns FT Healthcheck style json.
+      produces:
+        - application/json
+      tags:
+        - Health
+      responses:
+        200:
+          description: Should always return 200 along with the output of the healthchecks - regardless of whether the healthchecks failed or not. Please inspect the overall `ok` property to see whether or not the application is healthy.
+          examples:
+            application/json:
+              checks:
+                - businessImpact: "No Business Impact."
+                  checkOutput: "OK"
+                  lastUpdated: "2017-01-16T10:26:47.222805121Z"
+                  name: "Neo4j Connectivity"
+                  ok: true
+                  panicGuide: "https://dewey.ft.com/public-people-api.html"
+                  severity: 1
+                  technicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.  "
+              description: "Public API for serving information on People within UPP"
+              name: "Public People API"
+              ok: true
+              schemaVersion: 1
+
+  /__build-info:
+    get:
+      summary: Build Information
+      description: Returns application build info, such as the git repository and revision, the golang version it was built with, and the app release version.
+      produces:
+       - application/json; charset=UTF-8
+      tags:
+        - Info
+      responses:
+        200:
+          description: Outputs build information as described in the summary.
+          examples:
+            application/json; charset=UTF-8:
+              version: "0.0.7"
+              repository: "https://github.com/Financial-Times/public-people-api.git"
+              revision: "7cdbdb18b4a518eef3ebb1b545fc124612f9d7cd"
+              builder: "go version go1.6.3 linux/amd64"
+              dateTime: "20161123122615"
+
+  /__gtg:
+    get:
+      summary: Good To Go
+      description: Lightly healthchecks the application, and returns a 200 if it's Good-To-Go.
+      tags:
+        - Health
+      responses:
+        200:
+           description: The application is healthy enough to perform all its functions correctly - i.e. good to go.
+        503:
+           description: One or more of the applications healthchecks have failed, so please do not use the app. See the /__health endpoint for more detailed information.
+
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        UUID:
+          type: string
+          description: UUID of the person
+
+

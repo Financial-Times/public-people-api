@@ -1,21 +1,25 @@
 package people
 
 import (
-	"fmt"
-	"time"
-	"errors"
-	"strings"
-
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	"github.com/Financial-Times/go-logger"
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/jmcvetta/neoism"
-	log "github.com/sirupsen/logrus"
+	"errors"
+	"fmt"
+	"strings"
+)
+
+const (
+	messageServiceNotHealthy = "Service is NOT healthy"
+	messageServiceHealthy    = "Service is healthy"
 )
 
 // Driver interface
 type Driver interface {
 	Read(id string, transactionID string) (person Person, found bool, err error)
-	CheckConnectivity() error
+	Healthchecks() []fthealth.Check
 }
 
 // CypherDriver struct
@@ -25,13 +29,30 @@ type CypherDriver struct {
 }
 
 //NewCypherDriver instantiate driver
-func NewCypherDriver(conn neoutils.NeoConnection, env string) CypherDriver {
-	return CypherDriver{conn, env}
+func NewCypherDriver(conn neoutils.NeoConnection, env string) Driver {
+	return &CypherDriver{conn, env}
 }
 
 // CheckConnectivity tests neo4j by running a simple cypher query
-func (pcw CypherDriver) CheckConnectivity() error {
-	return neoutils.Check(pcw.conn)
+func (pcw *CypherDriver) CheckConnectivity() (string, error) {
+	err := neoutils.Check(pcw.conn)
+	if err != nil {
+		return messageServiceNotHealthy, err
+	}
+	return messageServiceHealthy, nil
+}
+
+func (pcw *CypherDriver) Healthchecks() []fthealth.Check {
+	checks := []fthealth.Check{fthealth.Check{
+		Name:             "Neo4j Connectivity",
+		BusinessImpact:   "Unable to retrieve People from Neo4j",
+		PanicGuide:       "https://dewey.ft.com/public-people-api.html",
+		Severity:         2,
+		TechnicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.",
+		Checker:          pcw.CheckConnectivity,
+	},
+	}
+	return checks
 }
 
 type neoChangeEvent struct {
@@ -114,9 +135,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 
 	err := pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
-		err = handleEmptyError(err, "unknown error during query execution")
-
-		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Error Querying Neo4J for a Person")
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Error Querying Neo4J for a Person")
 		return Person{}, true, err
 	}
 
@@ -124,8 +143,7 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 		p, f, e := pcw.ReadOldConcordanceModel(uuid, transactionID)
 		return p, f, e
 	} else if len(results) != 1 {
-		err := fmt.Errorf("multiple people found with the same uuid: %s", uuid)
-		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Errorf("Multiple people found with the same UUID: %s", uuid)
 		return Person{}, true, err
 	}
 
@@ -164,15 +182,13 @@ func (pcw CypherDriver) ReadOldConcordanceModel(uuid string, transactionID strin
 
 	err = pcw.conn.CypherBatch([]*neoism.CypherQuery{query})
 	if err != nil {
-		err = handleEmptyError(err, "unknown error during query execution")
-		log.WithError(err).WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error("Query execution failed")
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Query execution failed")
 		return Person{}, false, err
 	} else if len(results) == 0 || len(results[0].Rs) == 0 {
-		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Info("Person not found")
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Error("Person not found")
 		return Person{}, false, nil
 	} else if len(results) != 1 && len(results[0].Rs) != 1 {
-		err = fmt.Errorf("Multiple people found with the same uuid:%s !", uuid)
-		log.WithFields(log.Fields{"UUID": uuid, "transaction_id": transactionID}).Error(err.Error())
+		logger.WithTransactionID(transactionID).WithField("UUID", uuid).Errorf("Multiple people found with the same UUID:%s !", uuid)
 		return Person{}, true, err
 	}
 
@@ -252,8 +268,6 @@ func neoReadStructToPerson(neo neoReadStruct, env string) Person {
 
 func changeEvent(neoChgEvts []neoChangeEvent) (bool, []ChangeEvent) {
 	var results []ChangeEvent
-	currentLayout := "2006-01-02T15:04:05.999Z"
-	layout := "2006-01-02T15:04:05Z"
 
 	if neoChgEvts[0].StartedAt == "" && neoChgEvts[1].EndedAt == "" {
 		results = make([]ChangeEvent, 0, 0)
@@ -261,12 +275,10 @@ func changeEvent(neoChgEvts []neoChangeEvent) (bool, []ChangeEvent) {
 	}
 	for _, neoChgEvt := range neoChgEvts {
 		if neoChgEvt.StartedAt != "" {
-			t, _ := time.Parse(currentLayout, neoChgEvt.StartedAt)
-			results = append(results, ChangeEvent{StartedAt: t.Format(layout)})
+			results = append(results, ChangeEvent{StartedAt: neoChgEvt.StartedAt})
 		}
 		if neoChgEvt.EndedAt != "" {
-			t, _ := time.Parse(layout, neoChgEvt.EndedAt)
-			results = append(results, ChangeEvent{EndedAt: t.Format(layout)})
+			results = append(results, ChangeEvent{EndedAt: neoChgEvt.EndedAt})
 		}
 	}
 	return true, results
@@ -316,4 +328,3 @@ func handleEmptyError(e error, defaultMessage string) error {
 
 	return neoError
 }
-

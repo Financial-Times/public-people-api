@@ -46,5 +46,6 @@
   "emailAddress": "test@example.com",
   "twitterHandle": "@something",
   "descriptionXML": "Some text containing <strong>markup</strong>",
-  "_imageUrl": "http://someimage.jpg"
+  "_imageUrl": "http://someimage.jpg",
+  "imageUrl": "http://someimage.jpg"
 }
