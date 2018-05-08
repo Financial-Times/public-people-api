@@ -8,7 +8,7 @@ replicaCount: 2
 image:
   repository: coco/public-people-api
   pullPolicy: IfNotPresent
-cache_duration: 24h
+cache_duration: 168h # one week
 resources:
  requests:
    memory: 32Mi
