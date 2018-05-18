@@ -1,13 +1,13 @@
 package people
 
 import (
+	"errors"
+	"fmt"
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/go-logger"
 	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/jmcvetta/neoism"
-	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -116,9 +116,10 @@ func (pcw CypherDriver) Read(uuid string, transactionID string) (Person, bool, e
 						MATCH (canonical)<-[:EQUIVALENT_TO]-(p:Person)
                         OPTIONAL MATCH (p)<-[:HAS_MEMBER]-(m:Membership)
                         OPTIONAL MATCH (m)-[:HAS_ORGANISATION]->(o:Organisation)
+						OPTIONAL MATCH (o)-[:EQUIVALENT_TO]->(co:Organisation)
                         OPTIONAL MATCH (m)-[rr:HAS_ROLE]->(r:MembershipRole)
                         WITH    canonical,
-                                { id:o.uuid, types:labels(o), prefLabel:o.prefLabel} as o,
+                                { id:coalesce(co.prefUUID, o.uuid), types:coalesce(labels(co), labels(o)), prefLabel:coalesce(co.prefLabel, o.prefLabel)} as o,
                                 { id:m.uuid, types:labels(m), prefLabel:m.prefLabel, title:m.title, changeEvents:[{startedAt:m.inceptionDate}, {endedAt:m.terminationDate}] } as m,
                                 { id:r.uuid, types:labels(r), prefLabel:r.prefLabel, changeEvents:[{startedAt:rr.inceptionDate}, {endedAt:rr.terminationDate}] } as r
                         WITH canonical, m, o, collect(r) as r ORDER BY o.uuid DESC
