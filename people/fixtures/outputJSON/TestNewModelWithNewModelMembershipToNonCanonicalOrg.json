@@ -1,0 +1,51 @@
+{
+  "id": "http://api.ft.com/things/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+  "apiUrl": "http://api.ft.com/people/7ceeafe5-9f9a-4315-b3da-a5b4b69c013a",
+  "prefLabel": "Shirley Rooney",
+  "types": [
+    "http://www.ft.com/ontology/core/Thing",
+    "http://www.ft.com/ontology/concept/Concept",
+    "http://www.ft.com/ontology/person/Person"
+  ],
+  "directType": "http://www.ft.com/ontology/person/Person",
+  "memberships": [
+    {
+      "title": "Head of Repair",
+      "types": [
+        "http://www.ft.com/ontology/core/Thing",
+        "http://www.ft.com/ontology/concept/Concept",
+        "http://www.ft.com/ontology/organisation/Membership"
+      ],
+      "directType": "http://www.ft.com/ontology/organisation/Membership",
+      "organisation": {
+        "id": "http://api.ft.com/things/016037d4-5aa8-11e8-b45a-da24cd01f044",
+        "apiUrl": "http://api.ft.com/organisations/016037d4-5aa8-11e8-b45a-da24cd01f044",
+        "prefLabel": "Shirleys Sparkplugs",
+        "types": [
+          "http://www.ft.com/ontology/core/Thing",
+          "http://www.ft.com/ontology/concept/Concept",
+          "http://www.ft.com/ontology/organisation/Organisation"
+        ],
+        "directType": "http://www.ft.com/ontology/organisation/Organisation"
+      },
+      "roles": [
+        {
+          "id": "http://api.ft.com/things/7d0738b1-0ea2-47cb-bb82-e86744b389f0",
+          "apiUrl": "http://api.ft.com/things/7d0738b1-0ea2-47cb-bb82-e86744b389f0",
+          "prefLabel": "Smarty Pants",
+          "types": [
+            "http://www.ft.com/ontology/core/Thing",
+            "http://www.ft.com/ontology/concept/Concept",
+            "http://www.ft.com/ontology/MembershipRole"
+          ],
+          "directType": "http://www.ft.com/ontology/MembershipRole"
+        }
+      ]
+    }
+  ],
+  "emailAddress": "test@example.com",
+  "twitterHandle": "@something",
+  "descriptionXML": "Some text containing <strong>markup</strong>",
+  "_imageUrl": "http://someimage.jpg",
+  "imageUrl": "http://someimage.jpg"
+}

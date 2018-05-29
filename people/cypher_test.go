@@ -11,6 +11,7 @@ import (
 
 	"time"
 
+	"errors"
 	"github.com/Financial-Times/base-ft-rw-app-go/baseftrwapp"
 	"github.com/Financial-Times/concepts-rw-neo4j/concepts"
 	"github.com/Financial-Times/memberships-rw-neo4j/memberships"
@@ -20,7 +21,6 @@ import (
 	"github.com/Financial-Times/roles-rw-neo4j/roles"
 	"github.com/jmcvetta/neoism"
 	"github.com/stretchr/testify/assert"
-	"errors"
 )
 
 const (
@@ -170,6 +170,18 @@ func TestNewModelWithFullyNewModelMembershipRelatedConcepts(t *testing.T) {
 }
 
 // TODO: When we concord to Factset we will need to handle a mixture of old model and new model
+
+// New Model and backwards compatibility tests
+func TestNewModelWithNewModelMembershipWithNonCanonicalOrganisation(t *testing.T) {
+	defer cleanDB(db, t, "7d0738b1-0ea2-47cb-bb82-e86744b389f0", "016037d4-5aa8-11e8-b45a-da24cd01f044", "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a", "cd80a11e-5aa8-11e8-b45a-da24cd01f044", "e7d54d96-e653-4349-aec9-eb8ab601d62d", "c02d18d9-e98e-4bf4-b437-b1a5ea85b999", "b96f6e56-dc49-4332-80b8-58662ea21e89")
+	writeJSONToConceptsService(t, "./fixtures/newModel/MembershipRole-SmartyPants-7d0738b1-0ea2-47cb-bb82-e86744b389f0.json")
+	writeJSONToConceptsService(t, "./fixtures/newModel/Organisation-ShirleysSparkplugs-016037d4-5aa8-11e8-b45a-da24cd01f044.json")
+	writeJSONToConceptsService(t, "./fixtures/newModel/Person-Shirley-Rooney-7ceeafe5-9f9a-4315-b3da-a5b4b69c013a.json")
+	writeJSONToConceptsService(t, "./fixtures/newModel/Membership-ToNonCanonicalOrg-cd80a11e-5aa8-11e8-b45a-da24cd01f044.json")
+
+	person := readJSONtoPerson(t, "./fixtures/outputJSON/TestNewModelWithNewModelMembershipToNonCanonicalOrg.json")
+	readConceptAndCompare(t, person, "7ceeafe5-9f9a-4315-b3da-a5b4b69c013a")
+}
 
 func TestNewModelWithThingOnlyMembershipRelatedConceptsDoesNotReturnMembership(t *testing.T) {
 	// New model to org/person/role that is only a Thing - No membership should be returned
