@@ -2,6 +2,7 @@ package people
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"fmt"
@@ -25,6 +26,8 @@ const (
 	personUnableToBeRetrieved = "Person could not be retrieved"
 	badRequestMsg             = "Invalid UUID"
 	redirectedPerson          = "Person %s is concorded to %s; serving redirect"
+
+	publicConceptsURL = "https://public-concepts-api:8080/"
 )
 
 type Handler struct {
@@ -64,7 +67,8 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	person, found, err := h.driver.Read(uuid, transId)
+	person, found, err := getPersonFromAPI(uuid)
+	fmt.Print(person)
 	if err != nil {
 		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
@@ -89,6 +93,23 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	if err = json.NewEncoder(w).Encode(person); err != nil {
 		writeJSONStaus(w, "Person could not be retrieved", http.StatusInternalServerError)
 	}
+}
+
+func getPersonFromAPI(uuid string) (person Person, found bool, err error) {
+	resp, err := http.Get(publicConceptsURL + uuid)
+	if err != nil {
+		logger.WithError(err).Warnf("aaaa")
+	}
+	defer resp.Body.Close()
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.WithError(err).Warnf("bbbbbb")
+	}
+
+	var p Person
+	json.Unmarshal(bytes, &p)
+
+	return p, false, nil
 }
 
 func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {
