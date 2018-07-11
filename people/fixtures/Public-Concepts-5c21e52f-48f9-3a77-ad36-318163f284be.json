@@ -3,6 +3,8 @@
   "apiUrl": "https://api.ft.com/concepts/5c21e52f-48f9-3a77-ad36-318163f284be",
   "prefLabel": "A Topic",
   "type": "http://www.ft.com/ontology/Topic",
+	"Salutation": "foobar",
+	"BirthYear":  1988,
   "alternativeLabels": [
     {
       "type": "http://www.w3.org/2008/05/skos-xl#altLabel",

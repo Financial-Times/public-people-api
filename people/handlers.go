@@ -29,12 +29,14 @@ const (
 )
 
 type Handler struct {
+	driver               Driver
 	cacheDuration        time.Duration
 	publicConceptsApiURL string
 }
 
-func NewHandler(cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
+func NewHandler(driver Driver, cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
 	h := &Handler{
+		driver:               driver,
 		cacheDuration:        cacheDuration,
 		publicConceptsApiURL: publicConceptsApiURL,
 	}

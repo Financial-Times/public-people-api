@@ -56,11 +56,6 @@ type ChangeEvent struct {
 	EndedAt   string `json:"endedAt,omitempty"`
 }
 
-type PredicateConcept struct {
-	Concept   Concept `json:"concept"`
-	Predicate string  `json:"predicate"`
-}
-
 type TypedValue struct {
 	Type  string      `json:"type"`
 	Value interface{} `json:"value"`
@@ -79,36 +74,7 @@ type Concept struct {
 	// * facebookPage
 	// * twitterHandle
 	Account []TypedValue `json:"account,omitempty"`
-	// AlternativeLabels contains the values of:
-	// * aliases
-	// * formerNames
-	// * hiddenLabel
-	// * legalName
-	// * properName
-	// * shortName
-	// * tradeNames
-	AlternativeLabels []TypedValue `json:"alternativeLabels,omitempty"`
-	// Brand
-	Strapline string `json:"strapline,omitempty"`
 	// Person
 	Salutation string `json:"salutation,omitempty"`
 	BirthYear  int    `json:"birthYear,omitempty"`
-	// Financial Instrument
-	FigiCode string `json:"figiCode,omitempty"`
-	IssuedBy string `json:"issuedBy,omitempty"`
-	// Membership
-	InceptionDate   string `json:"inceptionDate,omitempty"`
-	TerminationDate string `json:"terminationDate,omitempty"`
-	// Organisation
-	CountryCode            string `json:"countryCode,omitempty"`
-	CountryOfIncorporation string `json:"countryOfIncorporation,omitempty"`
-	LeiCode                string `json:"leiCode,omitempty"`
-	PostalCode             string `json:"postalCode,omitempty"`
-	YearFounded            int    `json:"yearFounded,omitempty"`
-	// Relations
-	BroaderConcepts  []PredicateConcept `json:"broaderConcepts,omitempty"`
-	NarrowerConcepts []PredicateConcept `json:"narrowerConcepts,omitempty"`
-	RelatedConcepts  []PredicateConcept `json:"relatedConcepts,omitempty"`
-	// Deprecated
-	IsDeprecated bool `json:"isDeprecated,omitempty"`
 }
