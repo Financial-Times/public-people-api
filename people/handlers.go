@@ -26,19 +26,17 @@ const (
 	personUnableToBeRetrieved = "Person could not be retrieved"
 	badRequestMsg             = "Invalid UUID"
 	redirectedPerson          = "Person %s is concorded to %s; serving redirect"
-
-	publicConceptsURL = "https://public-concepts-api:8080/"
 )
 
 type Handler struct {
-	driver        Driver
-	cacheDuration time.Duration
+	cacheDuration        time.Duration
+	publicConceptsApiURL string
 }
 
-func NewHandler(driver Driver, cacheDuration time.Duration) *Handler {
+func NewHandler(cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
 	h := &Handler{
-		driver:        driver,
-		cacheDuration: cacheDuration,
+		cacheDuration:        cacheDuration,
+		publicConceptsApiURL: publicConceptsApiURL,
 	}
 	return h
 }
@@ -67,8 +65,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	person, found, err := getPersonFromAPI(uuid)
-	fmt.Print(person)
+	person, found, err := getPersonFromConceptsAPI(uuid, h.publicConceptsApiURL)
 	if err != nil {
 		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
@@ -95,21 +92,42 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getPersonFromAPI(uuid string) (person Person, found bool, err error) {
-	resp, err := http.Get(publicConceptsURL + uuid)
+func getPersonFromConceptsAPI(uuid string, apiURL string) (person Person, found bool, err error) {
+	var p Person
+	concept, err := getConcept(uuid, apiURL)
 	if err != nil {
-		logger.WithError(err).Warnf("aaaa")
+		return p, false, err
+	}
+
+	p.ID = concept.ID
+	p.APIURL = concept.APIURL
+	p.PrefLabel = concept.PrefLabel
+
+	return p, true, err
+}
+
+func getConcept(uuid string, apiURL string) (concept Concept, err error) {
+	var c Concept
+
+	resp, err := http.Get(apiURL + "/__public-concepts-api/concepts/" + uuid)
+	if err != nil {
+		logger.WithError(err).Warnf("API request failed")
+		return c, err
 	}
 	defer resp.Body.Close()
+
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.WithError(err).Warnf("bbbbbb")
+		logger.WithError(err).Warnf("Concept could not be retrieved")
+		return c, err
 	}
 
-	var p Person
-	json.Unmarshal(bytes, &p)
+	if err := json.Unmarshal(bytes, &c); err != nil {
+		logger.WithError(err).Warnf("Concept could not be retrieved")
+		return c, err
+	}
 
-	return p, false, nil
+	return c, nil
 }
 
 func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {

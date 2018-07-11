@@ -43,15 +43,7 @@ func (pcw *CypherDriver) CheckConnectivity() (string, error) {
 }
 
 func (pcw *CypherDriver) Healthchecks() []fthealth.Check {
-	checks := []fthealth.Check{fthealth.Check{
-		Name:             "Neo4j Connectivity",
-		BusinessImpact:   "Unable to retrieve People from Neo4j",
-		PanicGuide:       "https://dewey.ft.com/public-people-api.html",
-		Severity:         2,
-		TechnicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.",
-		Checker:          pcw.CheckConnectivity,
-	},
-	}
+	checks := []fthealth.Check{}
 	return checks
 }
 

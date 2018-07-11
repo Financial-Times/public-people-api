@@ -9,7 +9,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"gopkg.in/jarcoal/httpmock.v1"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,12 +34,19 @@ func (suite *HandlerTestSuite) SetupTest() {
 	logger.InitDefaultLogger("handler-test")
 	suite.router = mux.NewRouter()
 	suite.mockDriver = &MockDriver{}
-	suite.handler = NewHandler(suite.mockDriver, 0)
+	suite.handler = NewHandler(0, "http://localhost")
 	suite.handler.RegisterHandlers(suite.router)
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_Success() {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
+	fakeResponse, _ := ioutil.ReadFile("./fixtures/Public-Concepts-5c21e52f-48f9-3a77-ad36-318163f284be.json")
+
+	url := "http://localhost/__public-concepts-api/concepts/" + uuid
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, string(fakeResponse)))
 
 	person := Person{
 		Thing: Thing{
@@ -47,8 +56,6 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 		},
 	}
 
-	suite.mockDriver.On("Read", uuid, mock.Anything).Return(person, true, nil)
-
 	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
@@ -57,7 +64,6 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	json.NewDecoder(rec.Result().Body).Decode(&retPerson)
 	suite.Equal(http.StatusOK, rec.Result().StatusCode)
 	suite.Equal(person, retPerson)
-	suite.mockDriver.AssertExpectations(suite.T())
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
