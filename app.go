@@ -95,9 +95,9 @@ func main() {
 	})
 	publicConceptsApiURL := app.String(cli.StringOpt{
 		Name:   "publicConceptsApiURL",
-		Value:  "",
+		Value:  "localhost:8080/concepts",
 		Desc:   "Public concepts API endpoint URL.",
-		EnvVar: "PUBLIC_CONCEPTS_API_URL",
+		EnvVar: "CONCEPTS_API",
 	})
 
 	logger.InitLogger(*appSystemCode, *logLevel)
@@ -151,7 +151,7 @@ func main() {
 		}
 
 		driver := people.NewCypherDriver(db, *env)
-		handler := people.NewHandler(driver, cacheDuration)
+		handler := people.NewHandler(driver, cacheDuration, *publicConceptsApiURL)
 
 		router := mux.NewRouter()
 		healthCheckService := people.NewHealthCheckService(driver.Healthchecks(), appConfig)

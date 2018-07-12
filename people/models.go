@@ -61,6 +61,11 @@ type TypedValue struct {
 	Value interface{} `json:"value"`
 }
 
+type PredicateConcept struct {
+	Concept   Concept `json:"concept"`
+	Predicate string  `json:"predicate"`
+}
+
 type Concept struct {
 	ID        string `json:"id"`
 	APIURL    string `json:"apiUrl"`
@@ -74,7 +79,30 @@ type Concept struct {
 	// * facebookPage
 	// * twitterHandle
 	Account []TypedValue `json:"account,omitempty"`
+	// AlternativeLabels contains the values of:
+	// * aliases
+	// * formerNames
+	// * hiddenLabel
+	// * legalName
+	// * properName
+	// * shortName
+	// * tradeNames
+	AlternativeLabels []TypedValue `json:"alternativeLabels,omitempty"`
 	// Person
-	Salutation string `json:"salutation,omitempty"`
-	BirthYear  int    `json:"birthYear,omitempty"`
+	Salutation     string `json:"salutation,omitempty"`
+	BirthYear      int    `json:"birthYear,omitempty"`
+	descriptionXML string `json:"descriptionXML,omitempty`
+	// Membership
+	InceptionDate   string `json:"inceptionDate,omitempty"`
+	TerminationDate string `json:"terminationDate,omitempty"`
+	// Organisation
+	CountryCode            string `json:"countryCode,omitempty"`
+	CountryOfIncorporation string `json:"countryOfIncorporation,omitempty"`
+	LeiCode                string `json:"leiCode,omitempty"`
+	PostalCode             string `json:"postalCode,omitempty"`
+	YearFounded            int    `json:"yearFounded,omitempty"`
+	// Relations
+	BroaderConcepts  []PredicateConcept `json:"broaderConcepts,omitempty"`
+	NarrowerConcepts []PredicateConcept `json:"narrowerConcepts,omitempty"`
+	RelatedConcepts  []PredicateConcept `json:"relatedConcepts,omitempty"`
 }

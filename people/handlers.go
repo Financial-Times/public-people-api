@@ -67,7 +67,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	person, found, err := getPersonFromConceptsAPI(uuid, h.publicConceptsApiURL)
+	person, found, err := h.getPersonViaConceptsAPI(uuid)
 	if err != nil {
 		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
@@ -94,16 +94,14 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getPersonFromConceptsAPI(uuid string, apiURL string) (person Person, found bool, err error) {
+func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found bool, err error) {
 	var p Person
-	concept, err := getConcept(uuid, apiURL)
+
+	concept, err := getConcept(uuid, h.publicConceptsApiURL)
 	if err != nil {
 		return p, false, err
 	}
-
-	p.ID = concept.ID
-	p.APIURL = concept.APIURL
-	p.PrefLabel = concept.PrefLabel
+	convertToPerson(concept, &p)
 
 	return p, true, err
 }
@@ -111,7 +109,7 @@ func getPersonFromConceptsAPI(uuid string, apiURL string) (person Person, found 
 func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 	var c Concept
 
-	resp, err := http.Get(apiURL + "/__public-concepts-api/concepts/" + uuid)
+	resp, err := http.Get(apiURL + "/" + uuid)
 	if err != nil {
 		logger.WithError(err).Warnf("API request failed")
 		return c, err

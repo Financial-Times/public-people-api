@@ -1,7 +1,7 @@
 {
-  "id": "http://www.ft.com/thing/5c21e52f-48f9-3a77-ad36-318163f284be",
-  "apiUrl": "https://api.ft.com/concepts/5c21e52f-48f9-3a77-ad36-318163f284be",
-  "prefLabel": "A Topic",
+  "id": "http://www.ft.com/thing/70f4732b-7f7d-30a1-9c29-0cceec23760e",
+  "apiUrl": "https://api.ft.com/concepts/70f4732b-7f7d-30a1-9c29-0cceec23760e",
+  "prefLabel": "Someone",
   "type": "http://www.ft.com/ontology/Topic",
 	"Salutation": "foobar",
 	"BirthYear":  1988,
