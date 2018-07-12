@@ -87,7 +87,8 @@ type Concept struct {
 	// * properName
 	// * shortName
 	// * tradeNames
-	AlternativeLabels []TypedValue `json:"alternativeLabels,omitempty"`
+	AlternativeLabels []TypedValue  `json:"alternativeLabels,omitempty"`
+	ChangeEvents      []ChangeEvent `json:"changeEvents,omitempty"`
 	// Person
 	Salutation     string `json:"salutation,omitempty"`
 	BirthYear      int    `json:"birthYear,omitempty"`

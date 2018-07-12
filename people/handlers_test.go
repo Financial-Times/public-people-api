@@ -3,15 +3,12 @@ package people
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/Financial-Times/go-logger"
 	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gopkg.in/jarcoal/httpmock.v1"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -34,7 +31,7 @@ func (suite *HandlerTestSuite) SetupTest() {
 	logger.InitDefaultLogger("handler-test")
 	suite.router = mux.NewRouter()
 	suite.mockDriver = &MockDriver{}
-	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost")
+	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:3000/concepts")
 	suite.handler.RegisterHandlers(suite.router)
 }
 
@@ -42,17 +39,28 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
-	fakeResponse, _ := ioutil.ReadFile("./fixtures/Public-Concepts-5c21e52f-48f9-3a77-ad36-318163f284be.json")
+	uuid := "60e54253-1e94-38df-83b1-a39804d1ac18"
+	url := "http://localhost:3000/concepts/" + uuid
+	fakeResponse := `{
+		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"prefLabel": "Neil Cole",
+		"type": "http://www.ft.com/ontology/person/Person"
+	}`
 
-	url := "http://localhost/__public-concepts-api/concepts/" + uuid
 	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, string(fakeResponse)))
 
 	person := Person{
 		Thing: Thing{
-			ID:        "http://api.ft.com/things/70f4732b-7f7d-30a1-9c29-0cceec23760e",
-			APIURL:    "http://api.ft.com/people/70f4732b-7f7d-30a1-9c29-0cceec23760e",
-			PrefLabel: "Someone",
+			ID:        "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+			APIURL:    "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+			PrefLabel: "Neil Cole",
+		},
+		DirectType: "http://www.ft.com/ontology/person/Person",
+		Types: []string{
+			"http://www.ft.com/ontology/core/Thing",
+			"http://www.ft.com/ontology/concept/Concept",
+			"http://www.ft.com/ontology/person/Person",
 		},
 	}
 
@@ -67,9 +75,12 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
-	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
-	suite.mockDriver.On("Read", uuid, mock.Anything).Return(Person{}, false, nil)
+	uuid := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
+	url := "http://localhost:3000/concepts/" + uuid
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(404, "Not found"))
 
 	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
@@ -82,8 +93,6 @@ func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
 	json.NewDecoder(rec.Result().Body).Decode(returnMsg)
 	suite.Equal(msg, returnMsg)
 	suite.Equal(http.StatusNotFound, rec.Result().StatusCode)
-	suite.mockDriver.AssertExpectations(suite.T())
-
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_BadRequest() {
@@ -99,23 +108,24 @@ func (suite *HandlerTestSuite) TestGetPeople_BadRequest() {
 	json.NewDecoder(rec.Result().Body).Decode(returnMsg)
 	suite.Equal(msg, returnMsg)
 	suite.Equal(http.StatusBadRequest, rec.Result().StatusCode)
-	suite.mockDriver.AssertExpectations(suite.T())
-
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
-	canonicalUUID := "dcd90ae4-52c2-4851-b5af-5c3d6ef527b6"
+	canonicalUUID := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
 
-	person := Person{
-		Thing: Thing{
-			ID:        "http://api.ft.com/things/dcd90ae4-52c2-4851-b5af-5c3d6ef527b6",
-			APIURL:    "http://api.ft.com/people/dcd90ae4-52c2-4851-b5af-5c3d6ef527b6",
-			PrefLabel: "Someone",
-		},
-	}
+	url := "http://localhost:3000/concepts/" + uuid
+	fakeResponse := `{
+		"id": "http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
+		"apiUrl": "http://api.ft.com/concepts/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
+		"prefLabel": "Someone",
+		"type": "http://www.ft.com/ontology/person/Person"
+	}`
 
-	suite.mockDriver.On("Read", uuid, mock.Anything).Return(person, true, nil)
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, fakeResponse))
 
 	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
@@ -128,15 +138,15 @@ func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
 	returnMsg := &errMsg{}
 	json.NewDecoder(rec.Result().Body).Decode(returnMsg)
 	suite.Equal(msg, returnMsg)
-
 	suite.Equal(http.StatusMovedPermanently, rec.Result().StatusCode)
-	suite.mockDriver.AssertExpectations(suite.T())
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_InternalError() {
-	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
 
-	suite.mockDriver.On("Read", uuid, mock.Anything).Return(Person{}, false, errors.New("Some error"))
+	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
+	httpmock.RegisterResponder("GET", "http://localhost:3000/people/"+uuid, httpmock.NewStringResponder(500, string("Some error")))
 
 	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
@@ -149,10 +159,7 @@ func (suite *HandlerTestSuite) TestGetPeople_InternalError() {
 	returnMsg := &errMsg{}
 	json.NewDecoder(rec.Result().Body).Decode(returnMsg)
 	suite.Equal(msg, returnMsg)
-
 	suite.Equal(http.StatusInternalServerError, rec.Result().StatusCode)
-	suite.mockDriver.AssertExpectations(suite.T())
-
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_MethodNotAllowedOnPost() {

@@ -99,11 +99,20 @@ func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found boo
 
 	concept, err := getConcept(uuid, h.publicConceptsApiURL)
 	if err != nil {
+		if err.Error() == "Not found" {
+			return p, false, nil
+		}
 		return p, false, err
 	}
+
+	if strings.Contains(concept.Type, "Person") == false {
+		logger.WithError(fmt.Errorf("Concept Type is not person. type %s, uuid: %s", concept.Type, uuid)).Warnf("Concept could not be retrieved")
+		return p, false, nil
+	}
+
 	convertToPerson(concept, &p)
 
-	return p, true, err
+	return p, true, nil
 }
 
 func getConcept(uuid string, apiURL string) (concept Concept, err error) {
@@ -115,6 +124,10 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 		return c, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		return c, fmt.Errorf("Not found")
+	}
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

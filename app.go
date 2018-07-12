@@ -95,7 +95,7 @@ func main() {
 	})
 	publicConceptsApiURL := app.String(cli.StringOpt{
 		Name:   "publicConceptsApiURL",
-		Value:  "localhost:8080/concepts",
+		Value:  "http://localhost:3000/concepts",
 		Desc:   "Public concepts API endpoint URL.",
 		EnvVar: "CONCEPTS_API",
 	})

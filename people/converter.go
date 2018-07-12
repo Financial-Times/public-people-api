@@ -61,18 +61,22 @@ func convertToMembership(c Concept) *Membership {
 		}
 	}
 
-	return &Membership{
-		Title: c.PrefLabel,
-		Types: []string{
-			"http://www.ft.com/ontology/core/Thing",
-			"http://www.ft.com/ontology/concept/Concept",
-			"http://www.ft.com/ontology/organisation/Membership",
-		},
-		DirectType:   c.Type,
-		Organisation: organisation,
-		ChangeEvents: getChangeEvents(c),
-		Roles:        roles,
+	var m Membership
+	m.Title = c.PrefLabel
+	m.Types = []string{
+		"http://www.ft.com/ontology/core/Thing",
+		"http://www.ft.com/ontology/concept/Concept",
+		"http://www.ft.com/ontology/organisation/Membership",
 	}
+	m.DirectType = c.Type
+	m.Organisation = organisation
+	m.Roles = roles
+	changeEvents := getChangeEvengts(c)
+	if len(changeEvents) > 0 {
+		m.ChangeEvents = changeEvents
+	}
+
+	return &m
 }
 
 func convertToOrganization(c Concept) *Organisation {
@@ -107,16 +111,30 @@ func convertToRole(c Concept) *Role {
 		"http://www.ft.com/ontology/MembershipRole",
 	}
 	r.DirectType = c.Type
-	r.ChangeEvents = getChangeEvents(c)
+
+	changeEvents := getChangeEvengts(c)
+	if len(changeEvents) > 0 {
+		r.ChangeEvents = changeEvents
+	}
 
 	return &r
 }
 
-func getChangeEvents(c Concept) []ChangeEvent {
-	return []ChangeEvent{
-		ChangeEvent{
-			StartedAt: c.InceptionDate,
-			EndedAt:   c.TerminationDate,
-		},
+func getChangeEvengts(c Concept) []ChangeEvent {
+	if len(c.ChangeEvents) > 0 {
+		return c.ChangeEvents
 	}
+
+	var changeEvents []ChangeEvent
+	if len(c.InceptionDate) > 0 {
+		changeEvents = append(changeEvents, ChangeEvent{
+			StartedAt: c.InceptionDate,
+		})
+	}
+	if len(c.TerminationDate) > 0 {
+		changeEvents = append(changeEvents, ChangeEvent{
+			EndedAt: c.TerminationDate,
+		})
+	}
+	return changeEvents
 }
