@@ -31,7 +31,7 @@ func (suite *HandlerTestSuite) SetupTest() {
 	logger.InitDefaultLogger("handler-test")
 	suite.router = mux.NewRouter()
 	suite.mockDriver = &MockDriver{}
-	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:3000/concepts")
+	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:8080/concepts")
 	suite.handler.RegisterHandlers(suite.router)
 }
 
@@ -40,7 +40,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	defer httpmock.DeactivateAndReset()
 
 	uuid := "60e54253-1e94-38df-83b1-a39804d1ac18"
-	url := "http://localhost:3000/concepts/" + uuid
+	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
 		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
@@ -79,7 +79,7 @@ func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
 	defer httpmock.DeactivateAndReset()
 
 	uuid := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
-	url := "http://localhost:3000/concepts/" + uuid
+	url := "http://localhost:8080/concepts/" + uuid
 	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(404, "Not found"))
 
 	req := newRequest("GET", "/people/"+uuid, "")
@@ -117,7 +117,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
 	canonicalUUID := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
 
-	url := "http://localhost:3000/concepts/" + uuid
+	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
 		"id": "http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
 		"apiUrl": "http://api.ft.com/concepts/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
@@ -146,7 +146,7 @@ func (suite *HandlerTestSuite) TestGetPeople_InternalError() {
 	defer httpmock.DeactivateAndReset()
 
 	uuid := "70f4732b-7f7d-30a1-9c29-0cceec23760e"
-	httpmock.RegisterResponder("GET", "http://localhost:3000/people/"+uuid, httpmock.NewStringResponder(500, string("Some error")))
+	httpmock.RegisterResponder("GET", "http://localhost:8080/people/"+uuid, httpmock.NewStringResponder(500, string("Some error")))
 
 	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
