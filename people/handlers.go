@@ -125,7 +125,7 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 404 {
+	if resp.StatusCode == http.StatusNotFound {
 		return c, fmt.Errorf("Not found")
 	}
 
