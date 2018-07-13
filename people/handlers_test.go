@@ -48,7 +48,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 		"type": "http://www.ft.com/ontology/person/Person"
 	}`
 
-	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, string(fakeResponse)))
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, fakeResponse))
 
 	person := Person{
 		Thing: Thing{
@@ -74,6 +74,103 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	suite.Equal(person, retPerson)
 }
 
+func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	uuid := "60e54253-1e94-38df-83b1-a39804d1ac18"
+	url := "http://localhost:8080/concepts/" + uuid
+
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, conceptAPICompleteResponse))
+
+	person := Person{
+		Thing: Thing{
+			ID:        "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+			APIURL:    "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+			PrefLabel: "Neil Cole",
+		},
+		DirectType: "http://www.ft.com/ontology/person/Person",
+		Types: []string{
+			"http://www.ft.com/ontology/core/Thing",
+			"http://www.ft.com/ontology/concept/Concept",
+			"http://www.ft.com/ontology/person/Person",
+		},
+		Labels: []string{"Neil Cole"},
+		Memberships: []Membership{
+			Membership{
+				Title: "Graduate Degree",
+				Types: []string{
+					"http://www.ft.com/ontology/core/Thing",
+					"http://www.ft.com/ontology/concept/Concept",
+					"http://www.ft.com/ontology/organisation/Membership",
+				},
+				DirectType: "http://www.ft.com/ontology/organisation/Membership",
+				Organisation: Organisation{
+					Thing: Thing{
+						ID:        "http://api.ft.com/things/1d448227-8b1b-3490-aeb8-18aa699d75f8",
+						APIURL:    "http://api.ft.com/concepts/1d448227-8b1b-3490-aeb8-18aa699d75f8",
+						PrefLabel: "Maurice A. Deane School of Law at Hofstra University",
+					},
+					Types: []string{
+						"http://www.ft.com/ontology/core/Thing",
+						"http://www.ft.com/ontology/concept/Concept",
+						"http://www.ft.com/ontology/organisation/Organisation",
+					},
+					DirectType: "http://www.ft.com/ontology/organisation/Organisation",
+					Labels:     []string(nil),
+				},
+				ChangeEvents: []ChangeEvent{
+					ChangeEvent{
+						StartedAt: "1979-01-01",
+					},
+					ChangeEvent{
+						EndedAt: "1982-01-01",
+					},
+				},
+				Roles: []Role{
+					Role{
+						Thing: Thing{
+							ID: "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd", APIURL: "http://api.ft.com/concepts/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+							PrefLabel: "Graduate Degree",
+						},
+						Types: []string{
+							"http://www.ft.com/ontology/core/Thing",
+							"http://www.ft.com/ontology/concept/Concept",
+							"http://www.ft.com/ontology/MembershipRole",
+						},
+						DirectType: "http://www.ft.com/ontology/MembershipRole",
+						ChangeEvents: []ChangeEvent{
+							ChangeEvent{
+								StartedAt: "1979-01-01",
+							},
+							ChangeEvent{
+								EndedAt: "1982-01-01",
+							},
+						},
+					},
+				},
+			},
+		},
+		Salutation:      "Mr.",
+		BirthYear:       1957,
+		EmailAddress:    "example@example.com",
+		TwitterHandle:   "@ft",
+		FacebookProfile: "https://www.facebook.com/financialtimes/",
+		Description:     "foobar",
+		DescriptionXML:  "",
+		ImageURL:        "https://www.ft.com/__origami/service/image/v2/images/raw/fthead-v1:merryn-somerset-webb?source=next",
+	}
+
+	req := newRequest("GET", "/people/"+uuid, "")
+	rec := httptest.NewRecorder()
+	suite.router.ServeHTTP(rec, req)
+
+	retPerson := Person{}
+	json.NewDecoder(rec.Result().Body).Decode(&retPerson)
+	suite.Equal(http.StatusOK, rec.Result().StatusCode)
+	suite.Equal(person, retPerson)
+}
+
 func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -81,6 +178,35 @@ func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
 	uuid := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
 	url := "http://localhost:8080/concepts/" + uuid
 	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(404, "Not found"))
+
+	req := newRequest("GET", "/people/"+uuid, "")
+	rec := httptest.NewRecorder()
+	suite.router.ServeHTTP(rec, req)
+
+	msg := &errMsg{
+		Message: personNotFoundMsg,
+	}
+	returnMsg := &errMsg{}
+	json.NewDecoder(rec.Result().Body).Decode(returnMsg)
+	suite.Equal(msg, returnMsg)
+	suite.Equal(http.StatusNotFound, rec.Result().StatusCode)
+}
+
+// Test case for the concept API response type is not people
+func (suite *HandlerTestSuite) TestGetPeople_NotFound_NoPerson() {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	uuid := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
+	url := "http://localhost:8080/concepts/" + uuid
+	fakeResponse := `{
+		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"prefLabel": "Brand",
+		"type": "http://www.ft.com/ontology/product/Brand"
+	}`
+
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, fakeResponse))
 
 	req := newRequest("GET", "/people/"+uuid, "")
 	rec := httptest.NewRecorder()
@@ -192,3 +318,95 @@ func newRequest(method, url string, body string) *http.Request {
 type errMsg struct {
 	Message string `json:"message"`
 }
+
+var conceptAPICompleteResponse = `{
+  "id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+  "apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+  "type": "http://www.ft.com/ontology/person/Person",
+	"prefLabel": "Neil Cole",
+	"description": "foobar",
+	"imageURL": "https://www.ft.com/__origami/service/image/v2/images/raw/fthead-v1:merryn-somerset-webb?source=next",
+  "alternativeLabels": [
+    {
+      "type": "http://www.ft.com/ontology/Alias",
+      "value": "Neil Cole"
+    }
+	],
+	"account": [
+		{
+			"type": "http://www.ft.com/ontology/emailAddress",
+			"value": "example@example.com"
+		},
+		{
+			"type": "http://www.ft.com/ontology/twitterHandle",
+			"value": "@ft"
+		},
+		{
+			"type": "http://www.ft.com/ontology/facebookProfile",
+			"value": "https://www.facebook.com/financialtimes/"
+		}
+	],
+  "salutation": "Mr.",
+  "birthYear": 1957,
+  "relatedConcepts": [
+    {
+      "concept": {
+        "id": "http://api.ft.com/things/ea3e354e-13dc-3287-8950-230f3c6416d0",
+        "apiUrl": "http://api.ft.com/concepts/ea3e354e-13dc-3287-8950-230f3c6416d0",
+        "type": "http://www.ft.com/ontology/organisation/Membership",
+        "prefLabel": "Graduate Degree",
+        "alternativeLabels": [
+          {
+            "type": "http://www.ft.com/ontology/Alias",
+            "value": "Graduate Degree"
+          }
+        ],
+        "changeEvents": [
+          {
+            "startedAt": "1979-01-01"
+          },
+          {
+            "endedAt": "1982-01-01"
+          }
+        ],
+        "relatedConcepts": [
+          {
+            "concept": {
+              "id": "http://api.ft.com/things/1d448227-8b1b-3490-aeb8-18aa699d75f8",
+              "apiUrl": "http://api.ft.com/concepts/1d448227-8b1b-3490-aeb8-18aa699d75f8",
+              "type": "http://www.ft.com/ontology/organisation/Organisation",
+              "prefLabel": "Maurice A. Deane School of Law at Hofstra University",
+              "alternativeLabels": [],
+              "countryOfIncorporation": "US"
+            },
+            "predicate": "http://www.ft.com/ontology/membershipOrganisation"
+          },
+          {
+            "concept": {
+              "id": "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+              "apiUrl": "http://api.ft.com/concepts/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+              "type": "http://www.ft.com/ontology/MembershipRole",
+              "prefLabel": "Graduate Degree",
+              "alternativeLabels": [
+                {
+                  "type": "http://www.ft.com/ontology/Alias",
+                  "value": "Graduate Degree"
+                }
+              ],
+              "changeEvents": [
+                {
+                  "startedAt": "1979-01-01"
+                },
+                {
+                  "endedAt": "1982-01-01"
+                }
+              ]
+            },
+            "predicate": "http://www.ft.com/ontology/membershipRole"
+          }
+        ]
+      },
+      "predicate": "http://www.ft.com/ontology/membership"
+    }
+  ]
+}`
