@@ -118,7 +118,7 @@ func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found boo
 func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 	var c Concept
 
-	resp, err := http.Get(apiURL + "/" + uuid)
+	resp, err := http.Get(apiURL + "/concepts/" + uuid)
 	if err != nil {
 		logger.WithError(err).Warnf("API request failed")
 		return c, err

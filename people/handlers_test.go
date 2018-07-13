@@ -31,7 +31,7 @@ func (suite *HandlerTestSuite) SetupTest() {
 	logger.InitDefaultLogger("handler-test")
 	suite.router = mux.NewRouter()
 	suite.mockDriver = &MockDriver{}
-	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:8080/concepts")
+	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:8080")
 	suite.handler.RegisterHandlers(suite.router)
 }
 
