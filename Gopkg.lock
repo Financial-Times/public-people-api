@@ -39,8 +39,8 @@
 [[projects]]
   name = "github.com/Financial-Times/neo-model-utils-go"
   packages = ["mapper"]
-  revision = "c14b518e8c6f89e8c26cee6f7c3a2686198c09f7"
-  version = "0.3.2"
+  revision = "aea1e95c83055aaed6761c5e546400dd383fb220"
+  version = "0.4.0"
 
 [[projects]]
   name = "github.com/Financial-Times/neo-utils-go"
@@ -232,6 +232,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2aa5a7ccdd1a9b981269c0c4553ab87d7c51c8d7ed1baa3902a2ba38ea8692e6"
+  inputs-digest = "e8b758c2bcb9c85d4c753281e9237a1cdab059a0725e250d738268e5d0f770b5"
   solver-name = "gps-cdcl"
   solver-version = 1

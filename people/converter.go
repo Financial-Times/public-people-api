@@ -1,6 +1,7 @@
 package people
 
 import (
+	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"strings"
 )
 
@@ -13,11 +14,7 @@ func convertToPerson(concept Concept, p *Person) {
 	p.ImageURL = concept.ImageURL
 	p.Salutation = concept.Salutation
 	p.BirthYear = concept.BirthYear
-	p.Types = []string{
-		"http://www.ft.com/ontology/core/Thing",
-		"http://www.ft.com/ontology/concept/Concept",
-		"http://www.ft.com/ontology/person/Person",
-	}
+	p.Types = mapper.FullTypeHierarchy(concept.Type)
 	p.DirectType = concept.Type
 
 	for _, account := range concept.Account {
@@ -63,11 +60,7 @@ func convertToMembership(c Concept) *Membership {
 
 	var m Membership
 	m.Title = c.PrefLabel
-	m.Types = []string{
-		"http://www.ft.com/ontology/core/Thing",
-		"http://www.ft.com/ontology/concept/Concept",
-		"http://www.ft.com/ontology/organisation/Membership",
-	}
+	m.Types = mapper.FullTypeHierarchy(c.Type)
 	m.DirectType = c.Type
 	m.Organisation = organisation
 	m.Roles = roles
@@ -84,11 +77,7 @@ func convertToOrganization(c Concept) *Organisation {
 	o.ID = c.ID
 	o.APIURL = c.APIURL
 	o.PrefLabel = c.PrefLabel
-	o.Types = []string{
-		"http://www.ft.com/ontology/core/Thing",
-		"http://www.ft.com/ontology/concept/Concept",
-		"http://www.ft.com/ontology/organisation/Organisation",
-	}
+	o.Types = mapper.FullTypeHierarchy(c.Type)
 	o.DirectType = c.Type
 
 	var labels []string
@@ -105,11 +94,7 @@ func convertToRole(c Concept) *Role {
 	r.ID = c.ID
 	r.APIURL = c.APIURL
 	r.PrefLabel = c.PrefLabel
-	r.Types = []string{
-		"http://www.ft.com/ontology/core/Thing",
-		"http://www.ft.com/ontology/concept/Concept",
-		"http://www.ft.com/ontology/MembershipRole",
-	}
+	r.Types = mapper.FullTypeHierarchy(c.Type)
 	r.DirectType = c.Type
 
 	changeEvents := getChangeEvengts(c)
