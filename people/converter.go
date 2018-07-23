@@ -73,7 +73,7 @@ func convertToMembership(c Concept) *Membership {
 func convertToOrganisation(c Concept) *Organisation {
 	var o Organisation
 	o.ID = c.ID
-	o.APIURL = c.APIURL
+	o.APIURL = strings.Replace(c.APIURL, "concepts", "organisations", 1)
 	o.PrefLabel = c.PrefLabel
 	o.Types = mapper.FullTypeHierarchy(c.Type)
 	o.DirectType = c.Type

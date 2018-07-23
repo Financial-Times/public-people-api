@@ -108,7 +108,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 				Organisation: Organisation{
 					Thing: Thing{
 						ID:        "http://api.ft.com/things/1d448227-8b1b-3490-aeb8-18aa699d75f8",
-						APIURL:    "http://api.ft.com/concepts/1d448227-8b1b-3490-aeb8-18aa699d75f8",
+						APIURL:    "http://api.ft.com/organisations/1d448227-8b1b-3490-aeb8-18aa699d75f8",
 						PrefLabel: "Maurice A. Deane School of Law at Hofstra University",
 					},
 					Types: []string{
