@@ -43,7 +43,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
 		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
-		"apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"prefLabel": "Neil Cole",
 		"type": "http://www.ft.com/ontology/person/Person"
 	}`
@@ -53,7 +53,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	person := Person{
 		Thing: Thing{
 			ID:        "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
-			APIURL:    "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+			APIURL:    "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
 			PrefLabel: "Neil Cole",
 		},
 		DirectType: "http://www.ft.com/ontology/person/Person",
@@ -86,7 +86,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 	person := Person{
 		Thing: Thing{
 			ID:        "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
-			APIURL:    "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+			APIURL:    "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
 			PrefLabel: "Neil Cole",
 		},
 		DirectType: "http://www.ft.com/ontology/person/Person",
@@ -130,7 +130,8 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 				Roles: []Role{
 					Role{
 						Thing: Thing{
-							ID: "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd", APIURL: "http://api.ft.com/concepts/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+							ID: "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+							APIURL: "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
 							PrefLabel: "Graduate Degree",
 						},
 						Types: []string{
@@ -156,8 +157,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 		EmailAddress:    "example@example.com",
 		TwitterHandle:   "@ft",
 		FacebookProfile: "https://www.facebook.com/financialtimes/",
-		Description:     "foobar",
-		DescriptionXML:  "",
+		DescriptionXML:  "foobar",
 		ImageURL:        "https://www.ft.com/__origami/service/image/v2/images/raw/fthead-v1:merryn-somerset-webb?source=next",
 	}
 
@@ -201,7 +201,7 @@ func (suite *HandlerTestSuite) TestGetPeople_NotFound_NoPerson() {
 	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
 		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
-		"apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"prefLabel": "Brand",
 		"type": "http://www.ft.com/ontology/product/Brand"
 	}`
@@ -246,7 +246,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
 	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
 		"id": "http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
-		"apiUrl": "http://api.ft.com/concepts/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
+		"apiUrl": "http://api.ft.com/people/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
 		"prefLabel": "Someone",
 		"type": "http://www.ft.com/ontology/person/Person"
 	}`
@@ -321,10 +321,10 @@ type errMsg struct {
 
 var conceptAPICompleteResponse = `{
   "id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
-  "apiUrl": "http://api.ft.com/concepts/60e54253-1e94-38df-83b1-a39804d1ac18",
+  "apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
   "type": "http://www.ft.com/ontology/person/Person",
 	"prefLabel": "Neil Cole",
-	"description": "foobar",
+	"descriptionXML": "foobar",
 	"imageURL": "https://www.ft.com/__origami/service/image/v2/images/raw/fthead-v1:merryn-somerset-webb?source=next",
   "alternativeLabels": [
     {

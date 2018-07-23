@@ -92,7 +92,7 @@ type Concept struct {
 	// Person
 	Salutation     string `json:"salutation,omitempty"`
 	BirthYear      int    `json:"birthYear,omitempty"`
-	descriptionXML string `json:"descriptionXML,omitempty`
+	DescriptionXML string `json:"descriptionXML,omitempty`
 	// Membership
 	InceptionDate   string `json:"inceptionDate,omitempty"`
 	TerminationDate string `json:"terminationDate,omitempty"`
