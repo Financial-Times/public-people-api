@@ -106,7 +106,7 @@ func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found boo
 	}
 
 	if strings.Contains(concept.Type, "Person") == false {
-		logger.WithError(fmt.Errorf("Concept Type is not person. type %s, uuid: %s", concept.Type, uuid)).Warnf("Concept could not be retrieved")
+		logger.Infof("Concept Type is not person. type %s, uuid: %s", concept.Type, uuid)
 		return p, false, nil
 	}
 
@@ -131,12 +131,12 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.WithError(err).Warnf("Concept could not be retrieved")
+		logger.WithError(err).Warnf("Error reading response body")
 		return c, err
 	}
 
 	if err := json.Unmarshal(bytes, &c); err != nil {
-		logger.WithError(err).Warnf("Concept could not be retrieved")
+		logger.WithError(err).Warnf("Error parsing json")
 		return c, err
 	}
 
