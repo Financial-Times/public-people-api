@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"fmt"
 	"github.com/Financial-Times/go-logger"
@@ -118,7 +119,21 @@ func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found boo
 func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 	var c Concept
 
-	resp, err := http.Get(apiURL + "/concepts/" + uuid)
+	u, err := url.Parse(apiURL)
+	if err != nil {
+		msg := fmt.Sprintf("URL of Concepts API is invalid of %s", uuid)
+		logger.WithError(err).WithUUID(uuid).Error(msg)
+		return c, err
+	}
+
+	u.Path = "/concepts/" + uuid
+	q := u.Query()
+	for _, query := range []string{"broader", "narrower", "related"} {
+		q.Add("showRelationship", query)
+	}
+	u.RawQuery = q.Encode()
+
+	resp, err := http.Get(u.String())
 	if err != nil {
 		logger.WithError(err).Warnf("API request failed")
 		return c, err
