@@ -5,9 +5,14 @@ import (
 	"strings"
 )
 
+const (
+	thingsApiUrl = "http://api.ft.com/things/"
+	ftThing      = "http://www.ft.com/thing/"
+)
+
 func convertToPerson(concept Concept, p *Person) {
-	p.ID = concept.ID
-	p.APIURL = strings.Replace(concept.APIURL, "concepts", "people", 1)
+	p.ID = convertID(concept.ID)
+	p.APIURL = convertApiUrl(concept.APIURL, "people")
 	p.PrefLabel = concept.PrefLabel
 	p.Description = concept.Description
 	p.DescriptionXML = concept.DescriptionXML
@@ -72,8 +77,8 @@ func convertToMembership(c Concept) *Membership {
 
 func convertToOrganisation(c Concept) *Organisation {
 	var o Organisation
-	o.ID = c.ID
-	o.APIURL = strings.Replace(c.APIURL, "concepts", "organisations", 1)
+	o.ID = convertID(c.ID)
+	o.APIURL = convertApiUrl(c.APIURL, "organisations")
 	o.PrefLabel = c.PrefLabel
 	o.Types = mapper.FullTypeHierarchy(c.Type)
 	o.DirectType = c.Type
@@ -82,8 +87,8 @@ func convertToOrganisation(c Concept) *Organisation {
 
 func convertToRole(c Concept) *Role {
 	var r Role
-	r.ID = c.ID
-	r.APIURL = strings.Replace(c.APIURL, "concepts", "things", 1)
+	r.ID = convertID(c.ID)
+	r.APIURL = convertApiUrl(c.APIURL, "things")
 	r.PrefLabel = c.PrefLabel
 	r.Types = mapper.FullTypeHierarchy(c.Type)
 	r.DirectType = c.Type
@@ -93,4 +98,12 @@ func convertToRole(c Concept) *Role {
 	}
 
 	return &r
+}
+
+func convertApiUrl(conceptsApiUrl string, desired string) string {
+	return strings.Replace(conceptsApiUrl, "concepts", desired, 1)
+}
+
+func convertID(conceptsApiID string) string {
+	return strings.Replace(conceptsApiID, ftThing, thingsApiUrl, 1)
 }

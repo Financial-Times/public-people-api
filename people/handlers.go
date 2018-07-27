@@ -79,7 +79,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 
 	canonicalId := strings.TrimPrefix(person.ID, urlPrefix)
-	if strings.Compare(canonicalId, uuid) != 0 {
+	if canonicalId != uuid {
 		logger.WithTransactionID(transId).WithField("UUID", uuid).Infof(redirectedPerson, uuid, canonicalId)
 		redirectURL := strings.Replace(r.URL.String(), uuid, canonicalId, 1)
 		w.Header().Set("Location", redirectURL)
@@ -154,7 +154,6 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 		logger.WithError(err).Warnf("Error parsing json")
 		return c, err
 	}
-
 	return c, nil
 }
 

@@ -42,7 +42,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Success() {
 	uuid := "60e54253-1e94-38df-83b1-a39804d1ac18"
 	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
-		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"id": "http://www.ft.com/thing/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"prefLabel": "Neil Cole",
 		"type": "http://www.ft.com/ontology/person/Person"
@@ -130,8 +130,8 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 				Roles: []Role{
 					Role{
 						Thing: Thing{
-							ID: "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
-							APIURL: "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+							ID:        "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+							APIURL:    "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
 							PrefLabel: "Graduate Degree",
 						},
 						Types: []string{
@@ -200,7 +200,7 @@ func (suite *HandlerTestSuite) TestGetPeople_NotFound_NoPerson() {
 	uuid := "2d3e16e0-61cb-4322-8aff-3b01c59f4daa"
 	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
-		"id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+		"id": "http://www.ft.com/thing/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
 		"prefLabel": "Brand",
 		"type": "http://www.ft.com/ontology/product/Brand"
@@ -245,7 +245,7 @@ func (suite *HandlerTestSuite) TestGetPeople_Redirect() {
 
 	url := "http://localhost:8080/concepts/" + uuid
 	fakeResponse := `{
-		"id": "http://api.ft.com/things/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
+		"id": "http://www.ft.com/thing/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
 		"apiUrl": "http://api.ft.com/people/2d3e16e0-61cb-4322-8aff-3b01c59f4daa",
 		"prefLabel": "Someone",
 		"type": "http://www.ft.com/ontology/person/Person"
@@ -320,7 +320,7 @@ type errMsg struct {
 }
 
 var conceptAPICompleteResponse = `{
-  "id": "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
+  "id": "http://www.ft.com/thing/60e54253-1e94-38df-83b1-a39804d1ac18",
   "apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
   "type": "http://www.ft.com/ontology/person/Person",
 	"prefLabel": "Neil Cole",
@@ -351,7 +351,7 @@ var conceptAPICompleteResponse = `{
   "relatedConcepts": [
     {
       "concept": {
-        "id": "http://api.ft.com/things/ea3e354e-13dc-3287-8950-230f3c6416d0",
+        "id": "http://www.ft.com/thing/ea3e354e-13dc-3287-8950-230f3c6416d0",
         "apiUrl": "http://api.ft.com/concepts/ea3e354e-13dc-3287-8950-230f3c6416d0",
         "type": "http://www.ft.com/ontology/organisation/Membership",
         "prefLabel": "Graduate Degree",
@@ -372,7 +372,7 @@ var conceptAPICompleteResponse = `{
         "relatedConcepts": [
           {
             "concept": {
-              "id": "http://api.ft.com/things/1d448227-8b1b-3490-aeb8-18aa699d75f8",
+              "id": "http://www.ft.com/thing/1d448227-8b1b-3490-aeb8-18aa699d75f8",
               "apiUrl": "http://api.ft.com/concepts/1d448227-8b1b-3490-aeb8-18aa699d75f8",
               "type": "http://www.ft.com/ontology/organisation/Organisation",
               "prefLabel": "Maurice A. Deane School of Law at Hofstra University",
@@ -383,7 +383,7 @@ var conceptAPICompleteResponse = `{
           },
           {
             "concept": {
-              "id": "http://api.ft.com/things/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
+              "id": "http://www.ft.com/thing/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
               "apiUrl": "http://api.ft.com/concepts/c89c1b9e-2bc5-3dbd-bcc5-595d2dabb4bd",
               "type": "http://www.ft.com/ontology/MembershipRole",
               "prefLabel": "Graduate Degree",
