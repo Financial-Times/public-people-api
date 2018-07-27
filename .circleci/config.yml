@@ -5,17 +5,17 @@ workflows:
     jobs:
       - build
       - dockerfile:
-        requires:
-          - build
+          requires:
+            - build
   nightly:
     triggers:
       - schedule:
-        cron: "50 * * * *"
-        filters:
-          branches:
-            only:
-              - master
-              - feature/load-test
+          cron: "02 * * * *"
+          filters:
+            branches:
+                only:
+                - master
+                - feature/load-test
     jobs:
       - loadtest
 jobs:
