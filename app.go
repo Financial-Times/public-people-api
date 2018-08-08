@@ -93,6 +93,12 @@ func main() {
 		Desc:   "Whether to log requests",
 		EnvVar: "REQUEST_LOGGING_ENABLED",
 	})
+	publicConceptsApiURL := app.String(cli.StringOpt{
+		Name:   "publicConceptsApiURL",
+		Value:  "http://localhost:8080",
+		Desc:   "Public concepts API endpoint URL.",
+		EnvVar: "CONCEPTS_API",
+	})
 
 	logger.InitLogger(*appSystemCode, *logLevel)
 	logger.Infof("[Startup] public-people-api is starting ")
@@ -145,7 +151,7 @@ func main() {
 		}
 
 		driver := people.NewCypherDriver(db, *env)
-		handler := people.NewHandler(driver, cacheDuration)
+		handler := people.NewHandler(driver, cacheDuration, *publicConceptsApiURL)
 
 		router := mux.NewRouter()
 		healthCheckService := people.NewHealthCheckService(driver.Healthchecks(), appConfig)

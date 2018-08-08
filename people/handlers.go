@@ -2,7 +2,9 @@ package people
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"fmt"
 	"github.com/Financial-Times/go-logger"
@@ -28,14 +30,16 @@ const (
 )
 
 type Handler struct {
-	driver        Driver
-	cacheDuration time.Duration
+	driver               Driver
+	cacheDuration        time.Duration
+	publicConceptsApiURL string
 }
 
-func NewHandler(driver Driver, cacheDuration time.Duration) *Handler {
+func NewHandler(driver Driver, cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
 	h := &Handler{
-		driver:        driver,
-		cacheDuration: cacheDuration,
+		driver:               driver,
+		cacheDuration:        cacheDuration,
+		publicConceptsApiURL: publicConceptsApiURL,
 	}
 	return h
 }
@@ -64,7 +68,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	person, found, err := h.driver.Read(uuid, transId)
+	person, found, err := h.getPersonViaConceptsAPI(uuid)
 	if err != nil {
 		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
@@ -75,7 +79,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 
 	canonicalId := strings.TrimPrefix(person.ID, urlPrefix)
-	if strings.Compare(canonicalId, uuid) != 0 {
+	if canonicalId != uuid {
 		logger.WithTransactionID(transId).WithField("UUID", uuid).Infof(redirectedPerson, uuid, canonicalId)
 		redirectURL := strings.Replace(r.URL.String(), uuid, canonicalId, 1)
 		w.Header().Set("Location", redirectURL)
@@ -89,6 +93,68 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	if err = json.NewEncoder(w).Encode(person); err != nil {
 		writeJSONStaus(w, "Person could not be retrieved", http.StatusInternalServerError)
 	}
+}
+
+func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found bool, err error) {
+	var p Person
+
+	concept, err := getConcept(uuid, h.publicConceptsApiURL)
+	if err != nil {
+		if err.Error() == "Not found" {
+			return p, false, nil
+		}
+		return p, false, err
+	}
+
+	if strings.Contains(concept.Type, "Person") == false {
+		logger.Infof("Concept Type is not person. type %s, uuid: %s", concept.Type, uuid)
+		return p, false, nil
+	}
+
+	convertToPerson(concept, &p)
+
+	return p, true, nil
+}
+
+func getConcept(uuid string, apiURL string) (concept Concept, err error) {
+	var c Concept
+
+	u, err := url.Parse(apiURL)
+	if err != nil {
+		msg := fmt.Sprintf("URL of Concepts API is invalid of %s", uuid)
+		logger.WithError(err).WithUUID(uuid).Error(msg)
+		return c, err
+	}
+
+	u.Path = "/concepts/" + uuid
+	q := u.Query()
+	for _, query := range []string{"broader", "narrower", "related"} {
+		q.Add("showRelationship", query)
+	}
+	u.RawQuery = q.Encode()
+
+	resp, err := http.Get(u.String())
+	if err != nil {
+		logger.WithError(err).Warnf("API request failed")
+		return c, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return c, fmt.Errorf("Not found")
+	}
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.WithError(err).Warnf("Error reading response body")
+		return c, err
+	}
+
+	if err := json.Unmarshal(bytes, &c); err != nil {
+		logger.WithError(err).Warnf("Error parsing json")
+		return c, err
+	}
+	return c, nil
 }
 
 func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {

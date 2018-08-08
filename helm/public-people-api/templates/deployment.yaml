@@ -49,6 +49,8 @@ spec:
               key: graphite.address
         - name: GRAPHITE_PREFIX
           value: coco.services.k8s.public-people-api 
+        - name: CONCEPTS_API
+          value: "http://public-concepts-api:8080"
         ports: 
         - containerPort: 8080 
         livenessProbe: 

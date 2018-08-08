@@ -39,8 +39,8 @@
 [[projects]]
   name = "github.com/Financial-Times/neo-model-utils-go"
   packages = ["mapper"]
-  revision = "c14b518e8c6f89e8c26cee6f7c3a2686198c09f7"
-  version = "0.3.2"
+  revision = "aea1e95c83055aaed6761c5e546400dd383fb220"
+  version = "0.4.0"
 
 [[projects]]
   name = "github.com/Financial-Times/neo-utils-go"
@@ -218,6 +218,12 @@
   revision = "14ac33bf8474b62c65cae263af2e4d3b543cc699"
 
 [[projects]]
+  branch = "v1"
+  name = "gopkg.in/jarcoal/httpmock.v1"
+  packages = ["."]
+  revision = "16f9a43967d613f0adc2000f0094a17b9f6c4c20"
+
+[[projects]]
   name = "gopkg.in/jmcvetta/napping.v3"
   packages = ["."]
   revision = "4c7b4b235c63152afa9a1c6384e708e0fbfd77ca"
@@ -226,6 +232,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9b742956236772c9ccccc4b9a00770f1cde1b28948dce9f16ad0723492b320fe"
+  inputs-digest = "e8b758c2bcb9c85d4c753281e9237a1cdab059a0725e250d738268e5d0f770b5"
   solver-name = "gps-cdcl"
   solver-version = 1

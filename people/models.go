@@ -55,3 +55,55 @@ type ChangeEvent struct {
 	StartedAt string `json:"startedAt,omitempty"`
 	EndedAt   string `json:"endedAt,omitempty"`
 }
+
+type TypedValue struct {
+	Type  string      `json:"type"`
+	Value interface{} `json:"value"`
+}
+
+type PredicateConcept struct {
+	Concept   Concept `json:"concept"`
+	Predicate string  `json:"predicate"`
+}
+
+type Concept struct {
+	ID        string `json:"id"`
+	APIURL    string `json:"apiUrl"`
+	Type      string `json:"type"`
+	PrefLabel string `json:"prefLabel"`
+	// Additional fields
+	Description string `json:"description,omitempty"`
+	ImageURL    string `json:"imageURL,omitempty"`
+	// Account contains the values of:
+	// * emailAddress
+	// * facebookPage
+	// * twitterHandle
+	Account []TypedValue `json:"account,omitempty"`
+	// AlternativeLabels contains the values of:
+	// * aliases
+	// * formerNames
+	// * hiddenLabel
+	// * legalName
+	// * properName
+	// * shortName
+	// * tradeNames
+	AlternativeLabels []TypedValue  `json:"alternativeLabels,omitempty"`
+	ChangeEvents      []ChangeEvent `json:"changeEvents,omitempty"`
+	// Person
+	Salutation     string `json:"salutation,omitempty"`
+	BirthYear      int    `json:"birthYear,omitempty"`
+	DescriptionXML string `json:"descriptionXML,omitempty`
+	// Membership
+	InceptionDate   string `json:"inceptionDate,omitempty"`
+	TerminationDate string `json:"terminationDate,omitempty"`
+	// Organisation
+	CountryCode            string `json:"countryCode,omitempty"`
+	CountryOfIncorporation string `json:"countryOfIncorporation,omitempty"`
+	LeiCode                string `json:"leiCode,omitempty"`
+	PostalCode             string `json:"postalCode,omitempty"`
+	YearFounded            int    `json:"yearFounded,omitempty"`
+	// Relations
+	BroaderConcepts  []PredicateConcept `json:"broaderConcepts,omitempty"`
+	NarrowerConcepts []PredicateConcept `json:"narrowerConcepts,omitempty"`
+	RelatedConcepts  []PredicateConcept `json:"relatedConcepts,omitempty"`
+}
