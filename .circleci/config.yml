@@ -14,7 +14,7 @@ workflows:
           filters:
             branches:
                 only:
-                - master
+                  - master
     jobs:
       - loadtest
 jobs:
