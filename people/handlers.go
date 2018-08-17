@@ -128,7 +128,7 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 
 	u.Path = "/concepts/" + uuid
 	q := u.Query()
-	for _, query := range []string{"broader", "narrower", "related"} {
+	for _, query := range []string{"related"} {
 		q.Add("showRelationship", query)
 	}
 	u.RawQuery = q.Encode()
