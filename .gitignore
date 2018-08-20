@@ -25,6 +25,6 @@ _testmain.go
 *.test
 *.prof
 
-public-people-api
+/public-people-api
 vendor/*
 

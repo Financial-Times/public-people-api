@@ -7,16 +7,16 @@ workflows:
       - dockerfile:
           requires:
             - build
-  nightly:
-    triggers:
-      - schedule:
-          cron: "15 0 * * 1-5"
-          filters:
-            branches:
-                only:
-                  - master
-    jobs:
-      - loadtest
+#  nightly:
+#    triggers:
+#      - schedule:
+#          cron: "15 0 * * 1-5"
+#          filters:
+#            branches:
+#                only:
+#                  - master
+#    jobs:
+#      - loadtest
 jobs:
   build:
     docker:
