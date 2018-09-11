@@ -2,69 +2,28 @@
 
 
 [[projects]]
-  name = "github.com/Financial-Times/base-ft-rw-app-go"
-  packages = ["baseftrwapp"]
-  revision = "0800bf5938ecfb4d343ac396117287d289242c8f"
-  version = "1.0.2"
-
-[[projects]]
-  name = "github.com/Financial-Times/concepts-rw-neo4j"
-  packages = ["concepts"]
-  revision = "18069e0bfae8efa0c50c431d173a57910888662c"
-  version = "1.4.0"
-
-[[projects]]
   name = "github.com/Financial-Times/go-fthealth"
   packages = ["v1_1"]
-  revision = "1b007e2b37b7936dfb6671fa17e5a29fd35a08ea"
-  version = "0.4.0"
+  revision = "3d8eb430d5b5e1f3a3c53e817504e796a7d6cc9f"
+  version = "0.5.0"
 
 [[projects]]
   name = "github.com/Financial-Times/go-logger"
   packages = ["."]
-  revision = "0be8a1588ade8801ad4852222e11fca8e47eb153"
+  revision = "febee6537e90971bab6f6fe60b71b4a0562dcab3"
+  version = "1.0.0"
 
 [[projects]]
   name = "github.com/Financial-Times/http-handlers-go"
   packages = ["httphandlers"]
-  revision = "229ac16f1d9ec9bca485d2dafb9ec14dc7e9ba24"
-  version = "0.1.1"
-
-[[projects]]
-  name = "github.com/Financial-Times/memberships-rw-neo4j"
-  packages = ["memberships"]
-  revision = "9e5a93b2cbfb201f57a937c5dcffb46640179d76"
-  version = "1.1.7"
+  revision = "2c20324ab8870523a84bdb7dae60872b0b42ed14"
+  version = "0.1.2"
 
 [[projects]]
   name = "github.com/Financial-Times/neo-model-utils-go"
   packages = ["mapper"]
   revision = "aea1e95c83055aaed6761c5e546400dd383fb220"
   version = "0.4.0"
-
-[[projects]]
-  name = "github.com/Financial-Times/neo-utils-go"
-  packages = ["neoutils"]
-  revision = "5cb1750096545b3c8f7384326247e3e30996a905"
-  version = "1.0.2"
-
-[[projects]]
-  name = "github.com/Financial-Times/organisations-rw-neo4j"
-  packages = ["organisations"]
-  revision = "1dce3ba256e3a7e3f5cf1c2a9ebd5091daa6e9b8"
-  version = "0.5.9"
-
-[[projects]]
-  name = "github.com/Financial-Times/people-rw-neo4j"
-  packages = ["people"]
-  revision = "02e3fd84a717dc8359d54c8eecba46c33c7ecd5c"
-  version = "2.0.0"
-
-[[projects]]
-  name = "github.com/Financial-Times/roles-rw-neo4j"
-  packages = ["roles"]
-  revision = "756d7ae8b40e01ff3a3371e26bc4001f6423bb86"
-  version = "0.2.0"
 
 [[projects]]
   name = "github.com/Financial-Times/service-status-go"
@@ -81,12 +40,6 @@
   packages = ["."]
   revision = "df2f00c734957c9dd651ce23ab0e0902504c7636"
   version = "v0.2.0"
-
-[[projects]]
-  name = "github.com/Financial-Times/up-rw-app-api-go"
-  packages = ["rwapi"]
-  revision = "d9d93a1f689538313d12fee6f5f10715cfe280e0"
-  version = "1.0.0"
 
 [[projects]]
   branch = "master"
@@ -127,30 +80,6 @@
   revision = "a6088643acff58732aead67c465ed09c334c5697"
 
 [[projects]]
-  branch = "develop"
-  name = "github.com/jmcvetta/neoism"
-  packages = ["."]
-  revision = "2ffb5c69feb355227c6ee8679768d7289e6d7193"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/jmcvetta/randutil"
-  packages = ["."]
-  revision = "2bb1b664bcff821e02b2a0644cd29c7e824d54f8"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/kr/pretty"
-  packages = ["."]
-  revision = "cfb55aafdaf3ec08f0db22699ab822c50091b1c4"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/kr/text"
-  packages = ["."]
-  revision = "7cafcd837844e784b526369c9bce262804aebc60"
-
-[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -164,45 +93,23 @@
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "89742aefa4b206dcf400792f3bd35b542998eb3b"
-
-[[projects]]
-  name = "github.com/spaolacci/murmur3"
-  packages = ["."]
-  revision = "0d12bf811670bf6a1a63828dfbd003eded177fce"
-  version = "v1.0"
-
-[[projects]]
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  revision = "facf9a85c22f48d2f52f2380e4efce1768749a89"
-  version = "v0.1"
+  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
+  version = "v1.0.6"
 
 [[projects]]
   branch = "master"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
-    "mock",
     "require",
     "suite"
   ]
   revision = "c679ae2cc0cb27ec3293fea7e254e47386f05d69"
 
 [[projects]]
-  name = "github.com/ugorji/go"
-  packages = ["codec"]
-  revision = "5efa3251c7f7d05e5d9704a69a984ec9f1386a40"
-
-[[projects]]
-  name = "go4.org"
-  packages = ["osutil"]
-  revision = "034d17a462f7b2dcd1a4a73553ec5357ff6e6c6e"
-
-[[projects]]
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "7d9177d70076375b9a59c8fde23d52d9c4a7ecd5"
+  revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [[projects]]
   name = "golang.org/x/net"
@@ -215,7 +122,7 @@
     "unix",
     "windows"
   ]
-  revision = "14ac33bf8474b62c65cae263af2e4d3b543cc699"
+  revision = "d0be0721c37eeb5299f245a996a483160fc36940"
 
 [[projects]]
   branch = "v1"
@@ -223,15 +130,9 @@
   packages = ["."]
   revision = "16f9a43967d613f0adc2000f0094a17b9f6c4c20"
 
-[[projects]]
-  name = "gopkg.in/jmcvetta/napping.v3"
-  packages = ["."]
-  revision = "4c7b4b235c63152afa9a1c6384e708e0fbfd77ca"
-  version = "v3.2.0"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e8b758c2bcb9c85d4c753281e9237a1cdab059a0725e250d738268e5d0f770b5"
+  inputs-digest = "9c84699a9013142b86173091444ef57f7c8430f6c819cf9204b97df43f9fdfff"
   solver-name = "gps-cdcl"
   solver-version = 1

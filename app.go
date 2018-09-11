@@ -9,7 +9,6 @@ import (
 
 	"time"
 
-	"github.com/Financial-Times/neo-utils-go/neoutils"
 	"github.com/Financial-Times/public-people-api/people"
 
 	standardLog "log"
@@ -17,11 +16,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	logger "github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/go-logger"
 	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
+	"github.com/Financial-Times/go-fthealth/v1_1"
 )
 
 const appDescription = "This service reads people from Neo4j"
@@ -39,12 +39,6 @@ func main() {
 		Value:  "Public People API",
 		Desc:   "Application name",
 		EnvVar: "APP_NAME",
-	})
-	neoURL := app.String(cli.StringOpt{
-		Name:   "neo-url",
-		Value:  "http://localhost:7474/db/data",
-		Desc:   "neo4j endpoint URL",
-		EnvVar: "NEO_URL",
 	})
 	logLevel := app.String(cli.StringOpt{
 		Name:   "log-level",
@@ -76,11 +70,7 @@ func main() {
 		Desc:   "Whether to log metrics. Set to true if running locally and you want metrics output",
 		EnvVar: "LOG_METRICS",
 	})
-	env := app.String(cli.StringOpt{
-		Name:  "env",
-		Value: "local",
-		Desc:  "environment this app is running in",
-	})
+
 	cacheDuration := app.String(cli.StringOpt{
 		Name:   "cache-duration",
 		Value:  "30s",
@@ -105,10 +95,6 @@ func main() {
 
 	app.Action = func() {
 		logger.Infof("System code: %s, App Name: %s, Port: %s", *appSystemCode, *appName, *port)
-		if *neoURL == "" {
-			logger.Fatal("Neo4j connection string not set")
-			return
-		}
 
 		// This will send metrics to Graphite if a non-empty graphiteTCPAddress is passed in, or to the standard log if logMetrics is true.
 		// Make sure a sensible graphitePrefix that will uniquely identify your service is passed in, e.g. "content.test.people.rw.neo4j.ftaps58938-law1a-eu-t
@@ -128,33 +114,15 @@ func main() {
 			ReqLoggingEnabled: *requestLoggingEnabled,
 		}
 
-		conf := neoutils.ConnectionConfig{
-			BatchSize:     1024,
-			Transactional: false,
-			HTTPClient: &http.Client{
-				Transport: &http.Transport{
-					MaxIdleConnsPerHost: 100,
-				},
-				Timeout: 1 * time.Minute,
-			},
-			BackgroundConnect: true,
-		}
-		db, err := neoutils.Connect(*neoURL, &conf)
-
-		if err != nil {
-			logger.Fatalf("Error connecting to Neo4j %s", err)
-		}
-
 		cacheDuration, durationErr := time.ParseDuration(*cacheDuration)
 		if durationErr != nil {
 			logger.Fatalf("Failed to parse cache duration string, %v", durationErr)
 		}
 
-		driver := people.NewCypherDriver(db, *env)
-		handler := people.NewHandler(driver, cacheDuration, *publicConceptsApiURL)
+		handler := people.NewHandler(cacheDuration, *publicConceptsApiURL)
 
 		router := mux.NewRouter()
-		healthCheckService := people.NewHealthCheckService(driver.Healthchecks(), appConfig)
+		healthCheckService := people.NewHealthCheckService([]v1_1.Check{handler.Healthchecks()}, appConfig)
 
 		handler.RegisterHandlers(router)
 		r := healthCheckService.RegisterAdminHandlers(router)

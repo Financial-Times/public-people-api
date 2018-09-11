@@ -7,15 +7,17 @@ import (
 	"net/url"
 
 	"fmt"
-	"github.com/Financial-Times/go-logger"
-	"github.com/Financial-Times/transactionid-utils-go"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"html"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
+	"github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/transactionid-utils-go"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -30,14 +32,12 @@ const (
 )
 
 type Handler struct {
-	driver               Driver
 	cacheDuration        time.Duration
 	publicConceptsApiURL string
 }
 
-func NewHandler(driver Driver, cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
+func NewHandler(cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
 	h := &Handler{
-		driver:               driver,
 		cacheDuration:        cacheDuration,
 		publicConceptsApiURL: publicConceptsApiURL,
 	}
@@ -164,4 +164,37 @@ func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {
 	if _, err := rw.Write([]byte(logMsg)); err != nil {
 		logger.WithError(err).Warnf("could not read json error")
 	}
+}
+
+func (h *Handler) Healthchecks() fthealth.Check {
+	return fthealth.Check{
+		ID:               "public-concepts-api-check",
+		BusinessImpact:   "Unable to respond to Public People API requests",
+		Name:             "Check connectivity to public-concepts-api",
+		PanicGuide:       "https://dewey.in.ft.com/runbooks/public-people-api",
+		Severity:         2,
+		TechnicalSummary: "Not being able to communicate with public-concepts-api means that requests for organisations cannot be performed.",
+		Checker:          h.Checker,
+	}
+}
+
+func (h *Handler) Checker() (string, error) {
+	req, err := http.NewRequest("GET", h.publicConceptsApiURL+"/__gtg", nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("User-Agent", "UPP public-people-api")
+	//TODO use a properly configured client
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("health check returned a non-200 HTTP status: %v", resp.StatusCode)
+	}
+	return "Public Concepts API is healthy", nil
 }

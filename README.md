@@ -30,33 +30,20 @@ Options:
 
       --app-system-code         System Code of the application (env $APP_SYSTEM_CODE) (default "public-people-api")
       --app-name                Application name (env $APP_NAME) (default "Public People API")
+      --log-level               App log level (env $LOG_LEVEL) (default "info")
       --port                    Port to listen on (env $PORT) (default 8080)
-      --neoURL                  Connection string for NEO4J (env $NEO4J_CONNECTION) (default "bolt://localhost:7474")
-      --requestLoggingEnabled   Whether to log requests (env $REQUEST_LOGGING_ENABLED) (default true)
-      --logLevel                App log level (env $LOG_LEVEL) (default "info")
       --graphiteTCPAddress      Graphite TCP address (default: "")
       --graphitePrefix          Prefix to use. Should start with content, include the environment, and the host name. e.g. content.test.public.people.api. (default: "")
       --logMetrics              Whether to log metrics. Set to true if running locally and you want metrics output (default: false)
-      --env                     environment this app is running in (default: local) - this is for setting apiUrl
       --cache-duration          Duration Get requests should be cached for. e.g. 2h45m would set the max-age value to '7440' seconds (default:30s)
-      --requestLoggingEnabled   Whether to log requests (default: true)
+      --requestLoggingEnabled   Whether to log requests (env $REQUEST_LOGGING_ENABLED) (default true)
+      --publicConceptsApiURL    Public concepts API endpoint URL. ($CONCEPTS_API) (default: "http://localhost:8080")
 
             
 Test locally
 ------------------------------
-
-Tests in Neo4j package rely on a running instance of Neo4j installed locally.  
-
 ```
-docker run \
-    --rm \
-    --publish=7474:7474 \
-    --publish=7687:7687 \
-    --env=NEO4J_ACCEPT_LICENSE_AGREEMENT=yes \
-    --env=NEO4J_AUTH=none \
-    neo4j:3.2.7-enterprise
-
-go test -v -race -cover +local
+go test -v -race ./...
 ```
 
 Endpoints

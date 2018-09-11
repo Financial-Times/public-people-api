@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Financial-Times/go-logger"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/suite"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/Financial-Times/go-logger"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/suite"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 var (
@@ -22,16 +23,14 @@ var (
 
 type HandlerTestSuite struct {
 	suite.Suite
-	mockDriver *MockDriver
-	router     *mux.Router
-	handler    *Handler
+	router  *mux.Router
+	handler *Handler
 }
 
 func (suite *HandlerTestSuite) SetupTest() {
 	logger.InitDefaultLogger("handler-test")
 	suite.router = mux.NewRouter()
-	suite.mockDriver = &MockDriver{}
-	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:8080")
+	suite.handler = NewHandler(0, "http://localhost:8080")
 	suite.handler.RegisterHandlers(suite.router)
 }
 
@@ -294,8 +293,6 @@ func (suite *HandlerTestSuite) TestGetPeople_MethodNotAllowedOnPost() {
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 	suite.Equal(http.StatusMethodNotAllowed, rec.Result().StatusCode)
-	suite.mockDriver.AssertExpectations(suite.T())
-
 }
 
 func TestHandlersTestSuite(t *testing.T) {

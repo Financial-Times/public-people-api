@@ -1,8 +1,9 @@
 package people
 
 import (
-	"github.com/Financial-Times/neo-model-utils-go/mapper"
 	"strings"
+
+	"github.com/Financial-Times/neo-model-utils-go/mapper"
 )
 
 const (
