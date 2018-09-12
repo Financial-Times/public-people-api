@@ -16,18 +16,18 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/go-logger"
 	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
 	"github.com/rcrowley/go-metrics"
-	"github.com/Financial-Times/go-fthealth/v1_1"
 )
 
 const appDescription = "This service reads people from Neo4j"
 
 func main() {
-	app := cli.App("public-people-api-neo4j", "A public RESTful API for accessing People in neo4j")
+	app := cli.App("public-people-api", "A public RESTful API for accessing People in neo4j")
 	appSystemCode := app.String(cli.StringOpt{
 		Name:   "app-system-code",
 		Value:  "public-people-api",
@@ -70,7 +70,6 @@ func main() {
 		Desc:   "Whether to log metrics. Set to true if running locally and you want metrics output",
 		EnvVar: "LOG_METRICS",
 	})
-
 	cacheDuration := app.String(cli.StringOpt{
 		Name:   "cache-duration",
 		Value:  "30s",
@@ -119,7 +118,23 @@ func main() {
 			logger.Fatalf("Failed to parse cache duration string, %v", durationErr)
 		}
 
-		handler := people.NewHandler(cacheDuration, *publicConceptsApiURL)
+		c := &http.Client{
+			Transport: &http.Transport{
+
+				Proxy: http.ProxyFromEnvironment,
+				DialContext: (&net.Dialer{
+					Timeout:   30 * time.Second,
+					KeepAlive: 60 * time.Second,
+					DualStack: true,
+				}).DialContext,
+				MaxIdleConns:          20,
+				IdleConnTimeout:       60 * time.Second,
+				TLSHandshakeTimeout:   3 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+				MaxIdleConnsPerHost:   20,
+			},
+		}
+		handler := people.NewHandler(cacheDuration, *publicConceptsApiURL, c)
 
 		router := mux.NewRouter()
 		healthCheckService := people.NewHealthCheckService([]v1_1.Check{handler.Healthchecks()}, appConfig)

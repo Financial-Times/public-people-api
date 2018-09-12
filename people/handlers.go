@@ -34,12 +34,14 @@ const (
 type Handler struct {
 	cacheDuration        time.Duration
 	publicConceptsApiURL string
+	client               *http.Client
 }
 
-func NewHandler(cacheDuration time.Duration, publicConceptsApiURL string) *Handler {
+func NewHandler(cacheDuration time.Duration, publicConceptsApiURL string, c *http.Client) *Handler {
 	h := &Handler{
 		cacheDuration:        cacheDuration,
 		publicConceptsApiURL: publicConceptsApiURL,
+		client:               c,
 	}
 	return h
 }
@@ -64,17 +66,17 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 
 	if uuid == "" || !validRegexp.MatchString(uuid) {
 		logger.WithTransactionID(transId).WithField("UUID", uuid).Error(badRequestMsg)
-		writeJSONStaus(w, badRequestMsg, http.StatusBadRequest)
+		writeJSONStatus(w, badRequestMsg, http.StatusBadRequest)
 		return
 	}
 
-	person, found, err := h.getPersonViaConceptsAPI(uuid)
+	person, found, err := h.getPersonViaConceptsAPI(uuid, transId)
 	if err != nil {
-		writeJSONStaus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
+		writeJSONStatus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		writeJSONStaus(w, personNotFoundMsg, http.StatusNotFound)
+		writeJSONStatus(w, personNotFoundMsg, http.StatusNotFound)
 		return
 	}
 
@@ -83,7 +85,7 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 		logger.WithTransactionID(transId).WithField("UUID", uuid).Infof(redirectedPerson, uuid, canonicalId)
 		redirectURL := strings.Replace(r.URL.String(), uuid, canonicalId, 1)
 		w.Header().Set("Location", redirectURL)
-		writeJSONStaus(w, fmt.Sprintf(redirectedPerson, uuid, canonicalId), http.StatusMovedPermanently)
+		writeJSONStatus(w, fmt.Sprintf(redirectedPerson, uuid, canonicalId), http.StatusMovedPermanently)
 		return
 	}
 
@@ -91,14 +93,14 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	if err = json.NewEncoder(w).Encode(person); err != nil {
-		writeJSONStaus(w, "Person could not be retrieved", http.StatusInternalServerError)
+		writeJSONStatus(w, "Person could not be retrieved", http.StatusInternalServerError)
 	}
 }
 
-func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found bool, err error) {
+func (h *Handler) getPersonViaConceptsAPI(uuid, tid string) (person Person, found bool, err error) {
 	var p Person
 
-	concept, err := getConcept(uuid, h.publicConceptsApiURL)
+	concept, err := h.getConcept(uuid, tid)
 	if err != nil {
 		if err.Error() == "Not found" {
 			return p, false, nil
@@ -107,7 +109,7 @@ func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found boo
 	}
 
 	if strings.Contains(concept.Type, "Person") == false {
-		logger.Infof("Concept Type is not person. type %s, uuid: %s", concept.Type, uuid)
+		logger.WithTransactionID(tid).Infof("Concept Type is not person. type %s, uuid: %s", concept.Type, uuid)
 		return p, false, nil
 	}
 
@@ -116,13 +118,13 @@ func (h *Handler) getPersonViaConceptsAPI(uuid string) (person Person, found boo
 	return p, true, nil
 }
 
-func getConcept(uuid string, apiURL string) (concept Concept, err error) {
+func (h *Handler) getConcept(uuid, tid string) (concept Concept, err error) {
 	var c Concept
 
-	u, err := url.Parse(apiURL)
+	u, err := url.Parse(h.publicConceptsApiURL)
 	if err != nil {
 		msg := fmt.Sprintf("URL of Concepts API is invalid of %s", uuid)
-		logger.WithError(err).WithUUID(uuid).Error(msg)
+		logger.WithError(err).WithUUID(uuid).WithTransactionID(tid).Error(msg)
 		return c, err
 	}
 
@@ -132,10 +134,15 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 		q.Add("showRelationship", query)
 	}
 	u.RawQuery = q.Encode()
-
-	resp, err := http.Get(u.String())
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		logger.WithError(err).Warnf("API request failed")
+		return c, err
+	}
+	req.Header.Set("X-Request-Id", tid)
+
+	resp, err := h.client.Do(req)
+	if err != nil {
+		logger.WithError(err).WithTransactionID(tid).Warnf("API request failed")
 		return c, err
 	}
 	defer resp.Body.Close()
@@ -146,18 +153,18 @@ func getConcept(uuid string, apiURL string) (concept Concept, err error) {
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.WithError(err).Warnf("Error reading response body")
+		logger.WithError(err).WithTransactionID(tid).Warnf("Error reading response body")
 		return c, err
 	}
 
 	if err := json.Unmarshal(bytes, &c); err != nil {
-		logger.WithError(err).Warnf("Error parsing json")
+		logger.WithError(err).WithTransactionID(tid).Warnf("Error parsing json")
 		return c, err
 	}
 	return c, nil
 }
 
-func writeJSONStaus(rw http.ResponseWriter, message string, statusCode int) {
+func writeJSONStatus(rw http.ResponseWriter, message string, statusCode int) {
 	rw.Header().Set("Content-Type", contentTypeJson)
 	rw.WriteHeader(statusCode)
 	logMsg := fmt.Sprintf(`{"message":"%s"}`, html.EscapeString(message))
@@ -173,7 +180,7 @@ func (h *Handler) Healthchecks() fthealth.Check {
 		Name:             "Check connectivity to public-concepts-api",
 		PanicGuide:       "https://dewey.in.ft.com/runbooks/public-people-api",
 		Severity:         2,
-		TechnicalSummary: "Not being able to communicate with public-concepts-api means that requests for organisations cannot be performed.",
+		TechnicalSummary: "Not being able to communicate with public-concepts-api means that requests for people cannot be performed.",
 		Checker:          h.Checker,
 	}
 }
@@ -185,8 +192,7 @@ func (h *Handler) Checker() (string, error) {
 	}
 
 	req.Header.Add("User-Agent", "UPP public-people-api")
-	//TODO use a properly configured client
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := h.client.Do(req)
 	if err != nil {
 		return "", err
 	}

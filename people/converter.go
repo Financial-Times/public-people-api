@@ -22,6 +22,7 @@ func convertToPerson(concept Concept, p *Person) {
 	p.BirthYear = concept.BirthYear
 	p.Types = mapper.FullTypeHierarchy(concept.Type)
 	p.DirectType = concept.Type
+	p.IsDeprecated = concept.IsDeprecated
 
 	for _, account := range concept.Account {
 		switch {

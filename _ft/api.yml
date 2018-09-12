@@ -35,15 +35,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
+        301:
+          description: Moved Permanently if the provided uuid is not the canonical uuid of the found concept
         400:
           description: Bad request if the uuid path parameter is badly formed or missing.
         404:
           description: Not Found if there is no person record for the uuid path parameter is found.
         500:
           description: Internal Server Error if there was an issue processing the records.
-        503:
-          description: Service Unavailable if it cannot connect to Neo4j.
-
   /__health:
     get:
       summary: Healthchecks
@@ -58,19 +57,19 @@ paths:
           examples:
             application/json:
               checks:
-                - businessImpact: "No Business Impact."
+                - businessImpact: "Unable to respond to Public People API requests"
                   checkOutput: "OK"
                   lastUpdated: "2017-01-16T10:26:47.222805121Z"
-                  name: "Neo4j Connectivity"
+                  id: "public-concepts-api-check"
+                  name: "Check connectivity to public-concepts-api"
                   ok: true
-                  panicGuide: "https://dewey.ft.com/public-people-api.html"
-                  severity: 1
-                  technicalSummary: "Cannot connect to Neo4j. If this check fails, check that the Neo4J cluster is responding.  "
+                  panicGuide: "https://dewey.in.ft.com/runbooks/public-people-api"
+                  severity: 2
+                  technicalSummary: "Not being able to communicate with public-concepts-api means that requests for people cannot be performed."
               description: "Public API for serving information on People within UPP"
               name: "Public People API"
               ok: true
               schemaVersion: 1
-
   /__build-info:
     get:
       summary: Build Information
@@ -110,5 +109,3 @@ components:
         UUID:
           type: string
           description: UUID of the person
-
-
