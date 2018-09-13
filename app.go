@@ -123,7 +123,7 @@ func main() {
 
 				Proxy: http.ProxyFromEnvironment,
 				DialContext: (&net.Dialer{
-					Timeout:   30 * time.Second,
+					Timeout:   10 * time.Second,
 					KeepAlive: 60 * time.Second,
 					DualStack: true,
 				}).DialContext,

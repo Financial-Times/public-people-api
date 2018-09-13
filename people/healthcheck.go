@@ -44,7 +44,7 @@ func (s HealthcheckService) RegisterAdminHandlers(router *mux.Router) http.Handl
 			Description: s.config.Description,
 			Checks:      s.Checks,
 		},
-		Timeout: 10 * time.Second,
+		Timeout: 8 * time.Second,
 	}
 
 	router.HandleFunc("/__health", fthealth.Handler(&timedHC))
