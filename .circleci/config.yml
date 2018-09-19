@@ -7,28 +7,12 @@ workflows:
       - dockerfile:
           requires:
             - build
-#  nightly:
-#    triggers:
-#      - schedule:
-#          cron: "15 0 * * 1-5"
-#          filters:
-#            branches:
-#                only:
-#                  - master
-#    jobs:
-#      - loadtest
 jobs:
   build:
     docker:
       - image: circleci/golang:1.10
-      - image: neo4j:3.2.7-enterprise
-        environment:
-          NEO4J_AUTH: none
-          NEO4J_HEAP_MEMORY: 256
-          NEO4J_CACHE_MEMORY: 256M
     working_directory: /go/src/github.com/Financial-Times/public-people-api
     environment:
-      NEO4J_TEST_URL: "http://localhost:7474/db/data/"
       CIRCLE_TEST_REPORTS: /tmp/test-results
       CIRCLE_COVERAGE_REPORT: /tmp/coverage-results
     steps:
@@ -50,9 +34,6 @@ jobs:
         - run:
             name: Import libraries
             command: dep ensure -v -vendor-only
-        - run:
-            name: Wait for Neo to be available
-            command: wget --retry-connrefused --no-check-certificate -T 60 $NEO4J_TEST_URL; curl $NEO4J_TEST_URL
         - run:
             name: Run tests and coverage
             command: |

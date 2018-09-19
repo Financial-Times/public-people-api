@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
-	suite "github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/suite"
 )
 
 type HealthCheckTestTestSuite struct {
@@ -37,7 +37,7 @@ func (suite *HealthCheckTestTestSuite) SetupTest() {
 		return expStatus, expError
 	}
 	checks := []fthealth.Check{
-		fthealth.Check{
+		{
 			BusinessImpact:   "Tests service checker",
 			Name:             "Test healthcheck",
 			PanicGuide:       "https://dewey.in.ft.com/view/system/public-people-api",

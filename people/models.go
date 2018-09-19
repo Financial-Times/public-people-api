@@ -22,6 +22,7 @@ type Person struct {
 	Description     string       `json:"description,omitempty"`
 	DescriptionXML  string       `json:"descriptionXML,omitempty"`
 	ImageURL        string       `json:"_imageUrl,omitempty"` // TODO we should implement this properly as an imageset
+	IsDeprecated    bool         `json:"isDeprecated,omitempty"`
 }
 
 // Membership represents the relationship between a person and their roles associated with an organisation
@@ -92,7 +93,7 @@ type Concept struct {
 	// Person
 	Salutation     string `json:"salutation,omitempty"`
 	BirthYear      int    `json:"birthYear,omitempty"`
-	DescriptionXML string `json:"descriptionXML,omitempty`
+	DescriptionXML string `json:"descriptionXML,omitempty"`
 	// Membership
 	InceptionDate   string `json:"inceptionDate,omitempty"`
 	TerminationDate string `json:"terminationDate,omitempty"`
@@ -106,4 +107,5 @@ type Concept struct {
 	BroaderConcepts  []PredicateConcept `json:"broaderConcepts,omitempty"`
 	NarrowerConcepts []PredicateConcept `json:"narrowerConcepts,omitempty"`
 	RelatedConcepts  []PredicateConcept `json:"relatedConcepts,omitempty"`
+	IsDeprecated     bool               `json:"isDeprecated,omitempty"`
 }

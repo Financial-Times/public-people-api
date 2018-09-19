@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"time"
 
-	mux "github.com/gorilla/mux"
-	metrics "github.com/rcrowley/go-metrics"
+	"github.com/gorilla/mux"
+	"github.com/rcrowley/go-metrics"
 	log "github.com/sirupsen/logrus"
 
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
-	logger "github.com/Financial-Times/go-logger"
-	httphandlers "github.com/Financial-Times/http-handlers-go/httphandlers"
-	gtg "github.com/Financial-Times/service-status-go/gtg"
+	"github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/http-handlers-go/httphandlers"
+	"github.com/Financial-Times/service-status-go/gtg"
 	st "github.com/Financial-Times/service-status-go/httphandlers"
 )
 
@@ -44,7 +44,7 @@ func (s HealthcheckService) RegisterAdminHandlers(router *mux.Router) http.Handl
 			Description: s.config.Description,
 			Checks:      s.Checks,
 		},
-		Timeout: 10 * time.Second,
+		Timeout: 8 * time.Second,
 	}
 
 	router.HandleFunc("/__health", fthealth.Handler(&timedHC))

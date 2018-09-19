@@ -4,34 +4,27 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Financial-Times/go-logger"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/suite"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-)
 
-var (
-	server    *httptest.Server
-	personURL string
-	isFound   bool
+	"github.com/Financial-Times/go-logger"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/suite"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 type HandlerTestSuite struct {
 	suite.Suite
-	mockDriver *MockDriver
-	router     *mux.Router
-	handler    *Handler
+	router  *mux.Router
+	handler *Handler
 }
 
 func (suite *HandlerTestSuite) SetupTest() {
 	logger.InitDefaultLogger("handler-test")
 	suite.router = mux.NewRouter()
-	suite.mockDriver = &MockDriver{}
-	suite.handler = NewHandler(suite.mockDriver, 0, "http://localhost:8080")
+	suite.handler = NewHandler(0, "http://localhost:8080", http.DefaultClient)
 	suite.handler.RegisterHandlers(suite.router)
 }
 
@@ -81,12 +74,46 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 	uuid := "60e54253-1e94-38df-83b1-a39804d1ac18"
 	url := "http://localhost:8080/concepts/" + uuid
 
-	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, conceptAPICompleteResponse))
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, fmt.Sprintf(conceptAPICompleteResponseTemplate, uuid, uuid, "")))
 
-	person := Person{
+	person := getExpectedPerson(uuid, false)
+
+	req := newRequest("GET", "/people/"+uuid, "")
+	rec := httptest.NewRecorder()
+	suite.router.ServeHTTP(rec, req)
+
+	retPerson := Person{}
+	json.NewDecoder(rec.Result().Body).Decode(&retPerson)
+	suite.Equal(http.StatusOK, rec.Result().StatusCode)
+	suite.Equal(person, retPerson)
+}
+
+func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteWithDeprecatedResponse() {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	uuid := "8ec028a9-a5e7-49ae-8bd5-7cd0a57df1d6"
+	url := "http://localhost:8080/concepts/" + uuid
+
+	httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, fmt.Sprintf(conceptAPICompleteResponseTemplate, uuid, uuid, `"isDeprecated":true,`)))
+
+	person := getExpectedPerson(uuid, true)
+
+	req := newRequest("GET", "/people/"+uuid, "")
+	rec := httptest.NewRecorder()
+	suite.router.ServeHTTP(rec, req)
+
+	retPerson := Person{}
+	json.NewDecoder(rec.Result().Body).Decode(&retPerson)
+	suite.Equal(http.StatusOK, rec.Result().StatusCode)
+	suite.Equal(person, retPerson)
+}
+
+func getExpectedPerson(uuid string, isDeprecated bool) Person {
+	return Person{
 		Thing: Thing{
-			ID:        "http://api.ft.com/things/60e54253-1e94-38df-83b1-a39804d1ac18",
-			APIURL:    "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
+			ID:        fmt.Sprintf("http://api.ft.com/things/%s", uuid),
+			APIURL:    fmt.Sprintf("http://api.ft.com/people/%s", uuid),
 			PrefLabel: "Neil Cole",
 		},
 		DirectType: "http://www.ft.com/ontology/person/Person",
@@ -159,16 +186,8 @@ func (suite *HandlerTestSuite) TestGetPeople_Success_CompleteResponse() {
 		FacebookProfile: "https://www.facebook.com/financialtimes/",
 		DescriptionXML:  "foobar",
 		ImageURL:        "https://www.ft.com/__origami/service/image/v2/images/raw/fthead-v1:merryn-somerset-webb?source=next",
+		IsDeprecated:    isDeprecated,
 	}
-
-	req := newRequest("GET", "/people/"+uuid, "")
-	rec := httptest.NewRecorder()
-	suite.router.ServeHTTP(rec, req)
-
-	retPerson := Person{}
-	json.NewDecoder(rec.Result().Body).Decode(&retPerson)
-	suite.Equal(http.StatusOK, rec.Result().StatusCode)
-	suite.Equal(person, retPerson)
 }
 
 func (suite *HandlerTestSuite) TestGetPeople_NotFound() {
@@ -294,8 +313,6 @@ func (suite *HandlerTestSuite) TestGetPeople_MethodNotAllowedOnPost() {
 	rec := httptest.NewRecorder()
 	suite.router.ServeHTTP(rec, req)
 	suite.Equal(http.StatusMethodNotAllowed, rec.Result().StatusCode)
-	suite.mockDriver.AssertExpectations(suite.T())
-
 }
 
 func TestHandlersTestSuite(t *testing.T) {
@@ -319,9 +336,9 @@ type errMsg struct {
 	Message string `json:"message"`
 }
 
-var conceptAPICompleteResponse = `{
-  "id": "http://www.ft.com/thing/60e54253-1e94-38df-83b1-a39804d1ac18",
-  "apiUrl": "http://api.ft.com/people/60e54253-1e94-38df-83b1-a39804d1ac18",
+var conceptAPICompleteResponseTemplate = `{
+  "id": "http://www.ft.com/thing/%s",
+  "apiUrl": "http://api.ft.com/people/%s",
   "type": "http://www.ft.com/ontology/person/Person",
 	"prefLabel": "Neil Cole",
 	"descriptionXML": "foobar",
@@ -348,6 +365,7 @@ var conceptAPICompleteResponse = `{
 	],
   "salutation": "Mr.",
   "birthYear": 1957,
+  %s
   "relatedConcepts": [
     {
       "concept": {

@@ -37,11 +37,6 @@ spec:
         env: 
         - name: CACHE_DURATION
           value: {{ .Values.cache_duration }}
-        - name: NEO_URL 
-          valueFrom: 
-            configMapKeyRef: 
-              name: global-config 
-              key: neo4j.read.only.url
         - name: GRAPHITE_ADDRESS 
           valueFrom: 
             configMapKeyRef: 
