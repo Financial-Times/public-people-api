@@ -42,12 +42,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/cyberdelia/go-metrics-graphite"
-  packages = ["."]
-  revision = "39f87cc3b432bbb898d7c643c0e93cac2bc865ad"
-
-[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -133,6 +127,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9c84699a9013142b86173091444ef57f7c8430f6c819cf9204b97df43f9fdfff"
+  inputs-digest = "3278ebea59d0d9649ef17c42991ba860d646a8c9d35a7fa09a28165c93c66e90"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -47,10 +47,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/cyberdelia/go-metrics-graphite"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/stretchr/testify"
 
 [prune]

@@ -11,17 +11,14 @@ import (
 
 	"github.com/Financial-Times/public-people-api/people"
 
-	standardLog "log"
 	"net"
 	"os/signal"
 	"syscall"
 
 	"github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/go-logger"
-	"github.com/cyberdelia/go-metrics-graphite"
 	"github.com/gorilla/mux"
 	"github.com/jawher/mow.cli"
-	"github.com/rcrowley/go-metrics"
 )
 
 const appDescription = "This service reads people from Neo4j"
@@ -52,24 +49,6 @@ func main() {
 		Desc:   "Port to listen on",
 		EnvVar: "APP_PORT",
 	})
-	graphiteTCPAddress := app.String(cli.StringOpt{
-		Name:   "graphiteTCPAddress",
-		Value:  "",
-		Desc:   "Graphite TCP address, e.g. graphite.ft.com:2003. Leave as default if you do NOT want to output to graphite (e.g. if running locally)",
-		EnvVar: "GRAPHITE_ADDRESS",
-	})
-	graphitePrefix := app.String(cli.StringOpt{
-		Name:   "graphitePrefix",
-		Value:  "",
-		Desc:   "Prefix to use. Should start with content, include the environment, and the host name. e.g. content.test.public.content.by.concept.api.ftaps59382-law1a-eu-t",
-		EnvVar: "GRAPHITE_PREFIX",
-	})
-	logMetrics := app.Bool(cli.BoolOpt{
-		Name:   "logMetrics",
-		Value:  false,
-		Desc:   "Whether to log metrics. Set to true if running locally and you want metrics output",
-		EnvVar: "LOG_METRICS",
-	})
 	cacheDuration := app.String(cli.StringOpt{
 		Name:   "cache-duration",
 		Value:  "30s",
@@ -94,17 +73,6 @@ func main() {
 
 	app.Action = func() {
 		logger.Infof("System code: %s, App Name: %s, Port: %s", *appSystemCode, *appName, *port)
-
-		// This will send metrics to Graphite if a non-empty graphiteTCPAddress is passed in, or to the standard log if logMetrics is true.
-		// Make sure a sensible graphitePrefix that will uniquely identify your service is passed in, e.g. "content.test.people.rw.neo4j.ftaps58938-law1a-eu-t
-		if *graphiteTCPAddress != "" {
-			addr, _ := net.ResolveTCPAddr("tcp", *graphiteTCPAddress)
-			go graphite.Graphite(metrics.DefaultRegistry, 5*time.Second, *graphitePrefix, addr)
-		}
-		if *logMetrics { //useful locally
-			//messy use of the 'standard' log package here as this method takes the log struct, not an interface, so can't use logrus.Logger
-			go metrics.Log(metrics.DefaultRegistry, 60*time.Second, standardLog.New(os.Stdout, "metrics", standardLog.Lmicroseconds))
-		}
 
 		appConfig := people.HealthConfig{
 			AppName:           *appName,
