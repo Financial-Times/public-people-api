@@ -1,4 +1,4 @@
-FROM golang:1.10-alpine
+FROM golang:1.12.5-alpine
 
 ENV PROJECT=public-people-api
 COPY . /${PROJECT}-sources/
