@@ -10,7 +10,7 @@ workflows:
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1
     working_directory: /go/src/github.com/Financial-Times/public-people-api
     environment:
       CIRCLE_TEST_REPORTS: /tmp/test-results
