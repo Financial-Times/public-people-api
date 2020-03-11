@@ -18,8 +18,7 @@ Installation & running locally
 
 1. Run the tests and install the binary:
 
-        dep ensure -vendor-only
-        go test ./... -race
+        go test -race ./...
         go install
 
 2. Run the binary (using the `help` flag to see the available optional arguments):
