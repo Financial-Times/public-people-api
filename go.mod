@@ -11,7 +11,7 @@ require (
 	github.com/Financial-Times/transactionid-utils-go v0.2.0
 	github.com/davecgh/go-spew v1.1.0 // indirect
 	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f // indirect
-	github.com/gorilla/handlers v1.2.2-0.20170602151648-a4d79d4487c2
+	github.com/gorilla/handlers v1.3.0
 	github.com/gorilla/mux v1.4.1-0.20170704074345-ac112f7d75a0
 	github.com/hashicorp/go-version v0.0.0-20170202080759-03c5bf6be031 // indirect
 	github.com/jawher/mow.cli v0.0.0-20170712113824-a6088643acff
