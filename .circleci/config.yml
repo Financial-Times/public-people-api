@@ -1,50 +1,18 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: golang:1
-    working_directory: /go/src/github.com/Financial-Times/public-people-api
-    environment:
-      CIRCLE_TEST_REPORTS: /tmp/test-results
-      CIRCLE_COVERAGE_REPORT: /tmp/coverage-results
-    steps:
-        - checkout
-        - run:
-            name: Create test folder
-            command: |
-              mkdir -p ${CIRCLE_TEST_REPORTS}
-              mkdir -p ${CIRCLE_COVERAGE_REPORT}
-        - run:
-            name: External dependencies
-            command: |
-              GO111MODULE=off go get -u github.com/jstemmer/go-junit-report
-              GO111MODULE=off go get -u github.com/mattn/goveralls
-        - run:
-            name: Go build
-            command: go build -mod=readonly -v
-        - run:
-            name: Run tests and coverage
-            command: |
-                go test -mod=readonly -race -cover -coverprofile=${CIRCLE_COVERAGE_REPORT}/coverage.out ./... | go-junit-report > ${CIRCLE_TEST_REPORTS}/junit.xml
-        - run:
-            name: Upload Coverage
-            command: goveralls -coverprofile=${CIRCLE_COVERAGE_REPORT}/coverage.out -service=circle-ci -repotoken=${COVERALLS_TOKEN}
-        - store_test_results:
-            path: /tmp/test-results
-  dockerfile:
-    docker:
-      - image: docker:18.03
-    steps:
-      - checkout
-      - setup_docker_engine
-      - run:
-          name: Build Dockerfile
-          command: docker build .
+version: 2.1
+orbs:
+  ft-golang-ci: financial-times/golang-ci@1.0.0
 workflows:
-  version: 2
   test-and-build-docker:
     jobs:
-      - build
-      - dockerfile:
+      - ft-golang-ci/build-and-test:
+          name: build-and-test-project
+          golangci-lint-version: "v1.23.6"
+      - ft-golang-ci/docker-build:
+          name: build-docker-image
           requires:
-            - build
+            - build-and-test-project
+  snyk-scanning:
+    jobs:
+      - ft-golang-ci/scan:
+          name: scan-dependencies
+          context: org-global
