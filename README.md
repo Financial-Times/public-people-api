@@ -11,15 +11,14 @@ Build & deployment
 * Built by Docker Hub: [coco/public-people-api](https://hub.docker.com/r/coco/public-people-api/)
 * CI provided by CircleCI: [public-people-api](https://circleci.com/gh/Financial-Times/public-people-api)
 
-[![Coverage Status](https://coveralls.io/repos/github/Financial-Times/public-people-api/badge.svg?branch=circle-coveralls)](https://coveralls.io/github/Financial-Times/public-people-api?branch=circle-coveralls)[![CircleCI](https://circleci.com/gh/Financial-Times/public-people-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/public-people-api)
+[![Coverage Status](https://coveralls.io/repos/github/Financial-Times/public-people-api/badge.svg?branch=master)](https://coveralls.io/github/Financial-Times/public-people-api?branch=master)[![CircleCI](https://circleci.com/gh/Financial-Times/public-people-api.svg?style=svg)](https://circleci.com/gh/Financial-Times/public-people-api)
 
 Installation & running locally
 ------------------------------
 
 1. Run the tests and install the binary:
 
-        dep ensure -vendor-only
-        go test ./... -race
+        go test -race ./...
         go install
 
 2. Run the binary (using the `help` flag to see the available optional arguments):

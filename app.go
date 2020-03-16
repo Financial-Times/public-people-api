@@ -9,7 +9,7 @@ import (
 
 	"time"
 
-	"github.com/Financial-Times/public-people-api/people"
+	"github.com/Financial-Times/public-people-api/v3/people"
 
 	"net"
 	"os/signal"
@@ -18,7 +18,7 @@ import (
 	"github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/go-logger"
 	"github.com/gorilla/mux"
-	"github.com/jawher/mow.cli"
+	cli "github.com/jawher/mow.cli"
 )
 
 const appDescription = "This service reads people from Neo4j"
