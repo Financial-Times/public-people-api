@@ -1,0 +1,5 @@
+# Values used for the deployed application.
+replicaCount: 2
+service:
+  name: public-people-api
+eksCluster: true
