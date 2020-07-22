@@ -4,6 +4,7 @@
 service:
   name: "" # The name of the service, should be defined in the specific app-configs folder.
   hasHealthcheck: "true"
+eksCluster: false
 replicaCount: 2
 image:
   repository: coco/public-people-api
