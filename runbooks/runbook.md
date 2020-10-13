@@ -102,10 +102,10 @@ To rotate credentials you need to login to a particular cluster and update varni
 
 ## Monitoring
 
-Pod health:
+Service in UPP K8S delivery clusters:
 
-- <https://upp-prod-delivery-eu.upp.ft.com/__health/__pods-health?service-name=public-people-api>
-- <https://upp-prod-delivery-us.upp.ft.com/__health/__pods-health?service-name=public-people-api>
+- Delivery-Prod-EU health: <https://upp-prod-delivery-eu.upp.ft.com/__health/__pods-health?service-name=public-people-api>
+- Delivery-Prod-US health: <https://upp-prod-delivery-us.upp.ft.com/__health/__pods-health?service-name=public-people-api>
 
 ## First Line Troubleshooting
 
