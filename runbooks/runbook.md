@@ -69,7 +69,7 @@ PartiallyAutomated
 
 ## Failover Details
 
-The service is deployed in the delivery clusters as a deployment.
+The service is deployed in both Delivery clusters. The failover guide for the cluster is located here: https://github.com/Financial-Times/upp-docs/tree/master/failover-guides/delivery-cluster
 
 ## Data Recovery Process Type
 
