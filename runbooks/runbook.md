@@ -9,7 +9,7 @@ public-people-api
 
 ## Primary URL
 
-<https://github.com/Financial-Times/public-people-api>
+<https://api.ft.com/people>
 
 ## Service Tier
 
