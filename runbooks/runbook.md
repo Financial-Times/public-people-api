@@ -1,7 +1,6 @@
 # UPP - Public People Api
 
-The Public People API is a micro-service which aims to provide Person and
-related data given a Person identifier.
+The Public People API is a micro-service which aims to provide Person and related data given a Person UUID identifier.
 
 ## Code
 
