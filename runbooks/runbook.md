@@ -29,11 +29,10 @@ content
 
 ## Known About By
 
-- hristo.georgiev
-- robert.marinov
-- tsvetan.dimitrov
-- elina.kaneva
-- georgi.ivanov
+- elitsa.pavlova
+- kalin.arsov
+- ivan.nikolov
+- miroslav.gatsanoga
 
 ## Host Platform
 
@@ -51,6 +50,10 @@ No
 ## Contains Sensitive Data
 
 No
+
+## Dependencies
+
+- public-concepts-api
 
 ## Failover Architecture Type
 
