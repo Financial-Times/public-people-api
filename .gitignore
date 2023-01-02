@@ -28,3 +28,4 @@ _testmain.go
 /public-people-api
 vendor/*
 
+.git/
