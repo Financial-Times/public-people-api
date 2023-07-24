@@ -83,7 +83,6 @@ type Concept struct {
 	// AlternativeLabels contains the values of:
 	// * aliases
 	// * formerNames
-	// * hiddenLabel
 	// * legalName
 	// * properName
 	// * shortName
