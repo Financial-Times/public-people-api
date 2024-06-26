@@ -15,7 +15,7 @@ import (
 
 	fthealth "github.com/Financial-Times/go-fthealth/v1_1"
 	"github.com/Financial-Times/go-logger"
-	"github.com/Financial-Times/transactionid-utils-go"
+	transactionidutils "github.com/Financial-Times/transactionid-utils-go"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -29,6 +29,7 @@ const (
 	personUnableToBeRetrieved = "Person could not be retrieved"
 	badRequestMsg             = "Invalid UUID"
 	redirectedPerson          = "Person %s is concorded to %s; serving redirect"
+	xPolicyHeader             = "X-Policy"
 )
 
 type Handler struct {
@@ -70,7 +71,9 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	person, found, err := h.getPersonViaConceptsAPI(uuid, transId)
+	logger.Infof("Current request X-Policy header values: %s", r.Header.Get(xPolicyHeader))
+
+	person, found, err := h.getPersonViaConceptsAPI(uuid, transId, r.Header.Get(xPolicyHeader))
 	if err != nil {
 		writeJSONStatus(w, personUnableToBeRetrieved, http.StatusInternalServerError)
 		return
@@ -97,10 +100,10 @@ func (h *Handler) GetPerson(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) getPersonViaConceptsAPI(uuid, tid string) (person Person, found bool, err error) {
+func (h *Handler) getPersonViaConceptsAPI(uuid, tid, xPolicies string) (person Person, found bool, err error) {
 	var p Person
 
-	concept, err := h.getConcept(uuid, tid)
+	concept, err := h.getConcept(uuid, tid, xPolicies)
 	if err != nil {
 		if err.Error() == "Not found" {
 			return p, false, nil
@@ -118,7 +121,7 @@ func (h *Handler) getPersonViaConceptsAPI(uuid, tid string) (person Person, foun
 	return p, true, nil
 }
 
-func (h *Handler) getConcept(uuid, tid string) (concept Concept, err error) {
+func (h *Handler) getConcept(uuid, tid, xPolicies string) (concept Concept, err error) {
 	var c Concept
 
 	u, err := url.Parse(h.publicConceptsApiURL)
@@ -139,7 +142,7 @@ func (h *Handler) getConcept(uuid, tid string) (concept Concept, err error) {
 		return c, err
 	}
 	req.Header.Set("X-Request-Id", tid)
-
+	req.Header.Set(xPolicyHeader, xPolicies)
 	resp, err := h.client.Do(req)
 	if err != nil {
 		logger.WithError(err).WithTransactionID(tid).Warnf("API request failed")
